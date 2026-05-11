@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { Booking } from '../types';
+import type { Booking } from '../types';
 
 type Filter = 'ALL' | 'PENDING' | 'CONFIRMED' | 'CANCELLED';
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { Stadium } from '../types';
+import type { Stadium } from '../types';
 import { getApiError } from '../utils/apiError';
 
 type Filter = 'ALL' | 'PENDING' | 'APPROVED';

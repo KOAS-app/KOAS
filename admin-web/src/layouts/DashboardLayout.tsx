@@ -1,5 +1,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import ChangePasswordModal from '../components/ChangePasswordModal';
 
 const navItems = [
   { to: '/dashboard', label: '📊 Dashboard' },
@@ -11,6 +13,7 @@ const navItems = [
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [pwModal, setPwModal] = useState(false);
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
@@ -44,10 +47,16 @@ export default function DashboardLayout() {
           ))}
         </nav>
 
-        <div className="p-4" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <p className="text-xs truncate mb-2" style={{ color: 'var(--color-text-muted)' }}>
+        <div className="p-4 space-y-1" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <p className="text-xs truncate px-3 pb-1" style={{ color: 'var(--color-text-muted)' }}>
             {user?.email}
           </p>
+          <button
+            onClick={() => setPwModal(true)}
+            className="w-full text-sm text-left px-3 py-2 rounded text-gray-400 hover:text-white transition-colors"
+          >
+            🔑 Change Password
+          </button>
           <button
             onClick={handleLogout}
             className="w-full text-sm text-left px-3 py-2 rounded text-gray-400 hover:text-white transition-colors"
@@ -61,6 +70,8 @@ export default function DashboardLayout() {
       <main className="flex-1 overflow-y-auto p-6">
         <Outlet />
       </main>
+
+      {pwModal && <ChangePasswordModal onClose={() => setPwModal(false)} />}
     </div>
   );
 }

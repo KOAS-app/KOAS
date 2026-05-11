@@ -1,4 +1,6 @@
-export interface User {
+export type { User, Stadium, Slot, Booking };
+
+interface User {
   id: string;
   name: string;
   email: string;
@@ -6,7 +8,7 @@ export interface User {
   createdAt: string;
 }
 
-export interface Stadium {
+interface Stadium {
   id: string;
   name: string;
   location: string;
@@ -16,7 +18,7 @@ export interface Stadium {
   owner: { id: string; name: string; email: string };
 }
 
-export interface Slot {
+interface Slot {
   id: string;
   startTime: string;
   endTime: string;
@@ -24,7 +26,7 @@ export interface Slot {
   isBooked: boolean;
 }
 
-export interface Booking {
+interface Booking {
   id: string;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
   createdAt: string;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { User } from '../types';
+import type { User } from '../types';
 import { getApiError } from '../utils/apiError';
 
 type RoleFilter = 'ALL' | 'PLAYER' | 'OWNER' | 'ADMIN';

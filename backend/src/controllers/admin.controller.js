@@ -4,6 +4,7 @@ import prisma from '../config/prisma.js';
 export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
+      where: { role: { not: 'ADMIN' } },
       select: { id: true, name: true, email: true, role: true, createdAt: true },
       orderBy: { createdAt: 'desc' },
     });
