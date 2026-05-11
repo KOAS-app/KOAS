@@ -31,19 +31,60 @@ model Stadium {
   location    String
   description String?
   ownerId     String
+  isApproved  Boolean   @default(false)
   createdAt   DateTime  @default(now())
 
   owner       User      @relation(fields: [ownerId], references: [id])
   bookings    Booking[]
+  slots       Slot[]
 }
 
 model Booking {
-  id           String    @id @default(uuid())
+  id           String        @id @default(uuid())
   playerId     String
   stadiumId    String
-  bookingDate  DateTime
-  createdAt    DateTime  @default(now())
+  slotId       String        @unique
+  status       BookingStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
 
-  player       User      @relation(fields: [playerId], references: [id])
-  stadium      Stadium   @relation(fields: [stadiumId], references: [id])
+  player       User          @relation(fields: [playerId], references: [id])
+  stadium      Stadium       @relation(fields: [stadiumId], references: [id])
+  slot         Slot          @relation(fields: [slotId], references: [id])
+  payment      Payment?
+}
+
+model Slot {
+  id          String      @id @default(uuid())
+  stadiumId   String
+  startTime   DateTime
+  endTime     DateTime
+  price       Float
+  isBooked    Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+
+  stadium     Stadium     @relation(fields: [stadiumId], references: [id])
+  booking     Booking?
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  bookingId   String        @unique
+  amount      Float
+  method      String        @default("CASH")
+  status      PaymentStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+
+  booking     Booking       @relation(fields: [bookingId], references: [id])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
 }
