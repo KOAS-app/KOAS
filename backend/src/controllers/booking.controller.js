@@ -17,7 +17,7 @@ export const createBooking = async (req, res) => {
         data: { isBooked: true },
       });
 
-      return tx.booking.create({
+      const newBooking = await tx.booking.create({
         data: {
           playerId: req.user.id,
           stadiumId: slot.stadiumId,
@@ -25,6 +25,18 @@ export const createBooking = async (req, res) => {
         },
         include: { slot: true, stadium: true },
       });
+
+      // Create a pending cash payment placeholder
+      await tx.payment.create({
+        data: {
+          bookingId: newBooking.id,
+          amount: slot.price,
+          method: 'CASH',
+          status: 'PENDING',
+        },
+      });
+
+      return newBooking;
     });
 
     res.status(201).json(booking);
@@ -62,7 +74,11 @@ export const getStadiumBookings = async (req, res) => {
 
     const bookings = await prisma.booking.findMany({
       where: { stadiumId: req.params.stadiumId },
-      include: { slot: true, player: { select: { id: true, name: true, email: true } } },
+      include: {
+        slot: true,
+        player: { select: { id: true, name: true, email: true } },
+        payment: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
 

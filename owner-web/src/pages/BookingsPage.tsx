@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { Booking } from '../types';
+import type { Booking } from '../types';
 import { getApiError } from '../utils/apiError';
 
 type Filter = 'ALL' | 'PENDING' | 'CONFIRMED' | 'CANCELLED';
 
 const fmt = (iso: string) =>
   new Date(iso).toLocaleString([], {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    weekday: 'short', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
   });
 
-const statusStyle: Record<string, string> = {
+const bookingStatusStyle: Record<string, string> = {
   PENDING:   'badge-warning',
   CONFIRMED: 'badge-success',
   CANCELLED: 'badge-danger',
+};
+
+const paymentStatusStyle: Record<string, string> = {
+  PENDING: 'badge-warning',
+  PAID:    'badge-success',
+  FAILED:  'badge-danger',
 };
 
 export default function BookingsPage() {
@@ -44,7 +47,7 @@ export default function BookingsPage() {
 
   useEffect(() => { fetchBookings(); }, [stadiumId]);
 
-  const handleAction = async (bookingId: string, action: 'confirm' | 'owner-cancel') => {
+  const handleBookingAction = async (bookingId: string, action: 'confirm' | 'owner-cancel') => {
     setActionLoading(bookingId);
     try {
       const res = await api.patch(`/bookings/${bookingId}/${action}`);
@@ -58,21 +61,40 @@ export default function BookingsPage() {
     }
   };
 
+  const handleMarkPaid = async (paymentId: string, bookingId: string) => {
+    setActionLoading(bookingId);
+    try {
+      const res = await api.patch(`/payments/${paymentId}/mark-paid`);
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.id === bookingId && b.payment
+            ? { ...b, payment: { ...b.payment, status: res.data.status } }
+            : b
+        )
+      );
+    } catch (err) {
+      alert(getApiError(err, 'Failed to mark as paid.'));
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const filtered = filter === 'ALL' ? bookings : bookings.filter((b) => b.status === filter);
 
-  // Summary counts
   const counts = bookings.reduce<Record<string, number>>(
-    (acc, b) => { acc[b.status] = (acc[b.status] ?? 0) + 1; return acc; },
-    {}
+    (acc, b) => { acc[b.status] = (acc[b.status] ?? 0) + 1; return acc; }, {}
+  );
+
+  // Revenue: sum of paid payments
+  const revenue = bookings.reduce((sum, b) =>
+    b.payment?.status === 'PAID' ? sum + b.payment.amount : sum, 0
   );
 
   return (
     <div>
       {/* Back + title */}
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate('/stadiums')} className="btn btn-ghost text-sm">
-          ← Back
-        </button>
+        <button onClick={() => navigate('/stadiums')} className="btn btn-ghost text-sm">← Back</button>
         <h1 className="page-title mb-0">Bookings</h1>
       </div>
 
@@ -85,17 +107,21 @@ export default function BookingsPage() {
 
       {/* Summary cards */}
       {!loading && (
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-4 gap-3 mb-6">
           {(['PENDING', 'CONFIRMED', 'CANCELLED'] as Filter[]).map((s) => (
             <div key={s} className="card text-center py-4">
               <p className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>
                 {counts[s] ?? 0}
               </p>
-              <p className="text-xs mt-1 font-medium" style={{ color: 'var(--color-text-muted)' }}>
-                {s}
-              </p>
+              <p className="text-xs mt-1 font-medium" style={{ color: 'var(--color-text-muted)' }}>{s}</p>
             </div>
           ))}
+          <div className="card text-center py-4">
+            <p className="text-2xl font-bold" style={{ color: 'var(--color-accent)' }}>
+              {revenue.toLocaleString()}
+            </p>
+            <p className="text-xs mt-1 font-medium" style={{ color: 'var(--color-text-muted)' }}>ETB Collected</p>
+          </div>
         </div>
       )}
 
@@ -103,25 +129,20 @@ export default function BookingsPage() {
       <div className="flex gap-1 mb-5 p-1 rounded-lg w-fit"
         style={{ backgroundColor: 'var(--color-surface-muted)' }}>
         {(['ALL', 'PENDING', 'CONFIRMED', 'CANCELLED'] as Filter[]).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
+          <button key={f} onClick={() => setFilter(f)}
             className="text-sm px-3 py-1.5 rounded-md font-medium transition-colors"
             style={{
               backgroundColor: filter === f ? 'var(--color-surface-card)' : 'transparent',
               color: filter === f ? 'var(--color-primary)' : 'var(--color-text-muted)',
               boxShadow: filter === f ? 'var(--shadow-card)' : 'none',
-            }}
-          >
+            }}>
             {f}
           </button>
         ))}
       </div>
 
-      {/* Loading */}
       {loading && <p style={{ color: 'var(--color-text-muted)' }}>Loading bookings...</p>}
 
-      {/* Empty */}
       {!loading && filtered.length === 0 && (
         <div className="card text-center py-12">
           <p className="text-3xl mb-2">📋</p>
@@ -131,18 +152,14 @@ export default function BookingsPage() {
         </div>
       )}
 
-      {/* Bookings list */}
       {!loading && filtered.length > 0 && (
         <div className="card p-0 overflow-hidden">
           {filtered.map((booking, i) => (
-            <div
-              key={booking.id}
+            <div key={booking.id}
               className="flex items-center justify-between px-5 py-4 gap-4"
-              style={{
-                borderBottom: i < filtered.length - 1 ? '1px solid var(--color-border)' : 'none',
-              }}
-            >
-              {/* Player info */}
+              style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
+
+              {/* Player */}
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate" style={{ color: 'var(--color-text-base)' }}>
                   {booking.player.name}
@@ -163,39 +180,49 @@ export default function BookingsPage() {
                 {booking.slot.price.toLocaleString()} ETB
               </p>
 
-              {/* Status badge */}
-              <span className={`badge ${statusStyle[booking.status]}`}>
+              {/* Booking status */}
+              <span className={`badge ${bookingStatusStyle[booking.status]}`}>
                 {booking.status}
               </span>
+
+              {/* Payment status */}
+              {booking.payment && (
+                <span className={`badge ${paymentStatusStyle[booking.payment.status]}`}>
+                  💵 {booking.payment.status}
+                </span>
+              )}
 
               {/* Actions */}
               <div className="flex gap-2">
                 {booking.status === 'PENDING' && (
                   <>
-                    <button
-                      className="btn btn-accent text-xs"
+                    <button className="btn btn-accent text-xs"
                       disabled={actionLoading === booking.id}
-                      onClick={() => handleAction(booking.id, 'confirm')}
-                    >
+                      onClick={() => handleBookingAction(booking.id, 'confirm')}>
                       ✓ Confirm
                     </button>
-                    <button
-                      className="btn btn-danger text-xs"
+                    <button className="btn btn-danger text-xs"
                       disabled={actionLoading === booking.id}
-                      onClick={() => handleAction(booking.id, 'owner-cancel')}
-                    >
+                      onClick={() => handleBookingAction(booking.id, 'owner-cancel')}>
                       ✕ Cancel
                     </button>
                   </>
                 )}
                 {booking.status === 'CONFIRMED' && (
-                  <button
-                    className="btn btn-ghost text-xs"
-                    disabled={actionLoading === booking.id}
-                    onClick={() => handleAction(booking.id, 'owner-cancel')}
-                  >
-                    Cancel
-                  </button>
+                  <>
+                    {booking.payment?.status === 'PENDING' && (
+                      <button className="btn btn-primary text-xs"
+                        disabled={actionLoading === booking.id}
+                        onClick={() => handleMarkPaid(booking.payment!.id, booking.id)}>
+                        💵 Mark Paid
+                      </button>
+                    )}
+                    <button className="btn btn-ghost text-xs"
+                      disabled={actionLoading === booking.id}
+                      onClick={() => handleBookingAction(booking.id, 'owner-cancel')}>
+                      Cancel
+                    </button>
+                  </>
                 )}
               </div>
             </div>
