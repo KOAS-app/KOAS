@@ -49,8 +49,13 @@ export default function StadiumsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="page-title mb-0">My Stadiums</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="page-title mb-2">My Stadiums</h1>
+          <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+            Manage your stadium listings and bookings
+          </p>
+        </div>
         <button
           className="btn btn-primary"
           onClick={() => { setEditing(null); setModalOpen(true); }}
@@ -61,26 +66,31 @@ export default function StadiumsPage() {
 
       {/* Error */}
       {error && (
-        <div className="text-sm px-3 py-2 rounded mb-4"
-          style={{ backgroundColor: '#FEE2E2', color: 'var(--color-danger)' }}>
+        <div className="text-sm px-4 py-3 rounded-lg mb-5"
+          style={{ 
+            backgroundColor: 'var(--color-danger-bg)', 
+            color: 'var(--color-danger)',
+            border: '1px solid #FECACA'
+          }}>
           {error}
         </div>
       )}
 
       {/* Loading */}
       {loading && (
-        <p style={{ color: 'var(--color-text-muted)' }}>Loading...</p>
+        <div className="flex items-center gap-3">
+          <div className="loading-spinner"></div>
+          <p style={{ color: 'var(--color-text-muted)' }}>Loading stadiums...</p>
+        </div>
       )}
 
       {/* Empty */}
       {!loading && stadiums.length === 0 && (
-        <div className="card text-center py-12">
-          <p className="text-4xl mb-3">🏟️</p>
-          <p className="font-medium" style={{ color: 'var(--color-text-base)' }}>
-            No stadiums yet
-          </p>
-          <p className="text-sm mt-1 mb-4" style={{ color: 'var(--color-text-muted)' }}>
-            Add your first stadium to get started
+        <div className="card empty-state">
+          <p className="empty-state-icon">🏟️</p>
+          <p className="empty-state-title">No stadiums yet</p>
+          <p className="empty-state-description">
+            Add your first stadium to start accepting bookings
           </p>
           <button
             className="btn btn-primary"
@@ -93,53 +103,54 @@ export default function StadiumsPage() {
 
       {/* Stadium grid */}
       {!loading && stadiums.length > 0 && (
-        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
           {stadiums.map((stadium) => (
-            <div key={stadium.id} className="card flex flex-col gap-3">
+            <div key={stadium.id} className="card flex flex-col gap-4">
               {/* Top row */}
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h2 className="font-semibold text-base" style={{ color: 'var(--color-text-base)' }}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h2 className="font-bold text-lg mb-1 truncate" style={{ color: 'var(--color-text-base)' }}>
                     {stadium.name}
                   </h2>
-                  <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-                    📍 {stadium.location}
+                  <p className="text-sm flex items-center gap-1" style={{ color: 'var(--color-text-muted)' }}>
+                    <span>📍</span>
+                    <span className="truncate">{stadium.location}</span>
                   </p>
                 </div>
                 <span className={`badge ${stadium.isApproved ? 'badge-success' : 'badge-warning'}`}>
-                  {stadium.isApproved ? 'Approved' : 'Pending'}
+                  {stadium.isApproved ? '✓ Approved' : '⏳ Pending'}
                 </span>
               </div>
 
               {/* Description */}
               {stadium.description && (
-                <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                <p className="text-sm line-clamp-2" style={{ color: 'var(--color-text-secondary)' }}>
                   {stadium.description}
                 </p>
               )}
 
               {/* Actions */}
-              <div className="flex gap-2 mt-auto pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+              <div className="flex gap-2 pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
                 <button
-                  className="btn btn-ghost text-xs flex-1"
+                  className="btn btn-ghost btn-sm flex-1"
                   onClick={() => navigate(`/stadiums/${stadium.id}/slots`)}
                 >
                   🕐 Slots
                 </button>
                 <button
-                  className="btn btn-ghost text-xs flex-1"
+                  className="btn btn-ghost btn-sm flex-1"
                   onClick={() => navigate(`/stadiums/${stadium.id}/bookings`)}
                 >
                   📋 Bookings
                 </button>
                 <button
-                  className="btn btn-ghost text-xs"
+                  className="btn btn-ghost btn-sm"
                   onClick={() => { setEditing(stadium); setModalOpen(true); }}
                 >
                   ✏️
                 </button>
                 <button
-                  className="btn btn-danger text-xs"
+                  className="btn btn-danger btn-sm"
                   onClick={() => handleDelete(stadium.id)}
                 >
                   🗑️

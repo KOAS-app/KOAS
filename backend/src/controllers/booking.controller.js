@@ -5,13 +5,14 @@ export const createBooking = async (req, res) => {
   try {
     const { slotId } = req.body;
 
-    const slot = await prisma.slot.findUnique({ where: { id: slotId } });
-
-    if (!slot) return res.status(404).json({ message: 'Slot not found' });
-    if (slot.isBooked) return res.status(400).json({ message: 'Slot already booked' });
-
-    // Use a transaction to book slot + create booking atomically
+    // Use a transaction to prevent race conditions —
+    // check + update happen atomically
     const booking = await prisma.$transaction(async (tx) => {
+      const slot = await tx.slot.findUnique({ where: { id: slotId } });
+
+      if (!slot) throw Object.assign(new Error('Slot not found'), { status: 404 });
+      if (slot.isBooked) throw Object.assign(new Error('Slot already booked'), { status: 400 });
+
       await tx.slot.update({
         where: { id: slotId },
         data: { isBooked: true },
@@ -41,7 +42,8 @@ export const createBooking = async (req, res) => {
 
     res.status(201).json(booking);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    const status = err.status ?? 500;
+    res.status(status).json({ message: err.message });
   }
 };
 

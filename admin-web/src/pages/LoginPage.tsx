@@ -20,56 +20,93 @@ export default function LoginPage() {
       const res = await api.post('/auth/login', { email, password });
       const { user, token } = res.data;
       if (user.role !== 'ADMIN') {
-        setError('Access denied. This portal is for admins only.');
+        setError('Access denied. This portal is for administrators only.');
         return;
       }
       login(user, token);
       navigate('/dashboard');
     } catch (err) {
-      setError(getApiError(err, 'Login failed.'));
+      setError(getApiError(err, 'Invalid credentials. Please try again.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: 'var(--color-surface)' }}>
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-black tracking-tight" style={{ color: 'var(--color-primary)' }}>
-            KO<span style={{ color: 'var(--color-accent)' }}>A</span>S
+    <div className="auth-container">
+      <div className="auth-wrapper">
+        {/* Logo */}
+        <div className="auth-logo">
+          <h1 className="auth-logo-text">
+            KO<span className="auth-logo-accent">A</span>S
           </h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>Admin Dashboard</p>
+          <p className="auth-logo-subtitle">Admin Dashboard</p>
         </div>
 
-        <div className="card">
-          <h2 className="text-lg font-semibold mb-5" style={{ color: 'var(--color-text-base)' }}>
-            Admin Sign In
-          </h2>
+        {/* Card */}
+        <div className="auth-card">
+          <h2 className="auth-card-title">Admin Access</h2>
 
           {error && (
-            <div className="text-sm px-3 py-2 rounded mb-4"
-              style={{ backgroundColor: '#FEE2E2', color: 'var(--color-danger)' }}>
+            <div className="auth-error">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="label">Email</label>
-              <input type="email" className="input" placeholder="admin@koas.com"
-                value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="auth-input-group">
+              <label className="auth-label">Email</label>
+              <input 
+                type="email" 
+                className="auth-input" 
+                placeholder="admin@koas.com"
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+                autoFocus
+                disabled={loading}
+              />
             </div>
-            <div>
-              <label className="label">Password</label>
-              <input type="password" className="input" placeholder="••••••••"
-                value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <div className="auth-input-group">
+              <label className="auth-label">Password</label>
+              <input 
+                type="password" 
+                className="auth-input" 
+                placeholder="Enter your password"
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required
+                disabled={loading}
+              />
             </div>
-            <button type="submit" className="btn btn-primary w-full mt-2" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign In'}
+            <button 
+              type="submit" 
+              className="auth-btn" 
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="auth-btn-content">
+                  <div className="auth-spinner"></div>
+                  Signing in...
+                </span>
+              ) : (
+                'Sign In'
+              )}
             </button>
           </form>
+        </div>
+
+        {/* Footer */}
+        <div className="auth-footer">
+          <p className="auth-footer-text">
+            Secure access · Platform administration
+          </p>
+          <div className="auth-trust-badge">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 1L7.5 4.5L11 6L7.5 7.5L6 11L4.5 7.5L1 6L4.5 4.5L6 1Z" fill="currentColor"/>
+            </svg>
+            Protected by encryption
+          </div>
         </div>
       </div>
     </div>

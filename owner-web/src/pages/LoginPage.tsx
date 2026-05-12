@@ -23,94 +23,105 @@ export default function LoginPage() {
       const { user, token } = res.data;
 
       if (user.role !== 'OWNER') {
-        setError('Access denied. This portal is for owners only.');
+        setError('Access denied. This portal is for stadium owners only.');
         return;
       }
 
       login(user, token);
       navigate('/stadiums');
     } catch (err: unknown) {
-      setError(getApiError(err, 'Login failed. Please try again.'));
+      setError(getApiError(err, 'Invalid credentials. Please try again.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: 'var(--color-surface)' }}
-    >
-      <div className="w-full max-w-sm">
+    <div className="auth-container">
+      <div className="auth-wrapper">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-black tracking-tight" style={{ color: 'var(--color-primary)' }}>
-            KO<span style={{ color: 'var(--color-accent)' }}>A</span>S
+        <div className="auth-logo">
+          <h1 className="auth-logo-text">
+            KO<span className="auth-logo-accent">A</span>S
           </h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
-            Book. Play. Enjoy.
-          </p>
+          <p className="auth-logo-subtitle">Owner Dashboard</p>
         </div>
 
-        <div className="card">
-          <h2 className="text-lg font-semibold mb-5" style={{ color: 'var(--color-text-base)' }}>
-            Owner Sign In
-          </h2>
+        {/* Card */}
+        <div className="auth-card">
+          <h2 className="auth-card-title">Welcome back</h2>
 
           {error && (
-            <div
-              className="text-sm px-3 py-2 rounded mb-4"
-              style={{ backgroundColor: '#FEE2E2', color: 'var(--color-danger)' }}
-            >
+            <div className="auth-error">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="label">Email</label>
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="auth-input-group">
+              <label className="auth-label">Email</label>
               <input
                 type="email"
-                className="input"
+                className="auth-input"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoFocus
+                disabled={loading}
               />
             </div>
 
-            <div>
-              <label className="label">Password</label>
+            <div className="auth-input-group">
+              <label className="auth-label">Password</label>
               <input
                 type="password"
-                className="input"
-                placeholder="••••••••"
+                className="auth-input"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary w-full mt-2"
+              className="auth-btn"
               disabled={loading}
             >
-              {loading ? 'Signing in…' : 'Sign In'}
+              {loading ? (
+                <span className="auth-btn-content">
+                  <div className="auth-spinner"></div>
+                  Signing in...
+                </span>
+              ) : (
+                'Sign In'
+              )}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-4" style={{ color: 'var(--color-text-muted)' }}>
-            Don't have an account?{' '}
-            <Link
-              to="/register"
-              className="font-medium"
-              style={{ color: 'var(--color-accent)' }}
-            >
-              Register
-            </Link>
+          <div className="auth-link-container">
+            <p className="auth-link-text">
+              Don't have an account?{' '}
+              <Link to="/register" className="auth-link">
+                Create account
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="auth-footer">
+          <p className="auth-footer-text">
+            Secure access · Manage your stadiums
           </p>
+          <div className="auth-trust-badge">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 0L7.854 4.146L12 6L7.854 7.854L6 12L4.146 7.854L0 6L4.146 4.146L6 0Z" fill="currentColor"/>
+            </svg>
+            Trusted by stadium owners
+          </div>
         </div>
       </div>
     </div>

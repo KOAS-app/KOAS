@@ -20,6 +20,11 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
+    if (form.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     if (form.password !== form.confirm) {
       setError('Passwords do not match.');
       return;
@@ -46,108 +51,115 @@ export default function RegisterPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: 'var(--color-surface)' }}
-    >
-      <div className="w-full max-w-sm">
+    <div className="auth-container">
+      <div className="auth-wrapper">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-black tracking-tight" style={{ color: 'var(--color-primary)' }}>
-            KO<span style={{ color: 'var(--color-accent)' }}>A</span>S
+        <div className="auth-logo">
+          <h1 className="auth-logo-text">
+            KO<span className="auth-logo-accent">A</span>S
           </h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
-            Book. Play. Enjoy.
-          </p>
+          <p className="auth-logo-subtitle">Owner Dashboard</p>
         </div>
 
-        <div className="card">
-          <h2 className="text-lg font-semibold mb-5" style={{ color: 'var(--color-text-base)' }}>
-            Create Owner Account
-          </h2>
+        {/* Card */}
+        <div className="auth-card">
+          <h2 className="auth-card-title">Create your account</h2>
 
           {error && (
-            <div
-              className="text-sm px-3 py-2 rounded mb-4"
-              style={{ backgroundColor: '#FEE2E2', color: 'var(--color-danger)' }}
-            >
+            <div className="auth-error">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="label">Full Name</label>
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="auth-input-group">
+              <label className="auth-label">Full Name</label>
               <input
                 name="name"
                 type="text"
-                className="input"
+                className="auth-input"
                 placeholder="John Doe"
                 value={form.name}
                 onChange={handleChange}
                 required
                 autoFocus
+                disabled={loading}
               />
             </div>
 
-            <div>
-              <label className="label">Email</label>
+            <div className="auth-input-group">
+              <label className="auth-label">Email</label>
               <input
                 name="email"
                 type="email"
-                className="input"
+                className="auth-input"
                 placeholder="you@example.com"
                 value={form.email}
                 onChange={handleChange}
                 required
+                disabled={loading}
               />
             </div>
 
-            <div>
-              <label className="label">Password</label>
+            <div className="auth-input-group">
+              <label className="auth-label">Password</label>
               <input
                 name="password"
                 type="password"
-                className="input"
-                placeholder="••••••••"
+                className="auth-input"
+                placeholder="At least 6 characters"
                 value={form.password}
                 onChange={handleChange}
                 required
                 minLength={6}
+                disabled={loading}
               />
             </div>
 
-            <div>
-              <label className="label">Confirm Password</label>
+            <div className="auth-input-group">
+              <label className="auth-label">Confirm Password</label>
               <input
                 name="confirm"
                 type="password"
-                className="input"
-                placeholder="••••••••"
+                className="auth-input"
+                placeholder="Re-enter your password"
                 value={form.confirm}
                 onChange={handleChange}
                 required
+                disabled={loading}
               />
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary w-full mt-2"
+              className="auth-btn"
               disabled={loading}
             >
-              {loading ? 'Creating account…' : 'Create Account'}
+              {loading ? (
+                <span className="auth-btn-content">
+                  <div className="auth-spinner"></div>
+                  Creating account...
+                </span>
+              ) : (
+                'Create Account'
+              )}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-4" style={{ color: 'var(--color-text-muted)' }}>
-            Already have an account?{' '}
-            <Link
-              to="/login"
-              className="font-medium"
-              style={{ color: 'var(--color-accent)' }}
-            >
-              Sign In
-            </Link>
+          <div className="auth-link-container">
+            <p className="auth-link-text">
+              Already have an account?{' '}
+              <Link to="/login" className="auth-link">
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="auth-footer">
+          <p className="auth-footer-text">
+            By creating an account, you agree to our Terms of Service
           </p>
         </div>
       </div>

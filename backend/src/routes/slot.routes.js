@@ -6,12 +6,17 @@ import {
   deleteSlot,
 } from '../controllers/slot.controller.js';
 import { authenticate, authorizeRoles } from '../middlewares/auth.middleware.js';
+import { validate } from '../middlewares/validate.js';
+import { createSlotSchema, bulkSlotSchema } from '../validators/slot.validators.js';
 
 const router = express.Router();
 
-router.get('/:stadiumId', authenticate, authorizeRoles('OWNER'), getSlotsByStadium);
-router.post('/', authenticate, authorizeRoles('OWNER'), createSlot);
-router.post('/bulk', authenticate, authorizeRoles('OWNER'), bulkCreateSlots);
+// Players and owners can view slots
+router.get('/:stadiumId', authenticate, getSlotsByStadium);
+
+// Only owners can create/delete slots
+router.post('/', authenticate, authorizeRoles('OWNER'), validate(createSlotSchema), createSlot);
+router.post('/bulk', authenticate, authorizeRoles('OWNER'), validate(bulkSlotSchema), bulkCreateSlots);
 router.delete('/:id', authenticate, authorizeRoles('OWNER'), deleteSlot);
 
 export default router;

@@ -65,9 +65,10 @@ export const updateStadium = async (req, res) => {
       return res.status(403).json({ message: 'Not your stadium' });
     }
 
+    const { name, location, description } = req.body;
     const updated = await prisma.stadium.update({
       where: { id: req.params.id },
-      data: req.body,
+      data: { name, location, description },
     });
 
     res.json(updated);
