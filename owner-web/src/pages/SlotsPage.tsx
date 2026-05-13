@@ -113,10 +113,10 @@ export default function SlotsPage() {
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`flex-1 py-1.5 rounded-lg border-none cursor-pointer text-[0.8125rem] font-semibold transition-all ${
+                  className={`flex-1 py-2 rounded-lg border-none cursor-pointer text-[0.8125rem] font-bold transition-all ${
                     tab === t
-                      ? 'bg-[var(--color-surface-card)] text-[var(--color-primary)] shadow-[var(--shadow-xs)]'
-                      : 'bg-transparent text-[var(--color-text-muted)]'
+                      ? 'bg-[var(--color-surface-card)] text-[var(--color-primary)] shadow-sm'
+                      : 'bg-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
                   }`}
                 >
                   {t === 'bulk' ? '⚡ Bulk Generate' : '+ Single Slot'}
@@ -302,26 +302,30 @@ export default function SlotsPage() {
               </div>
 
               {/* Slot items */}
-              <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] shadow-sm overflow-hidden">
+              <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden">
                 {daySlots.map((slot, i) => (
                   <div
                     key={slot.id}
-                    className={`flex items-center justify-between px-5 py-3.5 transition-all ${
+                    className={`flex items-center justify-between px-5 py-3.5 transition-all hover:bg-[var(--color-surface-muted)] ${
                       i < daySlots.length - 1 ? 'border-b border-[var(--color-border)]' : ''
-                    } ${slot.isBooked ? 'bg-[var(--color-surface-muted)] opacity-70' : 'bg-transparent'}`}
+                    } ${slot.isBooked ? 'bg-[var(--color-surface-muted)] opacity-75' : 'bg-transparent'}`}
                   >
                     {/* Status dot + time */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3.5">
                       <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                         slot.isBooked 
                           ? 'bg-[var(--color-danger)]' 
-                          : 'bg-[var(--color-success)] shadow-[0_0_5px_var(--color-success)]'
+                          : 'bg-[var(--color-success)] shadow-[0_0_6px_var(--color-success)]'
                       }`} />
                       <div>
-                        <span className="text-[0.9375rem] font-semibold text-[var(--color-text-base)]">
+                        <span className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight">
                           {fmt(slot.startTime)} – {fmt(slot.endTime)}
                         </span>
-                        <span className="ml-2.5 text-xs text-[var(--color-text-muted)] font-medium">
+                        <span className={`ml-3 px-2 py-0.5 rounded-md text-[0.6875rem] font-bold tracking-wide ${
+                          slot.isBooked 
+                            ? 'bg-[var(--color-danger-bg)] text-[var(--color-danger)] border border-[#fecaca]' 
+                            : 'bg-[var(--color-success-bg)] text-[var(--color-success)] border border-[#bbf7d0]'
+                        }`}>
                           {slot.isBooked ? 'Reserved' : 'Available'}
                         </span>
                       </div>
@@ -329,16 +333,21 @@ export default function SlotsPage() {
 
                     {/* Price + delete */}
                     <div className="flex items-center gap-4">
-                      <span className="text-[0.9375rem] font-bold text-[var(--color-primary)] tracking-tight">
-                        {slot.price.toLocaleString()} <span className="text-xs font-medium text-[var(--color-text-muted)]">ETB</span>
-                      </span>
+                      <div className="text-right">
+                        <span className="text-[1rem] font-black text-[var(--color-primary)] tracking-tight">
+                          {slot.price.toLocaleString()}
+                        </span>
+                        <span className="text-[0.6875rem] font-bold text-[var(--color-text-muted)] uppercase tracking-wide ml-1.5">
+                          ETB
+                        </span>
+                      </div>
                       {!slot.isBooked && (
                         <button
                           onClick={() => handleDelete(slot.id)}
                           title="Delete slot"
-                          className="w-7 h-7 rounded-lg border border-[var(--color-border)] bg-transparent flex items-center justify-center text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
+                          className="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-transparent flex items-center justify-center text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
                         >
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="3 6 5 6 21 6" />
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                           </svg>

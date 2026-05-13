@@ -9,7 +9,7 @@ const NAV = [
     to: '/stadiums',
     label: 'Stadiums',
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
         <polyline points="9 22 9 12 15 12 15 22" />
       </svg>
@@ -39,40 +39,32 @@ export default function DashboardLayout() {
   const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--color-surface)' }}>
+    <div className="flex h-screen overflow-hidden bg-[var(--color-surface)]">
 
       {/* ══════════════════════════════════════════════════════
           SIDEBAR
       ══════════════════════════════════════════════════════ */}
-      <aside style={{
-        width: sidebarExpanded ? '240px' : '64px',
-        flexShrink: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'linear-gradient(180deg, #0c1a12 0%, #0f1e15 100%)',
-        borderRight: '1px solid rgba(22,163,74,.1)',
-        transition: 'width 220ms cubic-bezier(.4,0,.2,1)',
-        overflow: 'hidden',
-        position: 'relative',
-        zIndex: 20,
-      }}>
+      <aside 
+        className="flex-shrink-0 flex flex-col bg-gradient-to-b from-[#0c1a12] to-[#0f1e15] border-r border-[rgba(22,163,74,.1)] transition-[width] duration-[220ms] ease-[cubic-bezier(.4,0,.2,1)] overflow-hidden relative z-20"
+        style={{ width: sidebarExpanded ? '240px' : '64px' }}
+      >
 
         {/* Brand */}
-        <div style={{
-          display: 'flex', alignItems: 'center',
-          padding: sidebarExpanded ? '1.375rem 1.25rem 1.125rem' : '1.375rem 0 1.125rem',
-          justifyContent: sidebarExpanded ? 'space-between' : 'center',
-          borderBottom: '1px solid rgba(255,255,255,.04)',
-          flexShrink: 0,
-        }}>
+        <div 
+          className={`flex items-center flex-shrink-0 border-b border-white/[0.04] ${
+            sidebarExpanded 
+              ? 'justify-between px-5 pt-[1.375rem] pb-[1.125rem]' 
+              : 'justify-center pt-[1.375rem] pb-[1.125rem]'
+          }`}
+        >
           {sidebarExpanded ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="flex items-center gap-2">
               <LogoMark />
               <div>
-                <p style={{ fontSize: '1.125rem', fontWeight: 900, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1 }}>
-                  KO<span style={{ color: '#4ade80' }}>A</span>S
+                <p className="text-[1.125rem] font-black tracking-[-0.04em] text-white leading-none">
+                  KO<span className="text-[#4ade80]">A</span>S
                 </p>
-                <p style={{ fontSize: '0.5625rem', fontWeight: 800, color: 'rgba(74,222,128,.7)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '1px' }}>
+                <p className="text-[0.5625rem] font-extrabold text-[rgba(74,222,128,.7)] uppercase tracking-[0.1em] mt-px">
                   Owner Portal
                 </p>
               </div>
@@ -84,81 +76,80 @@ export default function DashboardLayout() {
           {/* Collapse toggle */}
           <button
             onClick={() => setSidebarExpanded(p => !p)}
-            style={{
-              width: '26px', height: '26px', borderRadius: '6px',
-              background: 'rgba(255,255,255,.04)',
-              border: '1px solid rgba(255,255,255,.08)',
-              cursor: 'pointer', color: 'rgba(255,255,255,.4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0, transition: 'all 150ms',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,.08)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = ''; (e.currentTarget as HTMLElement).style.background = ''; }}
+            className="w-[26px] h-[26px] rounded-md bg-white/[0.04] border border-white/[0.08] flex items-center justify-center flex-shrink-0 text-white/40 transition-all duration-150 hover:text-white hover:bg-white/[0.08]"
             title={sidebarExpanded ? 'Collapse' : 'Expand'}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-              style={{ transform: sidebarExpanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 220ms' }}>
+            <svg 
+              width="12" 
+              height="12" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              className="transition-transform duration-[220ms]"
+              style={{ transform: sidebarExpanded ? 'rotate(0deg)' : 'rotate(180deg)' }}
+            >
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
         </div>
 
         {/* Nav */}
-        <nav style={{ flex: 1, padding: '0.875rem 0.625rem', overflow: 'hidden' }}>
+        <nav className="flex-1 py-3.5 px-2.5 overflow-hidden">
           {sidebarExpanded && (
-            <p style={{ fontSize: '0.5625rem', fontWeight: 800, color: 'rgba(255,255,255,.25)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 0.625rem 0.5rem' }}>
+            <p className="text-[0.5625rem] font-extrabold text-white/25 uppercase tracking-[0.1em] px-2.5 pb-2">
               Management
             </p>
           )}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <div className="flex flex-col gap-0.5">
             {NAV.map(({ to, label, icon }) => (
               <NavLink
                 key={to}
                 to={to}
                 title={!sidebarExpanded ? label : undefined}
-                className={({ isActive }) => `sidebar-item${isActive ? ' sidebar-item-active' : ''}`}
-                style={{
-                  justifyContent: sidebarExpanded ? 'flex-start' : 'center',
-                  padding: sidebarExpanded ? '0.5625rem 0.75rem' : '0.5625rem',
-                  borderRadius: '8px',
-                }}
+                className={({ isActive }) => 
+                  `flex items-center gap-2.5 rounded-lg transition-all duration-150 ${
+                    sidebarExpanded ? 'px-3 py-[0.5625rem]' : 'justify-center py-[0.5625rem]'
+                  } ${
+                    isActive 
+                      ? 'bg-[rgba(22,163,74,.15)] border border-[rgba(22,163,74,.25)] text-[#4ade80] shadow-[0_0_12px_rgba(22,163,74,.15)]' 
+                      : 'border border-transparent text-white/50 hover:text-white/90 hover:bg-white/[0.05]'
+                  }`
+                }
               >
-                <span className="sidebar-item-icon" style={{ flexShrink: 0 }}>{icon}</span>
-                {sidebarExpanded && <span className="sidebar-item-label">{label}</span>}
+                <span className="flex-shrink-0">{icon}</span>
+                {sidebarExpanded && <span className="text-[0.8125rem] font-semibold tracking-tight">{label}</span>}
               </NavLink>
             ))}
           </div>
         </nav>
 
         {/* Footer */}
-        <div style={{ padding: '0.875rem 0.625rem 1.25rem', borderTop: '1px solid rgba(255,255,255,.04)', flexShrink: 0 }}>
+        <div className="py-3.5 px-2.5 pb-5 border-t border-white/[0.04] flex-shrink-0">
 
           {/* User card */}
           {sidebarExpanded ? (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '0.625rem',
-              padding: '0.625rem 0.75rem', marginBottom: '0.5rem',
-              background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)',
-              borderRadius: '8px',
-            }}>
+            <div className="flex items-center gap-2.5 px-3 py-2.5 mb-2 bg-white/[0.03] border border-white/[0.06] rounded-lg">
               <UserAvatar initials={initials} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'rgba(255,255,255,.9)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div className="flex-1 min-w-0">
+                <p className="text-[0.8125rem] font-bold text-white/90 whitespace-nowrap overflow-hidden text-ellipsis">
                   {user?.name}
                 </p>
-                <p style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,.35)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <p className="text-[0.6875rem] text-white/35 whitespace-nowrap overflow-hidden text-ellipsis">
                   {user?.email}
                 </p>
               </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }} title={user?.name}>
+            <div className="flex justify-center mb-2" title={user?.name}>
               <UserAvatar initials={initials} />
             </div>
           )}
 
           {/* Actions */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <div className="flex flex-col gap-0.5">
             <SidebarAction
               icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>}
               label="Change Password"
@@ -181,32 +172,26 @@ export default function DashboardLayout() {
       {/* ══════════════════════════════════════════════════════
           MAIN AREA
       ══════════════════════════════════════════════════════ */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
         {/* Top bar */}
-        <header style={{
-          height: '52px', flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 2.5rem',
-          background: 'rgba(248,250,252,.9)',
-          backdropFilter: 'blur(8px)',
-          borderBottom: '1px solid var(--color-border)',
-        }}>
+        <header className="h-[52px] flex-shrink-0 flex items-center justify-between px-10 bg-[rgba(248,250,252,.9)] backdrop-blur-[8px] border-b border-[var(--color-border)]">
           {/* Breadcrumb */}
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+          <nav className="flex items-center gap-1.5">
             {breadcrumbs.map((crumb, i) => (
-              <span key={crumb} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <span key={crumb} className="flex items-center gap-1.5">
                 {i > 0 && (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-border-strong)' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-border-strong)]">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 )}
-                <span style={{
-                  fontSize: '0.8125rem',
-                  fontWeight: i === breadcrumbs.length - 1 ? 700 : 500,
-                  color: i === breadcrumbs.length - 1 ? 'var(--color-text-base)' : 'var(--color-text-muted)',
-                  letterSpacing: '-0.01em',
-                }}>
+                <span 
+                  className={`text-[0.8125rem] tracking-[-0.01em] ${
+                    i === breadcrumbs.length - 1 
+                      ? 'font-bold text-[var(--color-text-base)]' 
+                      : 'font-medium text-[var(--color-text-muted)]'
+                  }`}
+                >
                   {crumb}
                 </span>
               </span>
@@ -214,26 +199,17 @@ export default function DashboardLayout() {
           </nav>
 
           {/* Status pill */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.375rem',
-            padding: '0.25rem 0.625rem', borderRadius: '99px',
-            background: 'var(--color-primary-bg)', border: '1px solid #bbf7d0',
-          }}>
-            <div style={{
-              width: '6px', height: '6px', borderRadius: '50%',
-              background: 'var(--color-primary)',
-              boxShadow: '0 0 5px var(--color-primary)',
-              animation: 'pulse 2s infinite',
-            }} />
-            <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-primary)', letterSpacing: '0.02em' }}>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-primary-bg)] border border-[#bbf7d0]">
+            <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] shadow-[0_0_5px_var(--color-primary)] animate-pulse" />
+            <span className="text-[0.6875rem] font-bold text-[var(--color-primary)] tracking-[0.02em]">
               LIVE
             </span>
           </div>
         </header>
 
         {/* Scrollable content */}
-        <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2.5rem 2.5rem 4rem' }}>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="max-w-[1200px] mx-auto px-10 py-10 pb-16">
             <Outlet />
           </div>
         </main>
@@ -247,12 +223,7 @@ export default function DashboardLayout() {
 /* ─── Sub-components ─────────────────────────────────────────── */
 function LogoMark() {
   return (
-    <div style={{
-      width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0,
-      background: 'linear-gradient(135deg, #16a34a, #15803d)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      boxShadow: '0 2px 8px rgba(22,163,74,.35)',
-    }}>
+    <div className="w-8 h-8 rounded-lg flex-shrink-0 bg-gradient-to-br from-[#16a34a] to-[#15803d] flex items-center justify-center shadow-[0_2px_8px_rgba(22,163,74,.35)]">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
       </svg>
@@ -262,12 +233,7 @@ function LogoMark() {
 
 function UserAvatar({ initials }: { initials: string }) {
   return (
-    <div style={{
-      width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0,
-      background: 'linear-gradient(135deg, #16a34a, #15803d)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: '0.75rem', fontWeight: 800, color: '#fff',
-    }}>
+    <div className="w-8 h-8 rounded-lg flex-shrink-0 bg-gradient-to-br from-[#16a34a] to-[#15803d] flex items-center justify-center text-xs font-extrabold text-white">
       {initials}
     </div>
   );
@@ -285,22 +251,18 @@ function SidebarAction({ icon, label, onClick, expanded, danger, title }: {
       title={!expanded ? title : undefined}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{
-        display: 'flex', alignItems: 'center',
-        gap: expanded ? '0.5rem' : 0,
-        justifyContent: expanded ? 'flex-start' : 'center',
-        padding: expanded ? '0.4375rem 0.75rem' : '0.5rem',
-        borderRadius: '8px', width: '100%', cursor: 'pointer', textAlign: 'left',
-        border: '1px solid',
-        transition: 'all 150ms',
-        borderColor: dangerHover ? 'rgba(220,38,38,.2)' : 'rgba(255,255,255,.06)',
-        background: dangerHover ? 'rgba(220,38,38,.08)' : hovered ? 'rgba(255,255,255,.05)' : 'transparent',
-        color: dangerHover ? '#fca5a5' : hovered ? 'rgba(255,255,255,.9)' : 'rgba(255,255,255,.45)',
-        fontSize: '0.8125rem', fontWeight: 600,
-      }}
+      className={`flex items-center w-full text-left rounded-lg border transition-all duration-150 text-[0.8125rem] font-semibold ${
+        expanded ? 'gap-2 px-3 py-[0.4375rem]' : 'justify-center py-2'
+      } ${
+        dangerHover 
+          ? 'border-[rgba(220,38,38,.2)] bg-[rgba(220,38,38,.08)] text-[#fca5a5]' 
+          : hovered 
+            ? 'border-white/[0.06] bg-white/[0.05] text-white/90' 
+            : 'border-white/[0.06] bg-transparent text-white/45'
+      }`}
     >
-      <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>{icon}</span>
-      {expanded && <span style={{ whiteSpace: 'nowrap' }}>{label}</span>}
+      <span className="flex-shrink-0 flex items-center">{icon}</span>
+      {expanded && <span className="whitespace-nowrap">{label}</span>}
     </button>
   );
 }

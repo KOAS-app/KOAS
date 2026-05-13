@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
-import { colors, spacing, radius, typography, shadows } from '../theme';
+import { colors, spacing, radius, typography, shadows, animation } from '../theme';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { AuthStackParamList } from '../navigation/types';
 
@@ -15,10 +15,12 @@ export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Required Fields', 'Please fill in all fields');
+      Alert.alert('Required Fields', 'Please enter your email and password');
       return;
     }
     setLoading(true);
@@ -39,77 +41,117 @@ export default function LoginScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
+      {/* Gradient Background */}
       <LinearGradient
-        colors={[colors.authBg, '#0D1812']}
+        colors={['#0a0f0d', '#0d1411', '#0a0f0d']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       />
       
+      {/* Subtle Accent Glow */}
+      <View style={styles.accentGlow} />
+      
       <KeyboardAvoidingView 
         style={styles.keyboardView} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         <ScrollView 
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
-          {/* Logo */}
+          {/* Brand Header */}
           <View style={styles.header}>
-            <Text style={styles.logo}>
-              KO<Text style={styles.logoAccent}>A</Text>S
-            </Text>
-            <Text style={styles.tagline}>Book. Play. Enjoy.</Text>
+            <View style={styles.logoContainer}>
+              <Text style={styles.logo}>
+                KO<Text style={styles.logoAccent}>A</Text>S
+              </Text>
+            </View>
+            <Text style={styles.tagline}>Book your game. Play your best.</Text>
           </View>
 
-          {/* Card */}
+          {/* Auth Card */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Welcome back</Text>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Welcome back</Text>
+              <Text style={styles.cardSubtitle}>Sign in to continue</Text>
+            </View>
 
             {/* Form */}
             <View style={styles.form}>
+              {/* Email Input */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Email</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="you@example.com"
-                  placeholderTextColor={colors.authMuted}
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  editable={!loading}
-                />
+                <View style={[
+                  styles.inputWrapper,
+                  emailFocused && styles.inputWrapperFocused,
+                ]}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="you@example.com"
+                    placeholderTextColor={colors.input.placeholder}
+                    value={email}
+                    onChangeText={setEmail}
+                    onFocus={() => setEmailFocused(true)}
+                    onBlur={() => setEmailFocused(false)}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    editable={!loading}
+                    returnKeyType="next"
+                  />
+                </View>
               </View>
 
+              {/* Password Input */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Password</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your password"
-                  placeholderTextColor={colors.authMuted}
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry
-                  editable={!loading}
-                />
+                <View style={styles.labelRow}>
+                  <Text style={styles.label}>Password</Text>
+                  <TouchableOpacity 
+                    activeOpacity={0.7}
+                    disabled={loading}
+                  >
+                    <Text style={styles.forgotLink}>Forgot?</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={[
+                  styles.inputWrapper,
+                  passwordFocused && styles.inputWrapperFocused,
+                ]}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your password"
+                    placeholderTextColor={colors.input.placeholder}
+                    value={password}
+                    onChangeText={setPassword}
+                    onFocus={() => setPasswordFocused(true)}
+                    onBlur={() => setPasswordFocused(false)}
+                    secureTextEntry
+                    editable={!loading}
+                    returnKeyType="go"
+                    onSubmitEditing={handleLogin}
+                  />
+                </View>
               </View>
 
+              {/* Sign In Button */}
               <TouchableOpacity
                 style={[styles.btn, loading && styles.btnDisabled]}
                 onPress={handleLogin}
                 disabled={loading}
-                activeOpacity={0.8}
+                activeOpacity={0.85}
               >
                 <LinearGradient
-                  colors={[colors.accent, colors.accentHover]}
+                  colors={['#16a34a', '#15803d']}
                   style={styles.btnGradient}
                   start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                  end={{ x: 1, y: 0 }}
                 >
                   {loading ? (
-                    <ActivityIndicator color={colors.textInverse} />
+                    <ActivityIndicator size="small" color="#ffffff" />
                   ) : (
                     <Text style={styles.btnText}>Sign In</Text>
                   )}
@@ -117,21 +159,33 @@ export default function LoginScreen({ navigation }: Props) {
               </TouchableOpacity>
             </View>
 
+            {/* Divider */}
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {/* Sign Up Link */}
             <TouchableOpacity 
               onPress={() => navigation.navigate('Register')} 
               disabled={loading}
-              style={styles.linkContainer}
+              style={styles.signupButton}
+              activeOpacity={0.7}
             >
-              <Text style={styles.linkText}>
-                Don't have an account?{' '}
-                <Text style={styles.link}>Create account</Text>
+              <Text style={styles.signupText}>
+                New to KOAS?{' '}
+                <Text style={styles.signupLink}>Create account</Text>
               </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Footer */}
+          {/* Trust Badge */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Secure access · Join thousands of players</Text>
+            <View style={styles.trustBadge}>
+              <View style={styles.trustDot} />
+              <Text style={styles.trustText}>Secure · Trusted by 10,000+ players</Text>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -142,6 +196,7 @@ export default function LoginScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1,
+    backgroundColor: colors.dark.bg,
   },
   gradient: {
     position: 'absolute',
@@ -150,71 +205,118 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
   },
+  accentGlow: {
+    position: 'absolute',
+    top: -100,
+    right: -50,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: colors.primary,
+    opacity: 0.03,
+  },
   keyboardView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xxxl,
   },
+  
+  // ─── Header ────────────────────────────────────────────────
   header: { 
     alignItems: 'center', 
-    marginBottom: spacing.xxxl 
+    marginBottom: spacing.xxxl,
+  },
+  logoContainer: {
+    marginBottom: spacing.md,
   },
   logo: { 
-    fontSize: typography.sizes.huge, 
+    fontSize: typography.sizes.huge + 4,
     fontWeight: typography.weights.black, 
-    color: colors.authText,
+    color: colors.text.primary,
     letterSpacing: -2,
   },
   logoAccent: { 
-    color: colors.accent 
+    color: colors.primary,
   },
   tagline: { 
-    fontSize: typography.sizes.base, 
-    color: colors.authMuted, 
-    marginTop: spacing.sm,
+    fontSize: typography.sizes.base,
+    color: colors.text.muted, 
     fontWeight: typography.weights.medium,
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
   },
+  
+  // ─── Card ──────────────────────────────────────────────────
   card: {
-    backgroundColor: colors.authCard,
+    backgroundColor: colors.dark.card,
     borderRadius: radius.xl,
-    padding: spacing.xxxl,
+    padding: spacing.xxl,
     borderWidth: 1,
-    borderColor: colors.authBorder,
-    ...shadows.auth,
+    borderColor: colors.dark.border,
+    ...shadows.lg,
+  },
+  cardHeader: {
+    marginBottom: spacing.xxl,
   },
   cardTitle: {
     fontSize: typography.sizes.xxl,
     fontWeight: typography.weights.bold,
-    color: colors.authText,
-    marginBottom: spacing.xxl,
+    color: colors.text.primary,
+    marginBottom: spacing.xs,
     letterSpacing: -0.5,
   },
+  cardSubtitle: {
+    fontSize: typography.sizes.sm,
+    color: colors.text.muted,
+    fontWeight: typography.weights.medium,
+  },
+  
+  // ─── Form ──────────────────────────────────────────────────
   form: { 
-    gap: spacing.xl 
+    gap: spacing.lg,
   },
   inputGroup: {
     gap: spacing.sm,
   },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   label: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.semibold,
-    color: colors.authText,
-    letterSpacing: 0.2,
+    color: colors.text.secondary,
+    letterSpacing: 0.1,
+  },
+  forgotLink: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.primary,
+  },
+  inputWrapper: {
+    backgroundColor: colors.input.bg,
+    borderWidth: 1.5,
+    borderColor: colors.input.border,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+  },
+  inputWrapperFocused: {
+    borderColor: colors.input.borderFocus,
+    backgroundColor: colors.dark.elevated,
   },
   input: {
-    backgroundColor: colors.authInput,
-    borderWidth: 1.5,
-    borderColor: colors.authBorder,
-    borderRadius: radius.md,
-    padding: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md + 2,
     fontSize: typography.sizes.base,
-    color: colors.authText,
+    color: colors.text.primary,
     fontWeight: typography.weights.medium,
   },
+  
+  // ─── Button ────────────────────────────────────────────────
   btn: {
     marginTop: spacing.sm,
     borderRadius: radius.md,
@@ -222,38 +324,81 @@ const styles = StyleSheet.create({
     ...shadows.md,
   },
   btnGradient: {
-    padding: spacing.md,
+    paddingVertical: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   btnDisabled: { 
-    opacity: 0.6 
+    opacity: 0.5,
   },
   btnText: { 
-    color: colors.textInverse, 
-    fontSize: typography.sizes.md, 
+    color: '#ffffff',
+    fontSize: typography.sizes.md,
     fontWeight: typography.weights.bold,
+    letterSpacing: 0.2,
   },
-  linkContainer: {
-    marginTop: spacing.xl,
+  
+  // ─── Divider ───────────────────────────────────────────────
+  divider: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginVertical: spacing.xl,
   },
-  linkText: { 
-    textAlign: 'center', 
-    color: colors.authMuted, 
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.dark.border,
+  },
+  dividerText: {
+    marginHorizontal: spacing.md,
+    fontSize: typography.sizes.xs,
+    color: colors.text.muted,
+    fontWeight: typography.weights.medium,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  
+  // ─── Sign Up Link ──────────────────────────────────────────
+  signupButton: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  signupText: { 
     fontSize: typography.sizes.sm,
+    color: colors.text.muted,
+    fontWeight: typography.weights.medium,
   },
-  link: {
-    color: colors.accent,
+  signupLink: {
+    color: colors.primary,
     fontWeight: typography.weights.semibold,
   },
+  
+  // ─── Footer ────────────────────────────────────────────────
   footer: {
     alignItems: 'center',
     marginTop: spacing.xxl,
   },
-  footerText: {
+  trustBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.primaryMuted,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(22, 163, 74, 0.2)',
+  },
+  trustDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primary,
+  },
+  trustText: {
     fontSize: typography.sizes.xs,
-    color: colors.authMuted,
-    letterSpacing: 0.3,
+    color: colors.text.muted,
+    fontWeight: typography.weights.medium,
+    letterSpacing: 0.2,
   },
 });

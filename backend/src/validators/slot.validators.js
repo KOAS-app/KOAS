@@ -2,11 +2,11 @@ import { z } from 'zod';
 
 export const createSlotSchema = z.object({
   stadiumId: z.string().uuid('Invalid stadium ID'),
-  startTime: z.string().datetime({ message: 'Invalid startTime format' }),
-  endTime:   z.string().datetime({ message: 'Invalid endTime format' }),
+  startTime: z.coerce.date({ errorMap: () => ({ message: 'Invalid start time' }) }),
+  endTime:   z.coerce.date({ errorMap: () => ({ message: 'Invalid end time' }) }),
   price:     z.coerce.number().positive('Price must be a positive number'),
-}).refine((d) => new Date(d.endTime) > new Date(d.startTime), {
-  message: 'endTime must be after startTime',
+}).refine((d) => d.endTime > d.startTime, {
+  message: 'End time must be after start time',
   path: ['endTime'],
 });
 

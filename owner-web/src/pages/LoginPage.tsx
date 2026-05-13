@@ -9,6 +9,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
 
@@ -33,44 +34,59 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-8 bg-gradient-to-br from-[#0b1812] via-[#0e1f15] to-[#0a1510] relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute -top-[30%] -right-[15%] w-[600px] h-[600px] rounded-full pointer-events-none bg-[radial-gradient(circle,rgba(22,163,74,0.07)_0%,transparent_65%)]" />
-      <div className="absolute -bottom-[25%] -left-[10%] w-[500px] h-[500px] rounded-full pointer-events-none bg-[radial-gradient(circle,rgba(15,118,53,0.09)_0%,transparent_65%)]" />
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 bg-gradient-to-b from-[#050a08] via-[#0a1110] to-[#070c0a] relative overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle at 1px 1px, #16a34a 1px, transparent 1px)',
+        backgroundSize: '40px 40px'
+      }} />
+      
+      {/* Very subtle accent glow - minimal, sophisticated */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none opacity-[0.03] blur-3xl bg-gradient-to-r from-[#16a34a] via-transparent to-transparent" />
 
-      <div className="w-full max-w-[420px] relative z-10">
-        {/* Logo */}
-        <div className="text-center mb-10">
-          <h1 className="text-[3.25rem] font-black tracking-tighter text-[#f0fdf4] leading-none mb-1">
+      <div className="w-full max-w-[440px] relative z-10">
+        {/* Logo and branding */}
+        <div className="text-center mb-12 sm:mb-14">
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-1">
             KO<span className="text-[#4ade80]">A</span>S
           </h1>
-          <p className="text-xs font-bold text-[#4b6358] tracking-[0.15em] uppercase mt-1.5">
+          <p className="text-xs font-semibold text-[#6b7280] tracking-widest uppercase mt-2">
             Owner Portal
           </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-[#111f17] border border-[#1e3326] rounded-[18px] p-10 shadow-[0_8px_40px_rgba(0,0,0,0.3)]">
-          <h2 className="text-[1.375rem] font-bold text-[#e2f0e8] tracking-tight mb-1.5">Welcome back</h2>
-          <p className="text-sm text-[#4b6358] mb-7 -mt-2">
-            Sign in to manage your stadiums and bookings.
-          </p>
+        {/* Main card */}
+        <div className="bg-gradient-to-b from-[#111819] to-[#0d0f11] border border-[#1f2d2a] rounded-2xl p-8 sm:p-10 shadow-2xl shadow-black/50 backdrop-blur-xl">
+          {/* Header */}
+          <div className="mb-8">
+            <h2 className="text-2xl sm:text-[1.625rem] font-bold text-white tracking-tight">Welcome back</h2>
+            <p className="text-sm text-[#9ca3af] mt-1">
+              Sign in to your owner account
+            </p>
+          </div>
 
+          {/* Error state */}
           {error && (
-            <div className="flex items-center gap-2 px-4 py-3.5 mb-4 rounded-[10px] bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.3)] text-[#fca5a5] text-sm font-medium">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <div className="flex items-start gap-3 px-4 py-3.5 mb-6 rounded-lg bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.25)] animate-in fade-in slide-in-from-top-2 duration-300">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-px">
                 <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
-              {error}
+              <div>
+                <p className="text-sm font-medium text-[#fca5a5]">{error}</p>
+              </div>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4.5">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email field */}
             <div>
-              <label className="block text-[0.8125rem] font-semibold text-[#9ab8a4] mb-1.5">Email address</label>
+              <label className="block text-sm font-semibold text-[#d1d5db] mb-2">
+                Email address
+              </label>
               <input
                 type="email"
-                className="w-full px-4 py-3 bg-[#162b1e] border-[1.5px] border-[#1e3326] rounded-[10px] text-[#e2f0e8] text-[0.9375rem] outline-none transition-all placeholder:text-[#4b6358] hover:border-[rgba(22,163,74,0.35)] focus:border-[#16a34a] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-[#1a3024] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 bg-[#0f1413] border border-[#1f2d2a] rounded-lg text-white text-sm outline-none transition-all duration-200 placeholder:text-[#4b5563] hover:border-[#2d3d37] focus:border-[#16a34a] focus:ring ring-[#16a34a]/20 focus:bg-[#0f1413] disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="owner@turf.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -80,53 +96,97 @@ export default function LoginPage() {
               />
             </div>
 
+            {/* Password field with visibility toggle */}
             <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[#9ab8a4]">Password</label>
-                <a href="#" className="text-xs text-[#4ade80] font-semibold no-underline hover:text-[#86efac] hover:underline">
-                  Forgot?
-                </a>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-semibold text-[#d1d5db]">
+                  Password
+                </label>
+                <Link 
+                  to="/forgot-password" 
+                  className="text-xs font-semibold text-[#4ade80] no-underline transition-colors hover:text-[#86efac]"
+                >
+                  Forgot password?
+                </Link>
               </div>
-              <input
-                type="password"
-                className="w-full px-4 py-3 bg-[#162b1e] border-[1.5px] border-[#1e3326] rounded-[10px] text-[#e2f0e8] text-[0.9375rem] outline-none transition-all placeholder:text-[#4b6358] hover:border-[rgba(22,163,74,0.35)] focus:border-[#16a34a] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-[#1a3024] disabled:opacity-50 disabled:cursor-not-allowed"
-                placeholder="••••••••"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                disabled={loading}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="w-full px-4 py-3 bg-[#0f1413] border border-[#1f2d2a] rounded-lg text-white text-sm outline-none transition-all duration-200 placeholder:text-[#4b5563] hover:border-[#2d3d37] focus:border-[#16a34a] focus:ring ring-[#16a34a]/20 focus:bg-[#0f1413] disabled:opacity-50 disabled:cursor-not-allowed pr-11"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-[#6b7280] hover:text-[#d1d5db] transition-colors disabled:opacity-50"
+                  disabled={loading}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
 
+            {/* Sign in button */}
             <button
               type="submit"
-              className="w-full px-6 py-3.5 mt-2 bg-gradient-to-br from-[#16a34a] to-[#15803d] border-none rounded-[10px] text-white text-[0.9375rem] font-bold cursor-pointer transition-all shadow-[0_4px_14px_rgba(22,163,74,0.25)] hover:translate-y-[-2px] hover:shadow-[0_6px_20px_rgba(22,163,74,0.35)] active:translate-y-0 disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full px-6 py-3 mt-2 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-lg shadow-[#16a34a]/25 hover:shadow-lg hover:shadow-[#16a34a]/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-[#16a34a] flex items-center justify-center gap-2"
               disabled={loading}
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="inline-block w-4 h-4 border-2 border-[rgba(255,255,255,0.25)] border-t-white rounded-full animate-spin" />
-                  Signing in...
-                </span>
-              ) : 'Sign in to Dashboard'}
+                <>
+                  <svg width="16" height="16" className="animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.25" />
+                    <path d="M9 2.756a9.971 9.971 0 0 1 12.224 5.858" />
+                  </svg>
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                'Sign in'
+              )}
             </button>
           </form>
 
-          <div className="text-center mt-6">
-            <p className="text-sm text-[#4b6358]">
-              New owner?{' '}
-              <Link to="/register" className="text-[#4ade80] font-semibold no-underline hover:text-[#86efac] hover:underline">Create an account</Link>
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#1f2d2a]" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="px-2 bg-gradient-to-b from-[#111819] to-[#0d0f11] text-[#6b7280]">or</span>
+            </div>
+          </div>
+
+          {/* Sign up link */}
+          <div className="text-center">
+            <p className="text-sm text-[#9ca3af]">
+              New to KOAS?{' '}
+              <Link to="/register" className="text-[#4ade80] font-semibold no-underline transition-colors hover:text-[#86efac]">
+                Create an account
+              </Link>
             </p>
           </div>
         </div>
 
-        {/* Trust */}
-        <div className="text-center mt-7">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[rgba(22,163,74,0.08)] border border-[rgba(22,163,74,0.18)] rounded-full text-xs font-semibold text-[#4ade80]">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-            Secure · Verified Turf Owners Only
+        {/* Trust indicator */}
+        <div className="flex items-center justify-center gap-1.5 mt-8 px-4 py-3 rounded-lg bg-[rgba(16,185,129,0.04)] border border-[rgba(16,185,129,0.2)] backdrop-blur-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span className="text-xs font-medium text-[#10b981]">
+            Secure platform for verified stadium owners
           </span>
         </div>
       </div>

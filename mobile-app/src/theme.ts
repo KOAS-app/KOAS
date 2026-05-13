@@ -1,78 +1,100 @@
+// ═══════════════════════════════════════════════════════════════
+// KOAS Mobile Design System
+// Premium Sports-Tech Aesthetic · Mobile-First · Dark Mode Optimized
+// ═══════════════════════════════════════════════════════════════
+
 export const colors = {
-  // Brand
-  primary:        '#0D4A1F',
-  primaryLight:   '#166534',
-  primaryHover:   '#0F5524',
-  accent:         '#3DB54A',
-  accentLight:    '#5DCF68',
-  accentHover:    '#35A042',
+  // ─── Brand Identity ────────────────────────────────────────
+  primary:        '#16a34a',      // Green-600 - Primary actions
+  primaryDark:    '#15803d',      // Green-700 - Hover states
+  primaryLight:   '#22c55e',      // Green-500 - Accents
+  primaryMuted:   'rgba(22, 163, 74, 0.12)',  // Subtle backgrounds
+  accent:         '#16a34a',      // Alias for primary (navigation)
   
-  // Surfaces
-  surface:        '#FAFBFA',
-  card:           '#FFFFFF',
-  sidebar:        '#0A1810',
-  muted:          '#F0F2F0',
-  hover:          '#E8EDE9',
+  // ─── Dark Surfaces (Premium Sports-Tech) ───────────────────
+  dark: {
+    bg:           '#0a0f0d',      // Deep dark base
+    surface:      '#111816',      // Elevated surface
+    card:         '#151d1a',      // Card background
+    elevated:     '#1a2320',      // Hover/active states
+    border:       'rgba(255, 255, 255, 0.06)',  // Subtle borders
+    borderStrong: 'rgba(255, 255, 255, 0.1)',   // Emphasized borders
+  },
   
-  // Dark Mode Auth
-  authBg:         '#0B1410',
-  authCard:       '#111D17',
-  authInput:      '#1A2820',
-  authBorder:     '#1F3028',
-  authText:       '#E8F0EC',
-  authMuted:      '#7A8A80',
+  // ─── Text Hierarchy (Dark Mode Optimized) ──────────────────
+  text: {
+    primary:      '#f8faf9',      // High emphasis
+    secondary:    '#c5ccc9',      // Medium emphasis
+    muted:        '#8a9490',      // Low emphasis
+    disabled:     '#5a6562',      // Disabled state
+    inverse:      '#0a0f0d',      // On light backgrounds
+  },
   
-  // Text
-  textPrimary:    '#0F1F13',
-  textSecondary:  '#3D4F42',
-  textMuted:      '#6B7D71',
-  textInverse:    '#FFFFFF',
+  // ─── Input States ──────────────────────────────────────────
+  input: {
+    bg:           '#1a2320',      // Input background
+    border:       'rgba(255, 255, 255, 0.08)',  // Default border
+    borderHover:  'rgba(255, 255, 255, 0.12)',  // Hover border
+    borderFocus:  '#16a34a',      // Focus border
+    placeholder:  '#6b7773',      // Placeholder text
+  },
   
-  // Semantic
-  success:        '#3DB54A',
-  successBg:      '#ECFDF5',
-  warning:        '#F59E0B',
-  warningBg:      '#FFFBEB',
-  danger:         '#DC2626',
-  dangerBg:       '#FEF2F2',
-  info:           '#3B82F6',
-  infoBg:         '#EFF6FF',
+  // ─── Semantic Colors ───────────────────────────────────────
+  success:        '#16a34a',
+  successBg:      'rgba(22, 163, 74, 0.1)',
+  warning:        '#f59e0b',
+  warningBg:      'rgba(245, 158, 11, 0.1)',
+  danger:         '#ef4444',
+  dangerBg:       'rgba(239, 68, 68, 0.1)',
+  info:           '#3b82f6',
+  infoBg:         'rgba(59, 130, 246, 0.1)',
   
-  // Borders
-  border:         '#E5E7E5',
-  borderStrong:   '#D1D9D2',
-  borderFocus:    '#3DB54A',
+  // ─── Legacy Support (Gradual Migration) ────────────────────
+  authBg:         '#0a0f0d',
+  authCard:       '#151d1a',
+  authInput:      '#1a2320',
+  authBorder:     'rgba(255, 255, 255, 0.08)',
+  authText:       '#f8faf9',
+  authMuted:      '#8a9490',
+  textInverse:    '#ffffff',
 };
 
+// ─── Spacing Scale (8pt Grid System) ──────────────────────────
 export const spacing = {
-  xs:  4,
-  sm:  8,
-  md:  12,
-  lg:  16,
-  xl:  24,
-  xxl: 32,
-  xxxl: 48,
+  xxs: 2,   // Micro spacing
+  xs:  4,   // Tight spacing
+  sm:  8,   // Small spacing
+  md:  12,  // Base spacing
+  lg:  16,  // Medium spacing
+  xl:  20,  // Large spacing
+  xxl: 24,  // Extra large
+  xxxl: 32, // Huge spacing
+  huge: 40, // Massive spacing
 };
 
+// ─── Border Radius (Consistent Rounding) ───────────────────────
 export const radius = {
-  sm:   6,
-  md:   8,
-  lg:   12,
-  xl:   16,
-  full: 9999,
+  xs:   4,    // Micro elements
+  sm:   6,    // Small components
+  md:   10,   // Standard components
+  lg:   14,   // Cards, modals
+  xl:   18,   // Large containers
+  xxl:  24,   // Hero elements
+  full: 9999, // Pills, avatars
 };
 
+// ─── Typography Scale (Mobile-Optimized) ───────────────────────
 export const typography = {
   sizes: {
-    xs:   11,
-    sm:   13,
-    base: 15,
-    md:   16,
-    lg:   18,
-    xl:   20,
-    xxl:  24,
-    xxxl: 32,
-    huge: 48,
+    xs:   11,   // Captions, labels
+    sm:   13,   // Secondary text
+    base: 15,   // Body text
+    md:   16,   // Emphasized body
+    lg:   18,   // Subheadings
+    xl:   20,   // Section titles
+    xxl:  24,   // Page titles
+    xxxl: 28,   // Hero text
+    huge: 36,   // Display text
   },
   weights: {
     regular:  '400' as const,
@@ -82,35 +104,64 @@ export const typography = {
     extrabold:'800' as const,
     black:    '900' as const,
   },
+  lineHeights: {
+    tight:   1.2,   // Headings
+    snug:    1.375, // Subheadings
+    normal:  1.5,   // Body text
+    relaxed: 1.625, // Comfortable reading
+  },
 };
 
+// ─── Shadows (Subtle Depth) ────────────────────────────────────
 export const shadows = {
-  sm: {
+  none: {
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+  },
+  xs: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.05,
     shadowRadius: 2,
+    elevation: 1,
+  },
+  sm: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
     elevation: 2,
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
     elevation: 4,
   },
   lg: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
-    shadowRadius: 8,
+    shadowRadius: 16,
     elevation: 8,
   },
-  auth: {
+  xl: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.24,
-    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
     elevation: 12,
   },
+};
+
+// ─── Animation Timings ─────────────────────────────────────────
+export const animation = {
+  fast: 150,
+  base: 200,
+  slow: 300,
+  slower: 400,
 };

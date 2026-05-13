@@ -38,65 +38,79 @@ export default function StadiumsPage() {
 
   return (
     <div>
-      <h1 className="page-title">Stadiums</h1>
+      <h1 className="text-[1.625rem] font-extrabold tracking-tight text-[var(--color-text-base)] leading-tight mb-6">Stadiums</h1>
 
       {/* Filter */}
-      <div className="flex gap-1 mb-5 p-1 rounded-lg w-fit"
-        style={{ backgroundColor: 'var(--color-surface-muted)' }}>
+      <div className="flex gap-1 mb-6 p-1 rounded-[10px] bg-[var(--color-surface-muted)] border border-[var(--color-border)] w-fit">
         {(['ALL', 'PENDING', 'APPROVED'] as Filter[]).map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className="text-sm px-3 py-1.5 rounded-md font-medium transition-colors"
-            style={{
-              backgroundColor: filter === f ? 'var(--color-surface-card)' : 'transparent',
-              color: filter === f ? 'var(--color-primary)' : 'var(--color-text-muted)',
-              boxShadow: filter === f ? 'var(--shadow-card)' : 'none',
-            }}>
+            className={`text-sm px-4 py-2 rounded-lg font-bold transition-all ${
+              filter === f 
+                ? 'bg-[var(--color-surface-card)] text-[var(--color-primary)] shadow-sm' 
+                : 'bg-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
+            }`}>
             {f}
           </button>
         ))}
       </div>
 
-      {loading && <p style={{ color: 'var(--color-text-muted)' }}>Loading...</p>}
+      {loading && (
+        <div className="flex items-center justify-center gap-3.5 py-20">
+          <div className="inline-block w-6 h-6 border-2 border-[var(--color-border)] border-t-[var(--color-primary)] rounded-full animate-spin" />
+          <span className="text-[var(--color-text-muted)] text-sm font-medium">Loading stadiums…</span>
+        </div>
+      )}
 
       {!loading && filtered.length === 0 && (
-        <div className="card text-center py-10">
-          <p className="text-3xl mb-2">🏟️</p>
-          <p style={{ color: 'var(--color-text-muted)' }}>No stadiums found</p>
+        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] p-14 shadow-sm text-center">
+          <div className="text-5xl opacity-50 mb-4">🏟️</div>
+          <p className="text-base font-bold text-[var(--color-text-base)] mb-2">No stadiums found</p>
+          <p className="text-sm text-[var(--color-text-muted)]">
+            {filter === 'PENDING' ? 'No pending stadiums at the moment.' : 'No stadiums match your filter.'}
+          </p>
         </div>
       )}
 
       {!loading && filtered.length > 0 && (
-        <div className="card p-0 overflow-hidden">
+        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden">
           {filtered.map((stadium, i) => (
             <div key={stadium.id}
-              className="flex items-center justify-between px-5 py-4 gap-4"
+              className="flex items-center justify-between px-5 py-4 gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
               style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm" style={{ color: 'var(--color-text-base)' }}>
+                <p className="font-bold text-[0.9375rem] text-[var(--color-text-base)] tracking-tight">
                   {stadium.name}
                 </p>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                <p className="text-xs mt-1 text-[var(--color-text-muted)] font-medium">
                   📍 {stadium.location} · Owner: {stadium.owner.name}
                 </p>
               </div>
 
               {/* Status */}
-              <span className={`badge ${stadium.isApproved ? 'badge-success' : 'badge-warning'}`}>
+              <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border ${
+                stadium.isApproved 
+                  ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]' 
+                  : 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]'
+              }`}>
                 {stadium.isApproved ? 'Approved' : 'Pending'}
               </span>
 
               {/* Actions */}
               <div className="flex gap-2">
                 {!stadium.isApproved ? (
-                  <button className="btn btn-accent text-xs"
+                  <button 
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(59,130,246,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(59,130,246,0.25)] hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={actionLoading === stadium.id}
                     onClick={() => handleAction(stadium.id, 'approve')}>
-                    ✓ Approve
+                    {actionLoading === stadium.id ? (
+                      <div className="inline-block w-3 h-3 border-[1.5px] border-[rgba(255,255,255,0.3)] border-t-white rounded-full animate-spin" />
+                    ) : '✓ Approve'}
                   </button>
                 ) : (
-                  <button className="btn btn-ghost text-xs"
+                  <button 
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)] disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={actionLoading === stadium.id}
                     onClick={() => handleAction(stadium.id, 'reject')}>
                     Revoke

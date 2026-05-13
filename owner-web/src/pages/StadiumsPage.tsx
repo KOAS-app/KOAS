@@ -139,27 +139,27 @@ function StadiumCard({ stadium, onSlots, onBookings, onEdit, onDelete }: CardPro
   const approved = stadium.isApproved;
 
   return (
-    <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 hover:border-[var(--color-border-strong)]">
+    <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-[var(--color-border-strong)]">
       {/* Status bar */}
-      <div className={`h-[3px] ${approved ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-warning)]'}`} />
+      <div className={`h-[2px] ${approved ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-warning)]'}`} />
 
-      <div className="p-[1.375rem_1.5rem] flex flex-col gap-4 flex-1">
+      <div className="p-[1.25rem_1.375rem] flex flex-col gap-3.5 flex-1">
         {/* Identity row */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h2 className="text-base font-bold tracking-tight text-[var(--color-text-base)] mb-1 whitespace-nowrap overflow-hidden text-ellipsis">
+            <h2 className="text-[1rem] font-black tracking-tight text-[var(--color-text-base)] mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">
               {stadium.name}
             </h2>
             <div className="flex items-center gap-1.5 text-[var(--color-text-muted)] text-[0.8125rem]">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-[var(--color-primary)]">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
               </svg>
-              <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+              <span className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
                 {stadium.location}
               </span>
             </div>
           </div>
-          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide border flex-shrink-0 ${
+          <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${
             approved 
               ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]' 
               : 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]'
@@ -176,12 +176,12 @@ function StadiumCard({ stadium, onSlots, onBookings, onEdit, onDelete }: CardPro
         )}
 
         {/* Divider */}
-        <div className="h-px bg-[var(--color-border)] -mx-6" />
+        <div className="h-px bg-[var(--color-border)] -mx-[1.375rem]" />
 
         {/* Action buttons */}
         <div className="grid grid-cols-2 gap-2">
           <button
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-[10px] text-[0.8125rem] font-semibold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0"
             onClick={onSlots}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -190,7 +190,7 @@ function StadiumCard({ stadium, onSlots, onBookings, onEdit, onDelete }: CardPro
             Slots
           </button>
           <button
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-[10px] text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)]"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)]"
             onClick={onBookings}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -203,7 +203,7 @@ function StadiumCard({ stadium, onSlots, onBookings, onEdit, onDelete }: CardPro
         {/* Edit / Delete */}
         <div className="flex gap-2">
           <button
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-[10px] text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)]"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)]"
             onClick={onEdit}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -213,7 +213,7 @@ function StadiumCard({ stadium, onSlots, onBookings, onEdit, onDelete }: CardPro
             Edit
           </button>
           <button
-            className="w-7 h-7 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-transparent text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-transparent text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
             onClick={onDelete}
             title="Delete"
           >

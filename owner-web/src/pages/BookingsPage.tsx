@@ -112,35 +112,36 @@ export default function BookingsPage() {
 
       {/* Stats Bar */}
       {!loading && (
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-4 gap-3.5 mb-7">
           <StatCard label="Pending"   value={pending}   accent="#d97706" bg="#fffbeb" border="#fde68a" />
           <StatCard label="Confirmed" value={confirmed} accent="#16a34a" bg="#f0fdf4" border="#bbf7d0" />
           <StatCard label="Cancelled" value={cancelled} accent="#dc2626" bg="#fef2f2" border="#fecaca" />
           <StatCard
-            label="ETB Collected"
+            label="Revenue"
             value={`${revenue.toLocaleString()}`}
             accent="#2563eb"
             bg="#eff6ff"
             border="#bfdbfe"
+            suffix="ETB"
           />
         </div>
       )}
 
       {/* Filter Tabs */}
-      <div className="flex gap-1.5 p-1.5 rounded-[10px] bg-[var(--color-surface-muted)] border border-[var(--color-border)] w-fit mb-6">
+      <div className="flex gap-1 p-1 rounded-[10px] bg-[var(--color-surface-muted)] border border-[var(--color-border)] w-fit mb-6">
         {FILTERS.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setFilter(key)}
-            className={`px-4 py-1.5 rounded-lg cursor-pointer border-none text-[0.8125rem] font-semibold transition-all ${
+            className={`px-4 py-2 rounded-lg cursor-pointer border-none text-[0.8125rem] font-bold transition-all ${
               filter === key
-                ? 'bg-[var(--color-surface-card)] text-[var(--color-primary)] shadow-[var(--shadow-xs)]'
-                : 'bg-transparent text-[var(--color-text-muted)]'
+                ? 'bg-[var(--color-surface-card)] text-[var(--color-primary)] shadow-sm'
+                : 'bg-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
             }`}
           >
             {label}
             {key !== 'ALL' && counts[key] !== undefined && (
-              <span className={`ml-1.5 px-2 py-0.5 rounded-full text-[0.6875rem] font-bold ${
+              <span className={`ml-2 px-2 py-0.5 rounded-md text-[0.6875rem] font-extrabold ${
                 filter === key
                   ? 'bg-[var(--color-primary-bg)] text-[var(--color-primary)]'
                   : 'bg-[var(--color-surface-hover)] text-[var(--color-text-muted)]'
@@ -193,15 +194,22 @@ export default function BookingsPage() {
 }
 
 /* Stat Card */
-function StatCard({ label, value, accent, bg, border }: { label: string; value: string | number; accent: string; bg: string; border: string; }) {
+function StatCard({ label, value, accent, bg, border, suffix }: { label: string; value: string | number; accent: string; bg: string; border: string; suffix?: string; }) {
   return (
-    <div className="rounded-xl p-[1.125rem_1.25rem] border-l-[3px]" style={{ background: bg, borderColor: `${border}`, borderLeftColor: accent }}>
-      <p className="text-[0.6875rem] font-bold uppercase tracking-wider mb-1.5" style={{ color: accent }}>
+    <div className="rounded-[10px] p-[1rem_1.125rem] border" style={{ background: bg, borderColor: border }}>
+      <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] mb-1.5 opacity-80" style={{ color: accent }}>
         {label}
       </p>
-      <p className="text-[1.625rem] font-extrabold tracking-tight leading-none" style={{ color: accent }}>
-        {value}
-      </p>
+      <div className="flex items-baseline gap-1.5">
+        <p className="text-[1.5rem] font-black tracking-tight leading-none" style={{ color: accent }}>
+          {value}
+        </p>
+        {suffix && (
+          <span className="text-[0.75rem] font-bold opacity-70" style={{ color: accent }}>
+            {suffix}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -216,48 +224,56 @@ interface RowProps {
 }
 
 function BookingRow({ booking, busy, onConfirm, onCancel, onMarkPaid }: RowProps) {
-  const initials = booking.player.name.charAt(0).toUpperCase();
+  const initials = booking.player.name.slice(0, 2).toUpperCase();
+  const statusColor = booking.status === 'CONFIRMED' ? 'var(--color-success)' : booking.status === 'PENDING' ? 'var(--color-warning)' : 'var(--color-danger)';
 
   return (
-    <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] p-[1rem_1.25rem] shadow-sm flex items-center gap-4 flex-wrap">
-      {/* Avatar */}
-      <div className="w-10 h-10 rounded-[10px] flex-shrink-0 bg-[var(--color-primary-bg)] border border-[#bbf7d0] flex items-center justify-center text-[0.9375rem] font-extrabold text-[var(--color-primary)]">
-        {initials}
+    <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] p-[1.125rem_1.375rem] shadow-sm flex items-center gap-4 flex-wrap transition-all hover:border-[var(--color-border-strong)] hover:shadow-md">
+      {/* Status indicator + Avatar */}
+      <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="w-1 h-12 rounded-full flex-shrink-0" style={{ background: statusColor }} />
+        <div className="w-11 h-11 rounded-[10px] flex-shrink-0 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-hover)] flex items-center justify-center text-[0.9375rem] font-black text-white shadow-sm">
+          {initials}
+        </div>
       </div>
 
       {/* Player info */}
-      <div className="flex-[1_1_150px] min-w-0">
+      <div className="flex-[1_1_160px] min-w-0">
         <p className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">
           {booking.player.name}
         </p>
-        <p className="text-[0.8125rem] text-[var(--color-text-muted)] overflow-hidden text-ellipsis whitespace-nowrap mt-px">
+        <p className="text-[0.8125rem] text-[var(--color-text-muted)] overflow-hidden text-ellipsis whitespace-nowrap mt-0.5">
           {booking.player.email}
         </p>
       </div>
 
       {/* Slot time */}
-      <div className="flex-[0_0_auto] text-center px-3.5 py-1.5 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border)]">
-        <p className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide">
+      <div className="flex-[0_0_auto] text-center px-4 py-2 rounded-[10px] bg-[var(--color-surface-muted)] border border-[var(--color-border)]">
+        <p className="text-[0.6875rem] font-extrabold text-[var(--color-text-muted)] uppercase tracking-[0.04em]">
           {fmtDate(booking.slot.startTime)}
         </p>
-        <p className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight mt-px">
+        <p className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight mt-1">
           {fmtTime(booking.slot.startTime)} – {fmtTime(booking.slot.endTime)}
         </p>
       </div>
 
       {/* Price */}
-      <p className="flex-[0_0_auto] text-base font-extrabold text-[var(--color-primary)] tracking-tight">
-        {booking.slot.price.toLocaleString()}
-        <span className="text-xs font-medium text-[var(--color-text-muted)] ml-1">ETB</span>
-      </p>
+      <div className="flex-[0_0_auto] text-right">
+        <p className="text-[1.125rem] font-black text-[var(--color-primary)] tracking-tight leading-none">
+          {booking.slot.price.toLocaleString()}
+        </p>
+        <p className="text-[0.6875rem] font-bold text-[var(--color-text-muted)] uppercase tracking-wide mt-1">
+          ETB
+        </p>
+      </div>
 
       {/* Status badges */}
       <div className="flex gap-1.5 flex-shrink-0">
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide border ${STATUS_BADGE[booking.status] ?? 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] border-[var(--color-border)]'}`}>
+        <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border ${STATUS_BADGE[booking.status] ?? 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] border-[var(--color-border)]'}`}>
           {booking.status}
         </span>
         {booking.payment && (
-          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide border ${PAYMENT_BADGE[booking.payment.status] ?? 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] border-[var(--color-border)]'}`}>
+          <span className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border ${PAYMENT_BADGE[booking.payment.status] ?? 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] border-[var(--color-border)]'}`}>
             {booking.payment.status === 'PAID' ? '✓' : '⏳'} {booking.payment.status}
           </span>
         )}
@@ -268,14 +284,14 @@ function BookingRow({ booking, busy, onConfirm, onCancel, onMarkPaid }: RowProps
         {booking.status === 'PENDING' && (
           <>
             <button
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-[10px] text-[0.8125rem] font-semibold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={busy}
               onClick={onConfirm}
             >
               {busy ? <div className="inline-block w-3 h-3 border-[1.5px] border-[rgba(255,255,255,0.3)] border-t-white rounded-full animate-spin" /> : '✓ Accept'}
             </button>
             <button
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-[10px] text-[0.8125rem] font-semibold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={busy}
               onClick={onCancel}
             >
@@ -287,7 +303,7 @@ function BookingRow({ booking, busy, onConfirm, onCancel, onMarkPaid }: RowProps
           <>
             {booking.payment?.status === 'PENDING' && (
               <button
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-[10px] text-[0.8125rem] font-semibold text-[var(--color-primary)] bg-[var(--color-primary-bg)] border border-[#bbf7d0] transition-all hover:bg-[var(--color-success-bg)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-primary)] bg-[var(--color-primary-bg)] border border-[#bbf7d0] transition-all hover:bg-[var(--color-success-bg)] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={busy}
                 onClick={onMarkPaid}
               >
@@ -295,7 +311,7 @@ function BookingRow({ booking, busy, onConfirm, onCancel, onMarkPaid }: RowProps
               </button>
             )}
             <button
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-[10px] text-[0.8125rem] font-semibold text-[var(--color-text-muted)] bg-transparent border border-[var(--color-border)] transition-all hover:text-[var(--color-danger)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-text-muted)] bg-transparent border border-[var(--color-border)] transition-all hover:text-[var(--color-danger)] hover:border-[var(--color-danger)] disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={busy}
               onClick={onCancel}
             >

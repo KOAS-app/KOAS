@@ -19,25 +19,38 @@ const Stack = createStackNavigator<RootStackParamList>();
 const AuthStack = createStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
-// Premium SVG Icons (24x24)
-const HomeIcon = ({ color, focused }: { color: string; focused: boolean }) => (
+// ═══════════════════════════════════════════════════════════════
+// Premium Bottom Tab Icons
+// Optimized for one-thumb usage, instant recognition, mobile clarity
+// ═══════════════════════════════════════════════════════════════
+
+const ExploreIcon = ({ color, focused }: { color: string; focused: boolean }) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+    <Circle
+      cx="11"
+      cy="11"
+      r="8"
       stroke={color}
-      strokeWidth={focused ? 2.5 : 2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      fill={focused ? color : 'none'}
-      fillOpacity={focused ? 0.12 : 0}
-    />
-    <Path
-      d="M9 22V12h6v10"
-      stroke={color}
-      strokeWidth={focused ? 2.5 : 2}
+      strokeWidth={focused ? 2.25 : 2}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
+    <Path
+      d="M21 21l-4.35-4.35"
+      stroke={color}
+      strokeWidth={focused ? 2.25 : 2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {focused && (
+      <Circle
+        cx="11"
+        cy="11"
+        r="3"
+        fill={color}
+        opacity={0.2}
+      />
+    )}
   </Svg>
 );
 
@@ -50,11 +63,9 @@ const BookingsIcon = ({ color, focused }: { color: string; focused: boolean }) =
       height="18"
       rx="2"
       stroke={color}
-      strokeWidth={focused ? 2.5 : 2}
+      strokeWidth={focused ? 2.25 : 2}
       strokeLinecap="round"
       strokeLinejoin="round"
-      fill={focused ? color : 'none'}
-      fillOpacity={focused ? 0.12 : 0}
     />
     <Line
       x1="16"
@@ -62,7 +73,7 @@ const BookingsIcon = ({ color, focused }: { color: string; focused: boolean }) =
       x2="16"
       y2="6"
       stroke={color}
-      strokeWidth={focused ? 2.5 : 2}
+      strokeWidth={focused ? 2.25 : 2}
       strokeLinecap="round"
     />
     <Line
@@ -71,7 +82,7 @@ const BookingsIcon = ({ color, focused }: { color: string; focused: boolean }) =
       x2="8"
       y2="6"
       stroke={color}
-      strokeWidth={focused ? 2.5 : 2}
+      strokeWidth={focused ? 2.25 : 2}
       strokeLinecap="round"
     />
     <Line
@@ -80,9 +91,20 @@ const BookingsIcon = ({ color, focused }: { color: string; focused: boolean }) =
       x2="21"
       y2="10"
       stroke={color}
-      strokeWidth={focused ? 2.5 : 2}
+      strokeWidth={focused ? 2.25 : 2}
       strokeLinecap="round"
     />
+    {focused && (
+      <Rect
+        x="7"
+        y="14"
+        width="4"
+        height="4"
+        rx="1"
+        fill={color}
+        opacity={0.2}
+      />
+    )}
   </Svg>
 );
 
@@ -93,16 +115,16 @@ const ProfileIcon = ({ color, focused }: { color: string; focused: boolean }) =>
       cy="8"
       r="4"
       stroke={color}
-      strokeWidth={focused ? 2.5 : 2}
+      strokeWidth={focused ? 2.25 : 2}
       strokeLinecap="round"
       strokeLinejoin="round"
       fill={focused ? color : 'none'}
-      fillOpacity={focused ? 0.12 : 0}
+      fillOpacity={focused ? 0.15 : 0}
     />
     <Path
       d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"
       stroke={color}
-      strokeWidth={focused ? 2.5 : 2}
+      strokeWidth={focused ? 2.25 : 2}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -123,32 +145,34 @@ function TabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.5)',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.text.muted,
         tabBarStyle: {
-          backgroundColor: '#0A1810',
+          backgroundColor: colors.dark.surface,
           borderTopWidth: 1,
-          borderTopColor: 'rgba(61, 181, 74, 0.08)',
-          height: Platform.OS === 'ios' ? 88 : 68,
+          borderTopColor: colors.dark.border,
+          height: Platform.OS === 'ios' ? 84 : 64,
           paddingTop: spacing.sm,
-          paddingBottom: Platform.OS === 'ios' ? 28 : spacing.md,
-          paddingHorizontal: spacing.sm,
+          paddingBottom: Platform.OS === 'ios' ? spacing.xl : spacing.md,
+          paddingHorizontal: spacing.xs,
           elevation: 0,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.12,
+          shadowRadius: 12,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
-          marginTop: 4,
-          letterSpacing: 0.2,
+          marginTop: 3,
+          letterSpacing: 0.3,
           fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
         },
         tabBarItemStyle: {
           paddingVertical: spacing.xs,
+          gap: 2,
         },
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tab.Screen
@@ -157,8 +181,8 @@ function TabNavigator() {
         options={{
           tabBarLabel: 'Explore',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ marginTop: 2 }}>
-              <HomeIcon color={color} focused={focused} />
+            <View style={{ marginTop: 1 }}>
+              <ExploreIcon color={color} focused={focused} />
             </View>
           ),
         }}
@@ -169,7 +193,7 @@ function TabNavigator() {
         options={{
           tabBarLabel: 'Bookings',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ marginTop: 2 }}>
+            <View style={{ marginTop: 1 }}>
               <BookingsIcon color={color} focused={focused} />
             </View>
           ),
@@ -181,7 +205,7 @@ function TabNavigator() {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ marginTop: 2 }}>
+            <View style={{ marginTop: 1 }}>
               <ProfileIcon color={color} focused={focused} />
             </View>
           ),

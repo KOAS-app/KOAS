@@ -11,15 +11,15 @@ interface Stats {
 }
 
 const StatCard = ({ label, value, sub }: { label: string; value: number; sub?: string }) => (
-  <div className="card">
-    <p className="text-4xl font-extrabold tracking-tight mb-2" style={{ color: 'var(--color-primary)' }}>
+  <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] p-6 shadow-sm transition-all hover:shadow-md hover:border-[var(--color-border-strong)]">
+    <p className="text-[2.25rem] font-black tracking-tight mb-2 leading-none text-[var(--color-primary)]">
       {value.toLocaleString()}
     </p>
-    <p className="text-sm font-semibold" style={{ color: 'var(--color-text-base)' }}>
+    <p className="text-sm font-bold text-[var(--color-text-base)] tracking-tight">
       {label}
     </p>
     {sub && (
-      <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+      <p className="text-xs mt-1.5 text-[var(--color-text-muted)] font-medium">
         {sub}
       </p>
     )}
@@ -60,21 +60,23 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="page-title mb-2">Dashboard</h1>
-        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+        <h1 className="text-[1.625rem] font-extrabold tracking-tight text-[var(--color-text-base)] leading-tight mb-1.5">Dashboard</h1>
+        <p className="text-sm text-[var(--color-text-muted)]">
           Platform overview and key metrics
         </p>
       </div>
 
       {loading && (
-        <div className="flex items-center gap-3">
-          <div className="loading-spinner"></div>
-          <p style={{ color: 'var(--color-text-muted)' }}>Loading statistics...</p>
+        <div className="flex items-center justify-center gap-3.5 py-20">
+          <div className="inline-block w-[1.625rem] h-[1.625rem] border-2 border-[var(--color-border)] border-t-[var(--color-primary)] rounded-full animate-spin" />
+          <span className="text-[var(--color-text-muted)] text-sm font-medium">
+            Loading statistics…
+          </span>
         </div>
       )}
 
       {stats && (
-        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
           <StatCard label="Total Users" value={stats.totalUsers} />
           <StatCard 
             label="Total Stadiums" 
