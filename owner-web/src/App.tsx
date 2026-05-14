@@ -3,9 +3,10 @@ import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardLayout from './layouts/DashboardLayout';
-import StadiumsPage from './pages/StadiumsPage';
+import DashboardPage from './pages/DashboardPage';
 import SlotsPage from './pages/SlotsPage';
 import BookingsPage from './pages/BookingsPage';
+import ReviewsPage from './pages/ReviewsPage';
 import { ReactNode } from 'react';
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
@@ -26,10 +27,11 @@ export default function App() {
           </PrivateRoute>
         }
       >
-        <Route index element={<Navigate to="/stadiums" replace />} />
-        <Route path="stadiums" element={<StadiumsPage />} />
-        <Route path="stadiums/:id/slots" element={<SlotsPage />} />
-        <Route path="stadiums/:id/bookings" element={<BookingsPage />} />
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="slots" element={<SlotsPage />} />
+        <Route path="bookings" element={<BookingsPage />} />
+        <Route path="reviews" element={<ReviewsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

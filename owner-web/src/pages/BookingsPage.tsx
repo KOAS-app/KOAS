@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import type { Booking } from '../types';
 import { getApiError } from '../utils/apiError';
@@ -31,18 +31,30 @@ const FILTERS: { key: Filter; label: string }[] = [
 ];
 
 export default function BookingsPage() {
-  const { id: stadiumId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  const [stadiumId, setStadiumId] = useState<string | null>(null);
   const [bookings, setBookings]       = useState<Booking[]>([]);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState('');
   const [filter, setFilter]           = useState<Filter>('ALL');
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const fetchBookings = async () => {
     try {
-      const res = await api.get(`/bookings/stadium/${stadiumId}`);
+      // First get the stadium
+      const stadiumRes = await api.get('/stadiums/my');
+      const stadium = stadiumRes.data[0];
+      
+      if (!stadium) {
+        setError('No stadium found. Please create a stadium first.');
+        setLoading(false);
+        return;
+      }
+
+      setStadiumId(stadium.id);
+
+      // Then fetch bookings
+      const res = await api.get(`/bookings/stadium/${stadium.id}`);
       setBookings(res.data);
     } catch (err) {
       setError(getApiError(err, 'Failed to load bookings.'));
@@ -51,7 +63,9 @@ export default function BookingsPage() {
     }
   };
 
-  useEffect(() => { fetchBookings(); }, [stadiumId]);
+  useEffect(() => { fetchBookings(); }, []);
+  
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const doAction = async (bookingId: string, action: 'confirm' | 'owner-cancel') => {
     setActionLoading(bookingId);
@@ -83,19 +97,11 @@ export default function BookingsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <button
-          onClick={() => navigate('/stadiums')}
-          className="inline-flex items-center justify-center p-2 rounded-lg flex-shrink-0 text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)]"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
-          </svg>
-        </button>
+      <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-[1.625rem] font-extrabold tracking-tight text-[var(--color-text-base)] leading-tight mb-0">Bookings</h1>
-          <p className="text-[var(--color-text-muted)] text-sm mt-0.5">
-            Review and manage all reservations for this stadium.
+          <h1 className="text-[1.625rem] font-extrabold tracking-tight text-[var(--color-text-base)] leading-tight mb-1.5">Bookings</h1>
+          <p className="text-[var(--color-text-muted)] text-[0.9375rem] -mt-1">
+            Review and manage all reservations for your stadium.
           </p>
         </div>
       </div>

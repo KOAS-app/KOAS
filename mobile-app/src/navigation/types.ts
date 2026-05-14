@@ -2,6 +2,7 @@ export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
   StadiumDetail: { stadiumId: string; stadiumName: string };
+  Booking: { stadiumId: string; stadiumName: string };
   Bookings: undefined;
 };
 

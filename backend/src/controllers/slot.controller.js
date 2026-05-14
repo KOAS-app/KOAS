@@ -3,7 +3,7 @@ import prisma from '../config/prisma.js';
 // POST /api/slots — owner creates a single slot
 export const createSlot = async (req, res) => {
   try {
-    const { stadiumId, startTime, endTime, price } = req.body;
+    const { stadiumId, location, startTime, endTime, price } = req.body;
 
     // Verify stadium belongs to this owner
     const stadium = await prisma.stadium.findUnique({ where: { id: stadiumId } });
@@ -12,22 +12,29 @@ export const createSlot = async (req, res) => {
       return res.status(403).json({ message: 'Not your stadium' });
     }
 
-    // Check for overlapping slots on the same stadium
+    // Verify location exists in stadium locations
+    if (!stadium.locations.includes(location)) {
+      return res.status(400).json({ message: 'Invalid location for this stadium' });
+    }
+
+    // Check for overlapping slots on the same stadium and location
     const overlap = await prisma.slot.findFirst({
       where: {
         stadiumId,
+        location,
         OR: [
           { startTime: { lt: new Date(endTime) }, endTime: { gt: new Date(startTime) } },
         ],
       },
     });
     if (overlap) {
-      return res.status(400).json({ message: 'Slot overlaps with an existing slot' });
+      return res.status(400).json({ message: 'Slot overlaps with an existing slot at this location' });
     }
 
     const slot = await prisma.slot.create({
       data: {
         stadiumId,
+        location,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
         price: parseFloat(price),
@@ -40,11 +47,11 @@ export const createSlot = async (req, res) => {
   }
 };
 
-// POST /api/slots/bulk — owner bulk-generates hourly slots for a day
+// POST /api/slots/bulk — owner bulk-generates slots for a day with custom duration
 export const bulkCreateSlots = async (req, res) => {
   try {
-    const { stadiumId, date, openHour, closeHour, price } = req.body;
-    // date: "2026-05-12", openHour: 8, closeHour: 22, price: 500
+    const { stadiumId, location, date, openHour, closeHour, price, duration = 1 } = req.body;
+    // date: "2026-05-12", openHour: 8, closeHour: 22, price: 500, duration: 1 (in hours)
 
     const stadium = await prisma.stadium.findUnique({ where: { id: stadiumId } });
     if (!stadium) return res.status(404).json({ message: 'Stadium not found' });
@@ -52,21 +59,48 @@ export const bulkCreateSlots = async (req, res) => {
       return res.status(403).json({ message: 'Not your stadium' });
     }
 
-    const slots = [];
-    for (let hour = openHour; hour < closeHour; hour++) {
-      const start = new Date(`${date}T${String(hour).padStart(2, '0')}:00:00`);
-      const end   = new Date(`${date}T${String(hour + 1).padStart(2, '0')}:00:00`);
+    // Verify location exists in stadium locations
+    if (!stadium.locations.includes(location)) {
+      return res.status(400).json({ message: 'Invalid location for this stadium' });
+    }
 
-      // Skip if overlapping slot already exists
+    // Validate duration
+    const slotDuration = parseFloat(duration);
+    if (slotDuration <= 0 || slotDuration > 24) {
+      return res.status(400).json({ message: 'Duration must be between 0 and 24 hours' });
+    }
+
+    const slots = [];
+    let currentHour = openHour;
+    
+    while (currentHour < closeHour) {
+      // Calculate end hour (can be fractional for durations like 1.5 hours)
+      const endHour = Math.min(currentHour + slotDuration, closeHour);
+      
+      // Convert hours to time strings
+      const startHourInt = Math.floor(currentHour);
+      const startMinutes = Math.round((currentHour - startHourInt) * 60);
+      const endHourInt = Math.floor(endHour);
+      const endMinutes = Math.round((endHour - endHourInt) * 60);
+      
+      const start = new Date(`${date}T${String(startHourInt).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00`);
+      const end = new Date(`${date}T${String(endHourInt).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00`);
+
+      // Skip if overlapping slot already exists at this location
       const overlap = await prisma.slot.findFirst({
         where: {
           stadiumId,
+          location,
           OR: [{ startTime: { lt: end }, endTime: { gt: start } }],
         },
       });
+      
       if (!overlap) {
-        slots.push({ stadiumId, startTime: start, endTime: end, price: parseFloat(price) });
+        slots.push({ stadiumId, location, startTime: start, endTime: end, price: parseFloat(price) });
       }
+      
+      // Move to next slot
+      currentHour = endHour;
     }
 
     const created = await prisma.slot.createMany({ data: slots });

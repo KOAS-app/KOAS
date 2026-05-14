@@ -8,15 +8,20 @@ export interface User {
 export interface Stadium {
   id: string;
   name: string;
-  location: string;
+  locations: string[]; // Changed from location to locations array
   description?: string;
+  imageUrl?: string;
+  amenities?: string[]; // Stadium amenities/features
   isApproved: boolean;
   owner: { id: string; name: string };
+  averageRating?: number;
+  totalReviews?: number;
 }
 
 export interface Slot {
   id: string;
   stadiumId: string;
+  location: string;
   startTime: string;
   endTime: string;
   price: number;
@@ -34,4 +39,18 @@ export interface Booking {
     status: 'PENDING' | 'PAID' | 'FAILED';
     amount: number;
   };
+}
+
+export interface Review {
+  id: string;
+  stadiumId: string;
+  playerId: string;
+  rating: number;
+  comment?: string;
+  ownerReply?: string;
+  repliedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  player?: { id: string; name: string };
+  stadium?: { id: string; name: string; location: string };
 }

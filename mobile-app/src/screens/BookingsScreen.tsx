@@ -95,7 +95,10 @@ export default function BookingsScreen() {
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Text style={styles.stadiumName}>{item.stadium.name}</Text>
-              <View style={[styles.badge, { backgroundColor: statusStyle[item.status].bg }]}>
+              <View style={[styles.badge, { 
+                backgroundColor: statusStyle[item.status].bg,
+                borderColor: item.status === 'CONFIRMED' ? '#BBF7D0' : item.status === 'PENDING' ? '#FDE68A' : '#FECACA'
+              }]}>
                 <Text style={[styles.badgeText, { color: statusStyle[item.status].text }]}>
                   {item.status}
                 </Text>
@@ -116,7 +119,10 @@ export default function BookingsScreen() {
             <View style={styles.cardFooter}>
               <Text style={styles.price}>{item.slot.price.toLocaleString()} ETB</Text>
               {item.payment && (
-                <View style={[styles.badge, { backgroundColor: paymentStyle[item.payment.status].bg }]}>
+                <View style={[styles.badge, { 
+                  backgroundColor: paymentStyle[item.payment.status].bg,
+                  borderColor: item.payment.status === 'PAID' ? '#BBF7D0' : item.payment.status === 'PENDING' ? '#FDE68A' : '#FECACA'
+                }]}>
                   <Text style={[styles.badgeText, { color: paymentStyle[item.payment.status].text }]}>
                     💵 {item.payment.status}
                   </Text>
@@ -141,36 +147,36 @@ export default function BookingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.surface },
-  header: { backgroundColor: colors.sidebar, padding: 20, paddingTop: 50 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: colors.textInverse },
+  container: { flex: 1, backgroundColor: colors.dark.bg },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.dark.bg },
+  header: { backgroundColor: colors.dark.surface, padding: 20, paddingTop: 50 },
+  headerTitle: { fontSize: 24, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.5 },
   list: { padding: 16, gap: 12 },
   card: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.dark.card,
     borderRadius: radius.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.border,
-    gap: 8,
+    borderColor: colors.dark.border,
+    gap: 10,
   },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  stadiumName: { fontSize: 16, fontWeight: '700', color: colors.textPrimary, flex: 1 },
-  slotTime: { fontSize: 13, color: colors.textMuted },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
+  stadiumName: { fontSize: 16, fontWeight: '800', color: colors.text.primary, flex: 1, letterSpacing: -0.3 },
+  slotTime: { fontSize: 13, color: colors.text.muted, fontWeight: '600' },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
-  price: { fontSize: 15, fontWeight: '700', color: colors.primary },
-  badge: { borderRadius: 99, paddingHorizontal: 8, paddingVertical: 3 },
-  badgeText: { fontSize: 11, fontWeight: '600' },
+  price: { fontSize: 16, fontWeight: '900', color: colors.primary, letterSpacing: -0.3 },
+  badge: { borderRadius: radius.md, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1 },
+  badgeText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
   cancelBtn: {
     backgroundColor: colors.danger,
     borderRadius: radius.md,
-    padding: 10,
+    padding: 12,
     alignItems: 'center',
     marginTop: 8,
   },
   cancelBtnDisabled: { opacity: 0.5 },
-  cancelBtnText: { color: colors.textInverse, fontSize: 13, fontWeight: '600' },
-  empty: { alignItems: 'center', marginTop: 60 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyText: { fontSize: 16, color: colors.textMuted },
+  cancelBtnText: { color: colors.text.inverse, fontSize: 14, fontWeight: '700' },
+  empty: { alignItems: 'center', marginTop: 80 },
+  emptyIcon: { fontSize: 64, marginBottom: 16, opacity: 0.5 },
+  emptyText: { fontSize: 16, color: colors.text.muted, fontWeight: '600' },
 });

@@ -1,9 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl, Image } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
 import { colors, spacing, radius, typography, shadows } from '../theme';
+import StarRating from '../components/StarRating';
+import { API_BASE_URL } from '../config/api';
 import type { Stadium } from '../types';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { TabParamList } from '../navigation/types';
@@ -76,18 +78,37 @@ export default function HomeScreen({ navigation }: Props) {
             onPress={() => (navigation as any).navigate('StadiumDetail', { stadiumId: item.id, stadiumName: item.name })}
             activeOpacity={0.7}
           >
-            <View style={styles.cardTop}>
-              <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-              <View style={styles.approvedBadge}>
-                <Text style={styles.approvedText}>✓ Open</Text>
+            {/* Stadium Image */}
+            {item.imageUrl && (
+              <Image 
+                source={{ uri: `${API_BASE_URL}${item.imageUrl}` }}
+                style={styles.cardImage}
+                resizeMode="cover"
+              />
+            )}
+            
+            <View style={styles.cardContent}>
+              <View style={styles.cardTop}>
+                <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
+                <View style={styles.approvedBadge}>
+                  <Text style={styles.approvedText}>✓ Open</Text>
+                </View>
               </View>
-            </View>
-            <Text style={styles.cardLocation} numberOfLines={1}>📍 {item.location}</Text>
-            {item.description ? (
-              <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>
-            ) : null}
-            <View style={styles.cardFooter}>
-              <Text style={styles.cardOwner}>Owner: {item.owner.name}</Text>
+              
+              <View style={styles.cardMeta}>
+                <Text style={styles.cardLocation} numberOfLines={1}>
+                  📍 {item.locations.length === 1 ? item.locations[0] : `${item.locations.length} locations`}
+                </Text>
+                <StarRating 
+                  rating={item.averageRating || 0} 
+                  totalReviews={item.totalReviews || 0}
+                  size={13}
+                />
+              </View>
+              
+              {item.description ? (
+                <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>
+              ) : null}
             </View>
           </TouchableOpacity>
         )}
@@ -99,16 +120,16 @@ export default function HomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: colors.surface 
+    backgroundColor: colors.dark.bg 
   },
   center: { 
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center', 
-    backgroundColor: colors.surface 
+    backgroundColor: colors.dark.bg 
   },
   header: {
-    backgroundColor: colors.sidebar,
+    backgroundColor: colors.dark.surface,
     paddingHorizontal: spacing.xl,
     paddingTop: 56,
     paddingBottom: spacing.xl,
@@ -117,14 +138,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   greeting: { 
-    fontSize: typography.sizes.xl, 
-    fontWeight: typography.weights.bold, 
-    color: colors.textInverse,
-    letterSpacing: -0.3,
+    fontSize: typography.sizes.xxl, 
+    fontWeight: typography.weights.extrabold, 
+    color: colors.text.primary,
+    letterSpacing: -0.5,
   },
   subtitle: { 
     fontSize: typography.sizes.sm, 
-    color: 'rgba(255,255,255,0.7)', 
+    color: colors.text.muted, 
     marginTop: spacing.xs,
     fontWeight: typography.weights.medium,
   },
@@ -133,13 +154,21 @@ const styles = StyleSheet.create({
     gap: spacing.md 
   },
   card: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.dark.card,
     borderRadius: radius.lg,
-    padding: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.sm,
+    borderColor: colors.dark.border,
+    overflow: 'hidden',
     ...shadows.sm,
+  },
+  cardImage: {
+    width: '100%',
+    height: 180,
+    backgroundColor: colors.dark.surface,
+  },
+  cardContent: {
+    padding: spacing.lg,
+    gap: spacing.sm,
   },
   cardTop: { 
     flexDirection: 'row', 
@@ -149,14 +178,14 @@ const styles = StyleSheet.create({
   },
   cardName: { 
     fontSize: typography.sizes.md, 
-    fontWeight: typography.weights.bold, 
-    color: colors.textPrimary, 
+    fontWeight: typography.weights.extrabold, 
+    color: colors.text.primary, 
     flex: 1,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
   },
   approvedBadge: { 
     backgroundColor: colors.successBg, 
-    borderRadius: radius.full, 
+    borderRadius: radius.md, 
     paddingHorizontal: spacing.sm, 
     paddingVertical: spacing.xs,
     borderWidth: 1,
@@ -165,28 +194,24 @@ const styles = StyleSheet.create({
   approvedText: { 
     fontSize: typography.sizes.xs, 
     color: '#15803D', 
-    fontWeight: typography.weights.semibold,
+    fontWeight: typography.weights.bold,
   },
   cardLocation: { 
     fontSize: typography.sizes.sm, 
-    color: colors.textMuted,
-    fontWeight: typography.weights.medium,
+    color: colors.text.muted,
+    fontWeight: typography.weights.semibold,
+    flex: 1,
+  },
+  cardMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
   },
   cardDesc: { 
     fontSize: typography.sizes.sm, 
-    color: colors.textSecondary,
+    color: colors.text.secondary,
     lineHeight: 20,
-  },
-  cardFooter: {
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    marginTop: spacing.xs,
-  },
-  cardOwner: { 
-    fontSize: typography.sizes.xs, 
-    color: colors.textMuted,
-    fontWeight: typography.weights.medium,
   },
   empty: { 
     alignItems: 'center', 
@@ -200,13 +225,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.bold,
-    color: colors.textPrimary,
+    fontWeight: typography.weights.extrabold,
+    color: colors.text.primary,
     marginBottom: spacing.xs,
   },
   emptyText: { 
     fontSize: typography.sizes.base, 
-    color: colors.textMuted,
+    color: colors.text.muted,
     textAlign: 'center',
   },
   errorContainer: {

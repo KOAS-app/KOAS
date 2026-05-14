@@ -50,15 +50,18 @@ export default function StadiumsPage() {
             Manage your turf listings, time slots, and bookings.
           </p>
         </div>
-        <button
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 mt-1 rounded-[10px] text-sm font-semibold tracking-tight text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:border-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0"
-          onClick={openCreate}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Add Stadium
-        </button>
+        {/* Only show Add Stadium button if no stadium exists */}
+        {!loading && stadiums.length === 0 && (
+          <button
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 mt-1 rounded-[10px] text-sm font-semibold tracking-tight text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:border-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0"
+            onClick={openCreate}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add Stadium
+          </button>
+        )}
       </div>
 
       {/* Error */}
@@ -107,6 +110,7 @@ export default function StadiumsPage() {
               stadium={stadium}
               onSlots={() => navigate(`/stadiums/${stadium.id}/slots`)}
               onBookings={() => navigate(`/stadiums/${stadium.id}/bookings`)}
+              onReviews={() => navigate(`/stadiums/${stadium.id}/reviews`)}
               onEdit={() => openEdit(stadium)}
               onDelete={() => handleDelete(stadium.id)}
             />
@@ -131,17 +135,46 @@ interface CardProps {
   stadium: Stadium;
   onSlots: () => void;
   onBookings: () => void;
+  onReviews: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-function StadiumCard({ stadium, onSlots, onBookings, onEdit, onDelete }: CardProps) {
+function StadiumCard({ stadium, onSlots, onBookings, onReviews, onEdit, onDelete }: CardProps) {
   const approved = stadium.isApproved;
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const imageUrl = stadium.imageUrl ? `${apiUrl}${stadium.imageUrl}` : null;
 
   return (
     <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-[var(--color-border-strong)]">
-      {/* Status bar */}
-      <div className={`h-[2px] ${approved ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-warning)]'}`} />
+      {/* Stadium Image */}
+      {imageUrl ? (
+        <div className="relative h-40 overflow-hidden bg-[var(--color-surface-muted)]">
+          <img 
+            src={imageUrl} 
+            alt={stadium.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Fallback if image fails to load
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-5xl opacity-30">🏟️</div>';
+            }}
+          />
+          {/* Status badge overlay */}
+          <span className={`absolute top-3 right-3 inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border backdrop-blur-sm ${
+            approved 
+              ? 'bg-[rgba(34,197,94,0.9)] text-white border-[rgba(255,255,255,0.3)]' 
+              : 'bg-[rgba(245,158,11,0.9)] text-white border-[rgba(255,255,255,0.3)]'
+          }`}>
+            {approved ? 'Live' : 'Pending'}
+          </span>
+        </div>
+      ) : (
+        <>
+          {/* Status bar for no image */}
+          <div className={`h-[2px] ${approved ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-warning)]'}`} />
+        </>
+      )}
 
       <div className="p-[1.25rem_1.375rem] flex flex-col gap-3.5 flex-1">
         {/* Identity row */}
@@ -155,17 +188,20 @@ function StadiumCard({ stadium, onSlots, onBookings, onEdit, onDelete }: CardPro
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
               </svg>
               <span className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
-                {stadium.location}
+                {stadium.locations.length === 1 ? stadium.locations[0] : `${stadium.locations.length} branches`}
               </span>
             </div>
           </div>
-          <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${
-            approved 
-              ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]' 
-              : 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]'
-          }`}>
-            {approved ? 'Live' : 'Pending'}
-          </span>
+          {/* Show status badge only if no image */}
+          {!imageUrl && (
+            <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${
+              approved 
+                ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]' 
+                : 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]'
+            }`}>
+              {approved ? 'Live' : 'Pending'}
+            </span>
+          )}
         </div>
 
         {/* Description */}
@@ -175,11 +211,30 @@ function StadiumCard({ stadium, onSlots, onBookings, onEdit, onDelete }: CardPro
           </p>
         )}
 
+        {/* Amenities */}
+        {stadium.amenities && stadium.amenities.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {stadium.amenities.slice(0, 4).map((amenity, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center px-2 py-1 rounded-md text-[0.6875rem] font-semibold bg-[var(--color-success-bg)] text-[#15803d] border border-[#bbf7d0]"
+              >
+                {amenity}
+              </span>
+            ))}
+            {stadium.amenities.length > 4 && (
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-[0.6875rem] font-semibold text-[var(--color-text-muted)]">
+                +{stadium.amenities.length - 4} more
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Divider */}
         <div className="h-px bg-[var(--color-border)] -mx-[1.375rem]" />
 
         {/* Action buttons */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <button
             className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0"
             onClick={onSlots}
@@ -197,6 +252,15 @@ function StadiumCard({ stadium, onSlots, onBookings, onEdit, onDelete }: CardPro
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
             </svg>
             Bookings
+          </button>
+          <button
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)]"
+            onClick={onReviews}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            Reviews
           </button>
         </div>
 

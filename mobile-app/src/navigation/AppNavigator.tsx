@@ -10,6 +10,7 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import StadiumDetailScreen from '../screens/StadiumDetailScreen';
+import BookingScreen from '../screens/BookingScreen';
 import BookingsScreen from '../screens/BookingsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
@@ -232,6 +233,11 @@ export default function AppNavigator() {
               name="StadiumDetail"
               component={StadiumDetailScreen}
               options={({ route }) => ({ title: route.params.stadiumName })}
+            />
+            <Stack.Screen
+              name="Booking"
+              component={BookingScreen}
+              options={{ headerShown: false }}
             />
           </>
         )}

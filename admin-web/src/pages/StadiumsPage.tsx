@@ -84,7 +84,7 @@ export default function StadiumsPage() {
                   {stadium.name}
                 </p>
                 <p className="text-xs mt-1 text-[var(--color-text-muted)] font-medium">
-                  📍 {stadium.location} · Owner: {stadium.owner.name}
+                  📍 {stadium.locations.length === 1 ? stadium.locations[0] : `${stadium.locations.length} locations`} · Owner: {stadium.owner.name}
                 </p>
               </div>
 

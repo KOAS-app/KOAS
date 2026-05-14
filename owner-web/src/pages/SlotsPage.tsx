@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Slot } from '../types';
 import { getApiError } from '../utils/apiError';
 
 type Tab = 'bulk' | 'single';
 
-interface BulkForm  { date: string; openHour: string; closeHour: string; price: string; }
-interface SingleForm { startTime: string; endTime: string; price: string; }
+interface BulkForm  { location: string; date: string; openHour: string; closeHour: string; duration: string; price: string; }
+interface SingleForm { location: string; startTime: string; endTime: string; price: string; }
 
 const fmt     = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
 
 export default function SlotsPage() {
-  const { id: stadiumId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  const [stadiumId, setStadiumId] = useState<string | null>(null);
+  const [stadiumLocations, setStadiumLocations] = useState<string[]>([]);
   const [slots, setSlots]         = useState<Slot[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState('');
@@ -23,15 +24,36 @@ export default function SlotsPage() {
   const [tab, setTab]             = useState<Tab>('bulk');
   const [saving, setSaving]       = useState(false);
 
-  const [single, setSingle] = useState<SingleForm>({ startTime: '', endTime: '', price: '' });
+  const [single, setSingle] = useState<SingleForm>({ location: '', startTime: '', endTime: '', price: '' });
   const [bulk, setBulk]     = useState<BulkForm>({
+    location: '',
     date: new Date().toISOString().slice(0, 10),
-    openHour: '8', closeHour: '22', price: '',
+    openHour: '8', closeHour: '22', duration: '1', price: '',
   });
 
-  const fetchSlots = async () => {
+  const fetchStadiumAndSlots = async () => {
     try {
-      const res = await api.get(`/slots/${stadiumId}`);
+      // First get the stadium
+      const stadiumRes = await api.get('/stadiums/my');
+      const stadium = stadiumRes.data[0];
+      
+      if (!stadium) {
+        setError('No stadium found. Please create a stadium first.');
+        setLoading(false);
+        return;
+      }
+
+      setStadiumId(stadium.id);
+      setStadiumLocations(stadium.locations || []);
+
+      // Set default location if available
+      if (stadium.locations && stadium.locations.length > 0) {
+        setBulk(prev => ({ ...prev, location: stadium.locations[0] }));
+        setSingle(prev => ({ ...prev, location: stadium.locations[0] }));
+      }
+
+      // Then fetch slots
+      const res = await api.get(`/slots/${stadium.id}`);
       setSlots(res.data);
     } catch (err) {
       setError(getApiError(err, 'Failed to load slots.'));
@@ -40,30 +62,33 @@ export default function SlotsPage() {
     }
   };
 
-  useEffect(() => { fetchSlots(); }, [stadiumId]);
+  useEffect(() => { fetchStadiumAndSlots(); }, []);
 
   const flash = (msg: string) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 3000); };
 
   const handleBulkSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setError('');
+    if (!stadiumId) return;
     try {
       const res = await api.post('/slots/bulk', {
-        stadiumId, date: bulk.date,
-        openHour: parseInt(bulk.openHour), closeHour: parseInt(bulk.closeHour), price: bulk.price,
+        stadiumId, location: bulk.location, date: bulk.date,
+        openHour: parseInt(bulk.openHour), closeHour: parseInt(bulk.closeHour), 
+        duration: parseFloat(bulk.duration), price: bulk.price,
       });
       flash(`${res.data.created} slot(s) generated.`);
-      fetchSlots();
+      fetchStadiumAndSlots();
     } catch (err) { setError(getApiError(err, 'Failed to generate slots.')); }
     finally { setSaving(false); }
   };
 
   const handleSingleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setError('');
+    if (!stadiumId) return;
     try {
-      await api.post('/slots', { stadiumId, ...single });
-      setSingle({ startTime: '', endTime: '', price: '' });
+      await api.post('/slots', { stadiumId, location: single.location, ...single });
+      setSingle({ location: stadiumLocations[0] || '', startTime: '', endTime: '', price: '' });
       flash('Slot created.');
-      fetchSlots();
+      fetchStadiumAndSlots();
     } catch (err) { setError(getApiError(err, 'Failed to create slot.')); }
     finally { setSaving(false); }
   };
@@ -146,6 +171,20 @@ export default function SlotsPage() {
             {tab === 'bulk' && (
               <form onSubmit={handleBulkSubmit} className="flex flex-col gap-4">
                 <div>
+                  <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Location</label>
+                  <select
+                    className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
+                    value={bulk.location}
+                    onChange={e => setBulk(p => ({ ...p, location: e.target.value }))}
+                    required
+                  >
+                    <option value="">Select location</option>
+                    {stadiumLocations.map(loc => (
+                      <option key={loc} value={loc}>{loc}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
                   <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Date</label>
                   <input
                     type="date"
@@ -179,6 +218,25 @@ export default function SlotsPage() {
                       required
                     />
                   </div>
+                </div>
+                <div>
+                  <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">
+                    Slot Duration (hours)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0.5"
+                    max="24"
+                    className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all placeholder:text-[var(--color-text-muted)] hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
+                    placeholder="e.g. 1 or 0.5 for 30 min"
+                    value={bulk.duration}
+                    onChange={e => setBulk(p => ({ ...p, duration: e.target.value }))}
+                    required
+                  />
+                  <p className="text-[0.6875rem] text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                    Enter duration in hours. For 30 minutes use <strong className="text-[var(--color-text-secondary)]">0.5</strong>, for 90 minutes use <strong className="text-[var(--color-text-secondary)]">1.5</strong>
+                  </p>
                 </div>
                 <div>
                   <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Price per slot (ETB)</label>
@@ -217,6 +275,20 @@ export default function SlotsPage() {
             {/* Single form */}
             {tab === 'single' && (
               <form onSubmit={handleSingleSubmit} className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Location</label>
+                  <select
+                    className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
+                    value={single.location}
+                    onChange={e => setSingle(p => ({ ...p, location: e.target.value }))}
+                    required
+                  >
+                    <option value="">Select location</option>
+                    {stadiumLocations.map(loc => (
+                      <option key={loc} value={loc}>{loc}</option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Start Time</label>
                   <input
@@ -266,7 +338,7 @@ export default function SlotsPage() {
               💡 Tip
             </p>
             <p className="text-[0.8125rem] text-[#166534] leading-relaxed">
-              Use <strong>Bulk Generate</strong> to create hourly slots for a full day at once. Delete individual slots if needed.
+              Use <strong>Bulk Generate</strong> to create slots for a full day at once. Choose your preferred slot duration (30 min to 8 hours). Delete individual slots if needed.
             </p>
           </div>
         </div>
@@ -310,7 +382,7 @@ export default function SlotsPage() {
                       i < daySlots.length - 1 ? 'border-b border-[var(--color-border)]' : ''
                     } ${slot.isBooked ? 'bg-[var(--color-surface-muted)] opacity-75' : 'bg-transparent'}`}
                   >
-                    {/* Status dot + time */}
+                    {/* Status dot + time + location */}
                     <div className="flex items-center gap-3.5">
                       <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                         slot.isBooked 
@@ -318,16 +390,27 @@ export default function SlotsPage() {
                           : 'bg-[var(--color-success)] shadow-[0_0_6px_var(--color-success)]'
                       }`} />
                       <div>
-                        <span className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight">
-                          {fmt(slot.startTime)} – {fmt(slot.endTime)}
-                        </span>
-                        <span className={`ml-3 px-2 py-0.5 rounded-md text-[0.6875rem] font-bold tracking-wide ${
-                          slot.isBooked 
-                            ? 'bg-[var(--color-danger-bg)] text-[var(--color-danger)] border border-[#fecaca]' 
-                            : 'bg-[var(--color-success-bg)] text-[var(--color-success)] border border-[#bbf7d0]'
-                        }`}>
-                          {slot.isBooked ? 'Reserved' : 'Available'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight">
+                            {fmt(slot.startTime)} – {fmt(slot.endTime)}
+                          </span>
+                          <span className={`ml-1 px-2 py-0.5 rounded-md text-[0.6875rem] font-bold tracking-wide ${
+                            slot.isBooked 
+                              ? 'bg-[var(--color-danger-bg)] text-[var(--color-danger)] border border-[#fecaca]' 
+                              : 'bg-[var(--color-success-bg)] text-[var(--color-success)] border border-[#bbf7d0]'
+                          }`}>
+                            {slot.isBooked ? 'Reserved' : 'Available'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-text-muted)]">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                          <span className="text-[0.75rem] text-[var(--color-text-muted)] font-medium">
+                            {slot.location}
+                          </span>
+                        </div>
                       </div>
                     </div>
 

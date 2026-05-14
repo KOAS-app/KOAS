@@ -1,8 +1,10 @@
 export interface Stadium {
   id: string;
   name: string;
-  location: string;
+  locations: string[]; // Changed from location to locations array
   description?: string;
+  imageUrl?: string;
+  amenities?: string[]; // Stadium amenities/features
   isApproved: boolean;
   createdAt: string;
 }
@@ -10,6 +12,7 @@ export interface Stadium {
 export interface Slot {
   id: string;
   stadiumId: string;
+  location: string;
   startTime: string;
   endTime: string;
   price: number;
@@ -32,4 +35,18 @@ export interface Booking {
     amount: number;
     method: string;
   };
+}
+
+export interface Review {
+  id: string;
+  stadiumId: string;
+  playerId: string;
+  rating: number;
+  comment?: string;
+  ownerReply?: string;
+  repliedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  player?: { id: string; name: string };
+  stadium?: { id: string; name: string; location: string };
 }

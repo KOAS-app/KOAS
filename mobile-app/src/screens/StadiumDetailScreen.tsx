@@ -1,59 +1,178 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Image, Dimensions } from 'react-native';
+import Svg, { Path, Circle, Rect, Line } from 'react-native-svg';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
-import { colors, radius } from '../theme';
-import type { Stadium, Slot } from '../types';
+import { colors, radius, spacing, typography } from '../theme';
+import StarRating from '../components/StarRating';
+import ReviewModal from '../components/ReviewModal';
+import { API_BASE_URL } from '../config/api';
+import type { Stadium, Review, Slot } from '../types';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { RootStackParamList } from '../navigation/types';
 
 type Props = StackScreenProps<RootStackParamList, 'StadiumDetail'>;
 
+const { width } = Dimensions.get('window');
+
+// Amenity SVG Icons matching app theme
+const ParkingIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Rect x="3" y="3" width="18" height="18" rx="2" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M9 8h3a3 3 0 0 1 0 6H9V8z" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Line x1="9" y1="8" x2="9" y2="17" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+const ChangingRoomIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Circle cx="12" cy="7" r="4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+const ShowerIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path d="M12 2v10" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Circle cx="12" cy="2" r="1" fill={colors.primary} />
+    <Line x1="8" y1="16" x2="8" y2="17" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="12" y1="16" x2="12" y2="17" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="16" y1="16" x2="16" y2="17" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="8" y1="20" x2="8" y2="21" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="12" y1="20" x2="12" y2="21" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="16" y1="20" x2="16" y2="21" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+const FloodlightIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="5" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Line x1="12" y1="1" x2="12" y2="3" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="12" y1="21" x2="12" y2="23" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="1" y1="12" x2="3" y2="12" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="21" y1="12" x2="23" y2="12" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+const SeatingIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path d="M4 16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8H4v8z" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M2 8h20" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Path d="M6 4h12" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+const RefreshmentsIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path d="M18 8h1a4 4 0 0 1 0 8h-1" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Line x1="6" y1="1" x2="6" y2="4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="10" y1="1" x2="10" y2="4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="14" y1="1" x2="14" y2="4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+const FirstAidIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Rect x="3" y="3" width="18" height="18" rx="2" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Line x1="12" y1="8" x2="12" y2="16" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="8" y1="12" x2="16" y2="12" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+const EquipmentIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="10" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M12 2a10 10 0 0 0 0 20" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+const WiFiIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path d="M5 12.55a11 11 0 0 1 14.08 0" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M1.42 9a16 16 0 0 1 21.16 0" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M8.53 16.11a6 6 0 0 1 6.95 0" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Circle cx="12" cy="20" r="1" fill={colors.primary} />
+  </Svg>
+);
+
+const SecurityIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+// Amenity icon mapping
+const amenityIconComponents: Record<string, React.ComponentType> = {
+  'Parking': ParkingIcon,
+  'Changing Rooms': ChangingRoomIcon,
+  'Showers': ShowerIcon,
+  'Floodlights': FloodlightIcon,
+  'Seating Area': SeatingIcon,
+  'Refreshments': RefreshmentsIcon,
+  'First Aid': FirstAidIcon,
+  'Equipment Rental': EquipmentIcon,
+  'WiFi': WiFiIcon,
+  'Security': SecurityIcon,
+};
+
 export default function StadiumDetailScreen({ route, navigation }: Props) {
   const { stadiumId, stadiumName } = route.params;
-  const [stadium, setStadium] = useState<Stadium & { slots: Slot[] } | null>(null);
+  const [stadium, setStadium] = useState<Stadium & { slots?: Slot[] } | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [myReview, setMyReview] = useState<Review | null>(null);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [booking, setBooking] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+
+  const fetchStadium = async () => {
+    try {
+      const res = await api.get(`/stadiums/${stadiumId}`);
+      setStadium(res.data);
+    } catch (err) {
+      Alert.alert('Error', getApiError(err, 'Failed to load stadium.'));
+      navigation.goBack();
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const res = await api.get(`/reviews/stadium/${stadiumId}`);
+      setReviews(res.data.reviews);
+      setAverageRating(res.data.averageRating);
+      setTotalReviews(res.data.totalReviews);
+    } catch (err) {
+      console.error('Failed to load reviews:', err);
+    }
+  };
+
+  const fetchMyReview = async () => {
+    try {
+      const res = await api.get(`/reviews/my-review/${stadiumId}`);
+      setMyReview(res.data);
+    } catch (err) {
+      // No review found, that's okay
+      setMyReview(null);
+    }
+  };
 
   useEffect(() => {
-    const fetch = async () => {
-      try {
-        const res = await api.get(`/stadiums/${stadiumId}`);
-        setStadium(res.data);
-      } catch (err) {
-        Alert.alert('Error', getApiError(err, 'Failed to load stadium.'));
-        navigation.goBack();
-      } finally {
-        setLoading(false);
-      }
+    const init = async () => {
+      setLoading(true);
+      await Promise.all([fetchStadium(), fetchReviews(), fetchMyReview()]);
+      setLoading(false);
     };
-    fetch();
+    init();
   }, [stadiumId, navigation]);
 
-  const handleBook = async (slotId: string, price: number) => {
-    Alert.alert(
-      'Confirm Booking',
-      `Book this slot for ${price.toLocaleString()} ETB?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Book',
-          onPress: async () => {
-            setBooking(true);
-            try {
-              await api.post('/bookings', { slotId });
-              Alert.alert('Success', 'Booking created! Check your history.', [
-                { text: 'OK', onPress: () => navigation.navigate('Main') },
-              ]);
-            } catch (err) {
-              Alert.alert('Booking Failed', getApiError(err, 'Please try again.'));
-            } finally {
-              setBooking(false);
-            }
-          },
-        },
-      ]
-    );
+  const handleReviewSuccess = () => {
+    fetchReviews();
+    fetchMyReview();
   };
 
   if (loading) {
@@ -66,94 +185,517 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
 
   if (!stadium) return null;
 
-  const availableSlots = stadium.slots.filter((s) => !s.isBooked);
-  const grouped = availableSlots.reduce<Record<string, Slot[]>>((acc, slot) => {
-    const day = new Date(slot.startTime).toDateString();
-    if (!acc[day]) acc[day] = [];
-    acc[day].push(slot);
-    return acc;
-  }, {});
+  // Calculate minimum price from slots
+  const minPrice = stadium.slots && stadium.slots.length > 0
+    ? Math.min(...stadium.slots.map(slot => slot.price))
+    : 0;
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.name}>{stadium.name}</Text>
-        <Text style={styles.location}>📍 {stadium.location}</Text>
-        {stadium.description ? <Text style={styles.desc}>{stadium.description}</Text> : null}
-        <Text style={styles.owner}>Owner: {stadium.owner.name}</Text>
+    <>
+      <ScrollView style={styles.container}>
+        {/* Hero Image with Overlay */}
+        <View style={styles.heroContainer}>
+          {stadium.imageUrl ? (
+            <Image 
+              source={{ uri: `${API_BASE_URL}${stadium.imageUrl}` }}
+              style={styles.heroImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={[styles.heroImage, styles.heroPlaceholder]}>
+              <Text style={styles.heroPlaceholderText}>🏟️</Text>
+            </View>
+          )}
+          
+          {/* Stadium Info Overlay */}
+          <View style={styles.heroOverlay}>
+            <Text style={styles.heroTitle}>{stadium.name}</Text>
+            
+            {/* Locations */}
+            <Text style={styles.heroLocation}>
+              📍 {stadium.locations.join(' • ')}
+            </Text>
+            
+            <View style={styles.heroMeta}>
+              <View style={styles.ratingContainer}>
+                <Text style={styles.ratingIcon}>⭐</Text>
+                <Text style={styles.ratingText}>
+                  {averageRating.toFixed(1)} <Text style={styles.ratingCount}>({totalReviews} reviews)</Text>
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Content */}
+        <View style={styles.content}>
+          {/* Amenities */}
+          {stadium.amenities && stadium.amenities.length > 0 && (
+            <View style={styles.amenitiesSection}>
+              {stadium.amenities.slice(0, 5).map((amenity, index) => {
+                const IconComponent = amenityIconComponents[amenity];
+                return (
+                  <View key={index} style={styles.amenityItem}>
+                    <View style={styles.amenityIcon}>
+                      {IconComponent ? <IconComponent /> : (
+                        <Text style={styles.amenityIconFallback}>✓</Text>
+                      )}
+                    </View>
+                    <Text style={styles.amenityLabel}>
+                      {amenity.split(' ')[0]}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+
+          {/* About Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>About</Text>
+            <Text style={styles.aboutText}>
+              {stadium.description || 'No description available.'}
+            </Text>
+          </View>
+
+          {/* Reviews Section */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Reviews ({totalReviews})</Text>
+              <TouchableOpacity
+                style={styles.writeReviewBtn}
+                onPress={() => setShowReviewModal(true)}
+              >
+                <Text style={styles.writeReviewText}>
+                  {myReview ? 'Edit' : 'Write'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {reviews.length === 0 ? (
+              <View style={styles.emptyReviews}>
+                <Text style={styles.emptyReviewsIcon}>💬</Text>
+                <Text style={styles.emptyReviewsText}>No reviews yet</Text>
+                <Text style={styles.emptyReviewsSubtext}>Be the first to review this stadium</Text>
+              </View>
+            ) : (
+              <View style={styles.reviewsList}>
+                {reviews.slice(0, 3).map((review) => (
+                  <View key={review.id} style={styles.reviewCard}>
+                    <View style={styles.reviewHeader}>
+                      <View style={styles.reviewAvatar}>
+                        <Text style={styles.reviewAvatarText}>
+                          {review.player?.name.charAt(0).toUpperCase()}
+                        </Text>
+                      </View>
+                      <View style={styles.reviewMeta}>
+                        <Text style={styles.reviewName}>{review.player?.name}</Text>
+                        <StarRating rating={review.rating} showCount={false} size={12} />
+                      </View>
+                    </View>
+                    {review.comment && (
+                      <Text style={styles.reviewComment} numberOfLines={3}>
+                        {review.comment}
+                      </Text>
+                    )}
+                    <Text style={styles.reviewDate}>
+                      {new Date(review.createdAt).toLocaleDateString([], { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </Text>
+                    
+                    {/* Owner Reply */}
+                    {review.ownerReply && (
+                      <View style={styles.ownerReply}>
+                        <View style={styles.ownerReplyHeader}>
+                          <Text style={styles.ownerReplyLabel}>Owner Response</Text>
+                          {review.repliedAt && (
+                            <Text style={styles.ownerReplyDate}>
+                              {new Date(review.repliedAt).toLocaleDateString([], { 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </Text>
+                          )}
+                        </View>
+                        <Text style={styles.ownerReplyText}>{review.ownerReply}</Text>
+                      </View>
+                    )}
+                  </View>
+                ))}
+                {reviews.length > 3 && (
+                  <Text style={styles.moreReviews}>
+                    + {reviews.length - 3} more review{reviews.length - 3 !== 1 ? 's' : ''}
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+
+          {/* Bottom Spacing */}
+          <View style={{ height: 100 }} />
+        </View>
+      </ScrollView>
+
+      {/* Bottom Bar with Pricing and Book Button */}
+      <View style={styles.bottomBar}>
+        <View style={styles.priceContainer}>
+          <Text style={styles.priceLabel}>From</Text>
+          <Text style={styles.priceAmount}>
+            {minPrice > 0 ? `${minPrice} ETB` : 'N/A'}
+            <Text style={styles.priceUnit}> / hour</Text>
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={styles.bookButton}
+          onPress={() => navigation.navigate('Booking', { stadiumId, stadiumName })}
+        >
+          <Text style={styles.bookButtonText}>Book Now</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Slots */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Available Slots</Text>
-        {availableSlots.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyIcon}>🕐</Text>
-            <Text style={styles.emptyText}>No available slots</Text>
-          </View>
-        ) : (
-          Object.entries(grouped).map(([day, slots]) => (
-            <View key={day} style={styles.dayGroup}>
-              <Text style={styles.dayLabel}>
-                {new Date(slots[0].startTime).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
-              </Text>
-              {slots.map((slot) => (
-                <View key={slot.id} style={styles.slotCard}>
-                  <View style={styles.slotInfo}>
-                    <Text style={styles.slotTime}>
-                      {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} –{' '}
-                      {new Date(slot.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </Text>
-                    <Text style={styles.slotPrice}>{slot.price.toLocaleString()} ETB</Text>
-                  </View>
-                  <TouchableOpacity
-                    style={[styles.bookBtn, booking && styles.bookBtnDisabled]}
-                    onPress={() => handleBook(slot.id, slot.price)}
-                    disabled={booking}
-                  >
-                    <Text style={styles.bookBtnText}>Book</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          ))
-        )}
-      </View>
-    </ScrollView>
+      <ReviewModal
+        visible={showReviewModal}
+        stadiumId={stadiumId}
+        stadiumName={stadiumName}
+        existingReview={myReview}
+        onClose={() => setShowReviewModal(false)}
+        onSuccess={handleReviewSuccess}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.surface },
-  header: { backgroundColor: colors.card, padding: 20, borderBottomWidth: 1, borderBottomColor: colors.border },
-  name: { fontSize: 22, fontWeight: '700', color: colors.textPrimary },
-  location: { fontSize: 14, color: colors.textMuted, marginTop: 4 },
-  desc: { fontSize: 14, color: colors.textMuted, marginTop: 8 },
-  owner: { fontSize: 12, color: colors.textMuted, marginTop: 8 },
-  section: { padding: 16 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.textPrimary, marginBottom: 12 },
-  dayGroup: { marginBottom: 20 },
-  dayLabel: { fontSize: 12, fontWeight: '600', color: colors.textMuted, textTransform: 'uppercase', marginBottom: 8 },
-  slotCard: {
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    padding: 12,
+  container: { 
+    flex: 1, 
+    backgroundColor: colors.dark.bg 
+  },
+  center: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: colors.dark.bg 
+  },
+  
+  // Hero Section
+  heroContainer: {
+    position: 'relative',
+    height: 420,
+  },
+  heroImage: {
+    width: width,
+    height: 420,
+    backgroundColor: colors.dark.surface,
+  },
+  heroPlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heroPlaceholderText: {
+    fontSize: 80,
+    opacity: 0.3,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 50,
+    left: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  heroOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: spacing.xl,
+    paddingBottom: spacing.xxl,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#fff',
+    marginBottom: spacing.xs,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  heroLocation: {
+    fontSize: typography.sizes.base,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: spacing.md,
+    fontWeight: typography.weights.medium,
+  },
+  heroMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  ratingIcon: {
+    fontSize: 18,
+  },
+  ratingText: {
+    fontSize: typography.sizes.base,
+    fontWeight: typography.weights.bold,
+    color: '#fff',
+  },
+  ratingCount: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.medium,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+
+  // Content
+  content: {
+    padding: spacing.xl,
+  },
+
+  // Amenities Section
+  amenitiesSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  amenityItem: {
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  amenityIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(22, 163, 74, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(22, 163, 74, 0.3)',
+  },
+  amenityIconFallback: {
+    fontSize: 24,
+    color: colors.primary,
+    fontWeight: '700',
+  },
+  amenityLabel: {
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.secondary,
+    textAlign: 'center',
+  },
+
+  // Sections
+  section: {
+    marginBottom: spacing.xxl,
+  },
+  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
+    marginBottom: spacing.md,
   },
-  slotInfo: { flex: 1 },
-  slotTime: { fontSize: 14, fontWeight: '600', color: colors.textPrimary },
-  slotPrice: { fontSize: 13, fontWeight: '700', color: colors.primary, marginTop: 2 },
-  bookBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: 16, paddingVertical: 8 },
-  bookBtnDisabled: { opacity: 0.5 },
-  bookBtnText: { color: colors.textInverse, fontSize: 14, fontWeight: '600' },
-  empty: { alignItems: 'center', marginTop: 40 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyText: { fontSize: 16, color: colors.textMuted },
+  sectionTitle: { 
+    fontSize: 20, 
+    fontWeight: '800', 
+    color: colors.text.primary,
+    letterSpacing: -0.3
+  },
+  aboutText: {
+    fontSize: typography.sizes.base,
+    color: colors.text.secondary,
+    lineHeight: 24,
+  },
+
+  // Reviews
+  writeReviewBtn: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.md,
+  },
+  writeReviewText: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.bold,
+    color: '#fff',
+  },
+  emptyReviews: {
+    alignItems: 'center',
+    paddingVertical: spacing.xxxl,
+  },
+  emptyReviewsIcon: {
+    fontSize: 48,
+    marginBottom: spacing.md,
+    opacity: 0.4,
+  },
+  emptyReviewsText: {
+    fontSize: typography.sizes.base,
+    fontWeight: typography.weights.bold,
+    color: colors.text.primary,
+    marginBottom: spacing.xs,
+  },
+  emptyReviewsSubtext: {
+    fontSize: typography.sizes.sm,
+    color: colors.text.muted,
+  },
+  reviewsList: {
+    gap: spacing.md,
+  },
+  reviewCard: {
+    backgroundColor: colors.dark.card,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    gap: spacing.sm,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  reviewAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  reviewAvatarText: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    color: '#fff',
+  },
+  reviewMeta: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  reviewName: {
+    fontSize: typography.sizes.base,
+    fontWeight: typography.weights.bold,
+    color: colors.text.primary,
+  },
+  reviewComment: {
+    fontSize: typography.sizes.sm,
+    color: colors.text.secondary,
+    lineHeight: 20,
+  },
+  reviewDate: {
+    fontSize: typography.sizes.xs,
+    color: colors.text.muted,
+    marginTop: spacing.xs,
+  },
+  ownerReply: {
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.dark.border,
+    backgroundColor: colors.successBg,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  ownerReplyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  ownerReplyLabel: {
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.bold,
+    color: colors.success,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  ownerReplyDate: {
+    fontSize: typography.sizes.xs,
+    color: colors.text.muted,
+  },
+  ownerReplyText: {
+    fontSize: typography.sizes.sm,
+    color: '#166534',
+    lineHeight: 20,
+  },
+  moreReviews: {
+    fontSize: typography.sizes.sm,
+    color: colors.text.muted,
+    textAlign: 'center',
+    fontWeight: typography.weights.semibold,
+    paddingVertical: spacing.md,
+  },
+
+  // Bottom Bar
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+    backgroundColor: colors.dark.card,
+    borderTopWidth: 1,
+    borderTopColor: colors.dark.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  priceContainer: {
+    flex: 1,
+  },
+  priceLabel: {
+    fontSize: typography.sizes.sm,
+    color: colors.text.muted,
+    marginBottom: 2,
+  },
+  priceAmount: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: -0.5,
+  },
+  priceUnit: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.medium,
+    color: colors.text.muted,
+  },
+  bookButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.lg,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  bookButtonText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: -0.2,
+  },
 });

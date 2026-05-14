@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import StadiumsPage from './pages/StadiumsPage';
 import UsersPage from './pages/UsersPage';
 import BookingsPage from './pages/BookingsPage';
+import ReviewsPage from './pages/ReviewsPage';
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="stadiums"  element={<StadiumsPage />} />
         <Route path="users"     element={<UsersPage />} />
         <Route path="bookings"  element={<BookingsPage />} />
+        <Route path="reviews"   element={<ReviewsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
