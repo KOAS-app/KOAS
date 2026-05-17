@@ -7,25 +7,50 @@ import { getApiError } from '../utils/apiError';
 export default function RegisterPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm]       = useState({ name: '', email: '', password: '', confirm: '' });
+  const [form, setForm]       = useState({ name: '', email: '', phoneNumber: '', password: '', confirm: '', stadiumName: '', stadiumLocation: '' });
   const [error, setError]     = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
+  const validatePassword = (password: string) => {
+    if (password.length < 8) return 'Password must be at least 8 characters.';
+    if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter.';
+    if (!/[a-z]/.test(password)) return 'Password must contain at least one lowercase letter.';
+    if (!/[0-9]/.test(password)) return 'Password must contain at least one number.';
+    if (!/[^A-Za-z0-9]/.test(password)) return 'Password must contain at least one special character.';
+    return null;
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) return 'Please enter a valid email address (e.g., owner@turf.com).';
+    return null;
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-    if (form.password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    
+    const emailError = validateEmail(form.email);
+    if (emailError) { setError(emailError); return; }
+
+    const passwordError = validatePassword(form.password);
+    if (passwordError) { setError(passwordError); return; }
     if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
+    if (!form.phoneNumber.match(/^\+251[79]\d{8}$/)) { setError('Phone number must be in Ethiopian format: +251XXXXXXXXX'); return; }
+    if (!form.stadiumName.trim()) { setError('Stadium name is required.'); return; }
+    if (!form.stadiumLocation.trim()) { setError('Stadium location is required.'); return; }
+
     setLoading(true);
     try {
       const res = await api.post('/auth/register', {
-        name: form.name, email: form.email, password: form.password, role: 'OWNER',
+        name: form.name, email: form.email, phoneNumber: form.phoneNumber, password: form.password, 
+        stadiumName: form.stadiumName, stadiumLocation: form.stadiumLocation, role: 'OWNER',
       });
-      login(res.data.user, res.data.token);
-      navigate('/stadiums');
+      setSuccess(res.data.message || 'Registration successful. Pending admin approval.');
     } catch (err) {
       setError(getApiError(err, 'Registration failed. Please try again.'));
     } finally {
@@ -79,8 +104,25 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {success ? (
+            <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="w-16 h-16 bg-[#16a34a]/20 text-[#4ade80] rounded-full flex items-center justify-center mx-auto mb-6 border border-[#16a34a]/30">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Registration Submitted</h3>
+              <p className="text-sm text-[#9ca3af] mb-8 leading-relaxed">
+                {success} We will notify you once your account has been reviewed.
+              </p>
+              <Link to="/login" className="inline-block w-full px-6 py-3 bg-[#1f2d2a] hover:bg-[#2d3d37] text-white text-sm font-semibold rounded-lg transition-colors border border-[#2d3d37]">
+                Return to Sign in
+              </Link>
+            </div>
+          ) : (
+            <>
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full name field */}
             <div>
               <label className="block text-sm font-semibold text-[#d1d5db] mb-2">
@@ -116,6 +158,57 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Phone Number field */}
+            <div>
+              <label className="block text-sm font-semibold text-[#d1d5db] mb-2">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                name="phoneNumber"
+                className="w-full px-4 py-3 bg-[#0f1413] border border-[#1f2d2a] rounded-lg text-white text-sm outline-none transition-all duration-200 placeholder:text-[#4b5563] hover:border-[#2d3d37] focus:border-[#16a34a] focus:ring ring-[#16a34a]/20 focus:bg-[#0f1413] disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="+251XXXXXXXXX"
+                value={form.phoneNumber}
+                onChange={handleChange}
+                required
+                disabled={loading}
+              />
+            </div>
+
+            {/* Stadium Details fields - two column on desktop, stacked on mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-[#d1d5db] mb-2">
+                  Stadium Name
+                </label>
+                <input
+                  type="text"
+                  name="stadiumName"
+                  className="w-full px-4 py-3 bg-[#0f1413] border border-[#1f2d2a] rounded-lg text-white text-sm outline-none transition-all duration-200 placeholder:text-[#4b5563] hover:border-[#2d3d37] focus:border-[#16a34a] focus:ring ring-[#16a34a]/20 focus:bg-[#0f1413] disabled:opacity-50 disabled:cursor-not-allowed"
+                  placeholder="e.g. KOAS Arena"
+                  value={form.stadiumName}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-[#d1d5db] mb-2">
+                  Stadium Location
+                </label>
+                <input
+                  type="text"
+                  name="stadiumLocation"
+                  className="w-full px-4 py-3 bg-[#0f1413] border border-[#1f2d2a] rounded-lg text-white text-sm outline-none transition-all duration-200 placeholder:text-[#4b5563] hover:border-[#2d3d37] focus:border-[#16a34a] focus:ring ring-[#16a34a]/20 focus:bg-[#0f1413] disabled:opacity-50 disabled:cursor-not-allowed"
+                  placeholder="e.g. Bole, Addis Ababa"
+                  value={form.stadiumLocation}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
             {/* Password fields - two column on desktop, stacked on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
@@ -130,7 +223,7 @@ export default function RegisterPage() {
                   value={form.password}
                   onChange={handleChange}
                   required
-                  minLength={6}
+                  minLength={8}
                   disabled={loading}
                 />
               </div>
@@ -190,6 +283,8 @@ export default function RegisterPage() {
               </Link>
             </p>
           </div>
+            </>
+          )}
         </div>
 
         {/* Legal text and trust */}

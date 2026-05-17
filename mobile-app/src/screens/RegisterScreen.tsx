@@ -16,15 +16,39 @@ export default function RegisterScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
+  const validatePassword = (password: string) => {
+    if (password.length < 8) return 'Password must be at least 8 characters.';
+    if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter.';
+    if (!/[a-z]/.test(password)) return 'Password must contain at least one lowercase letter.';
+    if (!/[0-9]/.test(password)) return 'Password must contain at least one number.';
+    if (!/[^A-Za-z0-9]/.test(password)) return 'Password must contain at least one special character.';
+    return null;
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) return 'Please enter a valid email address.';
+    return null;
+  };
+
   const handleRegister = async () => {
     if (!form.name || !form.email || !form.password || !form.confirm || !form.phoneNumber) {
       Alert.alert('Required Fields', 'Please fill in all fields');
       return;
     }
-    if (form.password.length < 6) {
-      Alert.alert('Invalid Password', 'Password must be at least 6 characters');
+
+    const emailError = validateEmail(form.email);
+    if (emailError) {
+      Alert.alert('Invalid Email', emailError);
       return;
     }
+
+    const passwordError = validatePassword(form.password);
+    if (passwordError) {
+      Alert.alert('Invalid Password', passwordError);
+      return;
+    }
+
     if (form.password !== form.confirm) {
       Alert.alert('Password Mismatch', 'Passwords do not match');
       return;
@@ -60,16 +84,16 @@ export default function RegisterScreen({ navigation }: Props) {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       />
-      
+
       {/* Subtle Accent Glow */}
       <View style={styles.accentGlow} />
-      
-      <KeyboardAvoidingView 
-        style={styles.keyboardView} 
+
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -247,8 +271,8 @@ export default function RegisterScreen({ navigation }: Props) {
             </View>
 
             {/* Sign In Link */}
-            <TouchableOpacity 
-              onPress={() => navigation.goBack()} 
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
               disabled={loading}
               style={styles.signinButton}
               activeOpacity={0.7}
@@ -274,7 +298,7 @@ export default function RegisterScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
     backgroundColor: colors.dark.bg,
   },
@@ -294,7 +318,6 @@ const styles = StyleSheet.create({
     borderRadius: 150,
     backgroundColor: colors.primary,
     opacity: 0.03,
-    blur: 80,
   },
   keyboardView: {
     flex: 1,
@@ -305,31 +328,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xxxl,
   },
-  
+
   // ─── Header ────────────────────────────────────────────────
-  header: { 
-    alignItems: 'center', 
+  header: {
+    alignItems: 'center',
     marginBottom: spacing.xxl + spacing.sm,
   },
   logoContainer: {
     marginBottom: spacing.md,
   },
-  logo: { 
+  logo: {
     fontSize: typography.sizes.huge + 4,
-    fontWeight: typography.weights.black, 
+    fontWeight: typography.weights.black,
     color: colors.text.primary,
     letterSpacing: -2,
   },
-  logoAccent: { 
+  logoAccent: {
     color: colors.primary,
   },
-  tagline: { 
+  tagline: {
     fontSize: typography.sizes.base,
-    color: colors.text.muted, 
+    color: colors.text.muted,
     fontWeight: typography.weights.medium,
     letterSpacing: 0.2,
   },
-  
+
   // ─── Card ──────────────────────────────────────────────────
   card: {
     backgroundColor: colors.dark.card,
@@ -354,9 +377,9 @@ const styles = StyleSheet.create({
     color: colors.text.muted,
     fontWeight: typography.weights.medium,
   },
-  
+
   // ─── Form ──────────────────────────────────────────────────
-  form: { 
+  form: {
     gap: spacing.lg,
   },
   inputGroup: {
@@ -392,7 +415,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     fontWeight: typography.weights.medium,
   },
-  
+
   // ─── Button ────────────────────────────────────────────────
   btn: {
     marginTop: spacing.sm,
@@ -405,16 +428,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  btnDisabled: { 
+  btnDisabled: {
     opacity: 0.5,
   },
-  btnText: { 
+  btnText: {
     color: '#ffffff',
     fontSize: typography.sizes.md,
     fontWeight: typography.weights.bold,
     letterSpacing: 0.2,
   },
-  
+
   // ─── Terms ─────────────────────────────────────────────────
   terms: {
     marginTop: spacing.lg,
@@ -427,7 +450,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: typography.weights.semibold,
   },
-  
+
   // ─── Divider ───────────────────────────────────────────────
   divider: {
     flexDirection: 'row',
@@ -447,13 +470,13 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  
+
   // ─── Sign In Link ──────────────────────────────────────────
   signinButton: {
     alignItems: 'center',
     paddingVertical: spacing.sm,
   },
-  signinText: { 
+  signinText: {
     fontSize: typography.sizes.sm,
     color: colors.text.muted,
     fontWeight: typography.weights.medium,
@@ -462,7 +485,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: typography.weights.semibold,
   },
-  
+
   // ─── Footer ────────────────────────────────────────────────
   footer: {
     alignItems: 'center',

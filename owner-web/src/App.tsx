@@ -15,11 +15,16 @@ const PrivateRoute = ({ children }: { children: ReactNode }) => {
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
+const PublicRoute = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
+  return user ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+};
+
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
       <Route
         path="/"
         element={

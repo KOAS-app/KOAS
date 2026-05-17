@@ -4,16 +4,22 @@ import { generateToken } from '../utils/jwt.js';
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role, phoneNumber } = req.body;
+    const { name, email, password, role, phoneNumber, stadiumName, stadiumLocation } = req.body;
 
     // ADMIN role cannot be self-registered
     if (role === 'ADMIN') {
       return res.status(403).json({ message: 'Admin accounts cannot be created via registration.' });
     }
 
-    // Phone number is required for PLAYER role
-    if (role === 'PLAYER' && !phoneNumber) {
-      return res.status(400).json({ message: 'Phone number is required for player accounts.' });
+    // Phone number is required for all roles
+    if (!phoneNumber) {
+      return res.status(400).json({ message: 'Phone number is required.' });
+    }
+
+    if (role === 'OWNER') {
+      if (!stadiumName || !stadiumLocation) {
+        return res.status(400).json({ message: 'Stadium name and location are required for owner registration.' });
+      }
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -26,22 +32,50 @@ export const register = async (req, res) => {
 
     const hashedPassword = await hashPassword(password);
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role,
-        phoneNumber: phoneNumber || null,
-      },
-    });
+    if (role === 'OWNER') {
+      const user = await prisma.$transaction(async (tx) => {
+        const newUser = await tx.user.create({
+          data: {
+            name,
+            email,
+            password: hashedPassword,
+            role,
+            phoneNumber: phoneNumber || null,
+            isApproved: false, // Pending admin approval
+          },
+        });
+        
+        await tx.stadium.create({
+          data: {
+            name: stadiumName,
+            locations: [stadiumLocation],
+            ownerId: newUser.id,
+          },
+        });
 
-    const token = generateToken(user);
+        return newUser;
+      });
 
-    res.status(201).json({
-      user,
-      token,
-    });
+      return res.status(201).json({
+        message: 'Registration successful. Your account is pending admin approval.',
+        user,
+      });
+    } else {
+      // PLAYER
+      const user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          role,
+          phoneNumber: phoneNumber || null,
+          isApproved: true, // Players are auto-approved
+        },
+      });
+
+      const token = generateToken(user);
+      return res.status(201).json({ user, token });
+    }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -57,6 +91,10 @@ export const login = async (req, res) => {
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    if (user.role === 'OWNER' && !user.isApproved) {
+      return res.status(403).json({ message: 'Your account is pending admin approval.' });
     }
 
     const isMatch = await comparePassword(password, user.password);

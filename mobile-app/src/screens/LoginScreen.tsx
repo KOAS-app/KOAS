@@ -110,12 +110,6 @@ export default function LoginScreen({ navigation }: Props) {
               <View style={styles.inputGroup}>
                 <View style={styles.labelRow}>
                   <Text style={styles.label}>Password</Text>
-                  <TouchableOpacity 
-                    activeOpacity={0.7}
-                    disabled={loading}
-                  >
-                    <Text style={styles.forgotLink}>Forgot?</Text>
-                  </TouchableOpacity>
                 </View>
                 <View style={[
                   styles.inputWrapper,

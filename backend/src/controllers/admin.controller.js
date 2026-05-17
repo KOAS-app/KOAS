@@ -25,6 +25,52 @@ export const deleteUser = async (req, res) => {
   }
 };
 
+// PATCH /api/admin/users/:id/approve — approve a user (owner)
+export const approveUser = async (req, res) => {
+  try {
+    const user = await prisma.$transaction(async (tx) => {
+      const u = await tx.user.update({
+        where: { id: req.params.id },
+        data: { isApproved: true },
+      });
+      // Cascade to their stadiums
+      if (u.role === 'OWNER') {
+        await tx.stadium.updateMany({
+          where: { ownerId: u.id },
+          data: { isApproved: true },
+        });
+      }
+      return u;
+    });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// PATCH /api/admin/users/:id/reject — reject (unapprove) a user (owner)
+export const rejectUser = async (req, res) => {
+  try {
+    const user = await prisma.$transaction(async (tx) => {
+      const u = await tx.user.update({
+        where: { id: req.params.id },
+        data: { isApproved: false },
+      });
+      // Cascade to their stadiums
+      if (u.role === 'OWNER') {
+        await tx.stadium.updateMany({
+          where: { ownerId: u.id },
+          data: { isApproved: false },
+        });
+      }
+      return u;
+    });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // GET /api/admin/stadiums — list all stadiums (approved + pending)
 export const getAllStadiums = async (req, res) => {
   try {

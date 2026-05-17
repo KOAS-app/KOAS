@@ -5,6 +5,8 @@ import {
   getAllStadiums,
   approveStadium,
   rejectStadium,
+  approveUser,
+  rejectUser,
   getAllBookings,
   getAllDisputes,
   resolveForPlayer,
@@ -19,6 +21,8 @@ router.use(authenticate, authorizeRoles('ADMIN'));
 
 router.get('/users', getAllUsers);
 router.delete('/users/:id', deleteUser);
+router.patch('/users/:id/approve', approveUser);
+router.patch('/users/:id/reject', rejectUser);
 
 router.get('/stadiums', getAllStadiums);
 router.patch('/stadiums/:id/approve', approveStadium);

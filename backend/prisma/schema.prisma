@@ -20,6 +20,7 @@ model User {
   password    String
   role        Role
   phoneNumber String?   // Phone number for contact (required for players)
+  isApproved  Boolean   @default(false)
   createdAt   DateTime  @default(now())
 
   stadiums  Stadium[]

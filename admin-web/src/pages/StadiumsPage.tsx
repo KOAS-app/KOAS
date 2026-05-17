@@ -17,12 +17,12 @@ export default function StadiumsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleAction = async (id: string, action: 'approve' | 'reject') => {
-    setActionLoading(id);
+  const handleAction = async (stadiumId: string, ownerId: string, action: 'approve' | 'reject') => {
+    setActionLoading(stadiumId);
     try {
-      const res = await api.patch(`/admin/stadiums/${id}/${action}`);
+      await api.patch(`/admin/users/${ownerId}/${action}`);
       setStadiums((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, isApproved: res.data.isApproved } : s))
+        prev.map((s) => (s.id === stadiumId ? { ...s, isApproved: action === 'approve' } : s))
       );
     } catch (err) {
       alert(getApiError(err, 'Action failed.'));
@@ -103,17 +103,17 @@ export default function StadiumsPage() {
                   <button 
                     className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(59,130,246,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(59,130,246,0.25)] hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={actionLoading === stadium.id}
-                    onClick={() => handleAction(stadium.id, 'approve')}>
+                    onClick={() => handleAction(stadium.id, stadium.owner.id, 'approve')}>
                     {actionLoading === stadium.id ? (
                       <div className="inline-block w-3 h-3 border-[1.5px] border-[rgba(255,255,255,0.3)] border-t-white rounded-full animate-spin" />
-                    ) : '✓ Approve'}
+                    ) : '✓ Approve Owner & Stadium'}
                   </button>
                 ) : (
                   <button 
                     className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)] disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={actionLoading === stadium.id}
-                    onClick={() => handleAction(stadium.id, 'reject')}>
-                    Revoke
+                    onClick={() => handleAction(stadium.id, stadium.owner.id, 'reject')}>
+                    Revoke Owner
                   </button>
                 )}
               </div>

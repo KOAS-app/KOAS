@@ -19,6 +19,7 @@ async function main() {
       email: 'admin@koas.com',
       password,
       role: 'ADMIN',
+      isApproved: true,
     },
   });
 
