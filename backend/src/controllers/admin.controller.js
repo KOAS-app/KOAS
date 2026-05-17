@@ -72,14 +72,76 @@ export const getAllBookings = async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
       include: {
-        player: { select: { id: true, name: true, email: true } },
+        player: { select: { id: true, name: true, email: true, phoneNumber: true } },
         stadium: { select: { id: true, name: true } },
         slot: true,
+        payment: true,
       },
       orderBy: { createdAt: 'desc' },
     });
 
     res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// GET /api/admin/disputes — list all disputed payments
+export const getAllDisputes = async (req, res) => {
+  try {
+    const disputes = await prisma.payment.findMany({
+      where: { isDisputed: true },
+      include: {
+        booking: {
+          include: {
+            player: { select: { id: true, name: true, email: true, phoneNumber: true } },
+            stadium: { select: { id: true, name: true, owner: { select: { id: true, name: true, email: true } } } },
+            slot: true,
+          },
+        },
+      },
+      orderBy: { disputedAt: 'desc' },
+    });
+
+    res.json(disputes);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// PATCH /api/admin/disputes/:paymentId/resolve-for-player — admin rules in player's favour
+export const resolveForPlayer = async (req, res) => {
+  try {
+    const { resolution } = req.body;
+
+    const payment = await prisma.payment.update({
+      where: { id: req.params.paymentId },
+      data: {
+        status: 'PAID',
+        isDisputed: false,
+      },
+    });
+
+    res.json({ payment, resolution });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// PATCH /api/admin/disputes/:paymentId/resolve-for-owner — admin rules in owner's favour
+export const resolveForOwner = async (req, res) => {
+  try {
+    const { resolution } = req.body;
+
+    const payment = await prisma.payment.update({
+      where: { id: req.params.paymentId },
+      data: {
+        status: 'REJECTED',
+        isDisputed: false,
+      },
+    });
+
+    res.json({ payment, resolution });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

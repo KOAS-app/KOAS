@@ -85,7 +85,7 @@ export default function SlotsPage() {
     e.preventDefault(); setSaving(true); setError('');
     if (!stadiumId) return;
     try {
-      await api.post('/slots', { stadiumId, location: single.location, ...single });
+      await api.post('/slots', { stadiumId, ...single });
       setSingle({ location: stadiumLocations[0] || '', startTime: '', endTime: '', price: '' });
       flash('Slot created.');
       fetchStadiumAndSlots();

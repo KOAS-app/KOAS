@@ -1,7 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Platform } from 'react-native';
+import { View, Platform, TouchableOpacity } from 'react-native';
 import Svg, { Path, Circle, Rect, Line, Polyline } from 'react-native-svg';
 import { useAuth } from '../context/AuthContext';
 import { colors, spacing } from '../theme';
@@ -146,32 +146,30 @@ function TabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.text.muted,
+        tabBarActiveTintColor: '#22C55E',
+        tabBarInactiveTintColor: '#6B7B75',
         tabBarStyle: {
-          backgroundColor: colors.dark.surface,
+          backgroundColor: '#0A0E0D',
           borderTopWidth: 1,
-          borderTopColor: colors.dark.border,
-          height: Platform.OS === 'ios' ? 84 : 64,
-          paddingTop: spacing.sm,
-          paddingBottom: Platform.OS === 'ios' ? spacing.xl : spacing.md,
-          paddingHorizontal: spacing.xs,
+          borderTopColor: '#1A2520',
+          height: Platform.OS === 'ios' ? 95 : 75,
+          paddingTop: spacing.md,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 12,
+          paddingHorizontal: spacing.md,
           elevation: 0,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.12,
-          shadowRadius: 12,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: '600',
-          marginTop: 3,
-          letterSpacing: 0.3,
+          marginTop: 4,
+          marginBottom: 6,
+          letterSpacing: 0.2,
           fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
         },
         tabBarItemStyle: {
           paddingVertical: spacing.xs,
           gap: 2,
+          position: 'relative',
         },
         tabBarHideOnKeyboard: true,
       }}
@@ -182,8 +180,25 @@ function TabNavigator() {
         options={{
           tabBarLabel: 'Explore',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ marginTop: 1 }}>
+            <View style={{ alignItems: 'center' }}>
               <ExploreIcon color={color} focused={focused} />
+            </View>
+          ),
+          tabBarButton: (props) => (
+            <View style={{ flex: 1, position: 'relative' }}>
+              <TouchableOpacity {...props} />
+              {props.accessibilityState?.selected && (
+                <View style={{
+                  position: 'absolute',
+                  bottom: Platform.OS === 'ios' ? 24 : 8,
+                  left: '50%',
+                  marginLeft: -20,
+                  width: 40,
+                  height: 3,
+                  backgroundColor: '#22C55E',
+                  borderRadius: 2,
+                }} />
+              )}
             </View>
           ),
         }}
@@ -194,8 +209,25 @@ function TabNavigator() {
         options={{
           tabBarLabel: 'Bookings',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ marginTop: 1 }}>
+            <View style={{ alignItems: 'center' }}>
               <BookingsIcon color={color} focused={focused} />
+            </View>
+          ),
+          tabBarButton: (props) => (
+            <View style={{ flex: 1, position: 'relative' }}>
+              <TouchableOpacity {...props} />
+              {props.accessibilityState?.selected && (
+                <View style={{
+                  position: 'absolute',
+                  bottom: Platform.OS === 'ios' ? 24 : 8,
+                  left: '50%',
+                  marginLeft: -20,
+                  width: 40,
+                  height: 3,
+                  backgroundColor: '#22C55E',
+                  borderRadius: 2,
+                }} />
+              )}
             </View>
           ),
         }}
@@ -206,8 +238,25 @@ function TabNavigator() {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ marginTop: 1 }}>
+            <View style={{ alignItems: 'center' }}>
               <ProfileIcon color={color} focused={focused} />
+            </View>
+          ),
+          tabBarButton: (props) => (
+            <View style={{ flex: 1, position: 'relative' }}>
+              <TouchableOpacity {...props} />
+              {props.accessibilityState?.selected && (
+                <View style={{
+                  position: 'absolute',
+                  bottom: Platform.OS === 'ios' ? 24 : 8,
+                  left: '50%',
+                  marginLeft: -20,
+                  width: 40,
+                  height: 3,
+                  backgroundColor: '#22C55E',
+                  borderRadius: 2,
+                }} />
+              )}
             </View>
           ),
         }}

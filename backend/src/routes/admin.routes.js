@@ -6,6 +6,9 @@ import {
   approveStadium,
   rejectStadium,
   getAllBookings,
+  getAllDisputes,
+  resolveForPlayer,
+  resolveForOwner,
 } from '../controllers/admin.controller.js';
 import { authenticate, authorizeRoles } from '../middlewares/auth.middleware.js';
 
@@ -22,5 +25,10 @@ router.patch('/stadiums/:id/approve', approveStadium);
 router.patch('/stadiums/:id/reject', rejectStadium);
 
 router.get('/bookings', getAllBookings);
+
+// Dispute resolution
+router.get('/disputes', getAllDisputes);
+router.patch('/disputes/:paymentId/resolve-for-player', resolveForPlayer);
+router.patch('/disputes/:paymentId/resolve-for-owner',  resolveForOwner);
 
 export default router;

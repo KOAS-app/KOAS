@@ -76,34 +76,52 @@ export default function HomeScreen({ navigation }: Props) {
           <TouchableOpacity
             style={styles.card}
             onPress={() => (navigation as any).navigate('StadiumDetail', { stadiumId: item.id, stadiumName: item.name })}
-            activeOpacity={0.7}
+            activeOpacity={0.9}
           >
-            {/* Stadium Image */}
-            {item.imageUrl && (
-              <Image 
-                source={{ uri: `${API_BASE_URL}${item.imageUrl}` }}
-                style={styles.cardImage}
-                resizeMode="cover"
-              />
-            )}
+            {/* Stadium Image with Overlays */}
+            <View style={styles.imageContainer}>
+              {item.imageUrl ? (
+                <Image 
+                  source={{ uri: `${API_BASE_URL}${item.imageUrl}` }}
+                  style={styles.cardImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.placeholderImage}>
+                  <Text style={styles.placeholderIcon}>🏟️</Text>
+                </View>
+              )}
+              
+              {/* Rating Badge */}
+              <View style={styles.ratingBadge}>
+                <Text style={styles.ratingIcon}>⭐</Text>
+                <Text style={styles.ratingText}>{item.averageRating?.toFixed(1) || '4.5'}</Text>
+              </View>
+            </View>
             
+            {/* Card Content */}
             <View style={styles.cardContent}>
-              <View style={styles.cardTop}>
+              <View style={styles.cardHeader}>
                 <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-                <View style={styles.approvedBadge}>
-                  <Text style={styles.approvedText}>✓ Open</Text>
+                <View style={styles.openBadge}>
+                  <Text style={styles.openIcon}>✓</Text>
+                  <Text style={styles.openText}>Open</Text>
                 </View>
               </View>
               
               <View style={styles.cardMeta}>
-                <Text style={styles.cardLocation} numberOfLines={1}>
-                  📍 {item.locations.length === 1 ? item.locations[0] : `${item.locations.length} locations`}
-                </Text>
-                <StarRating 
-                  rating={item.averageRating || 0} 
-                  totalReviews={item.totalReviews || 0}
-                  size={13}
-                />
+                <View style={styles.locationRow}>
+                  <Text style={styles.locationIcon}>📍</Text>
+                  <Text style={styles.locationText} numberOfLines={1}>
+                    {item.locations.length === 1 ? item.locations[0] : `${item.locations.length} locations`}
+                  </Text>
+                </View>
+                <View style={styles.reviewRow}>
+                  <Text style={styles.starsText}>⭐⭐⭐⭐⭐</Text>
+                  <Text style={styles.reviewText}>
+                    {item.totalReviews ? `${item.totalReviews} reviews` : 'No reviews'}
+                  </Text>
+                </View>
               </View>
               
               {item.description ? (
@@ -120,97 +138,158 @@ export default function HomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: colors.dark.bg 
+    backgroundColor: '#0A0E0D',
   },
   center: { 
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center', 
-    backgroundColor: colors.dark.bg 
+    backgroundColor: '#0A0E0D',
   },
   header: {
-    backgroundColor: colors.dark.surface,
+    backgroundColor: '#0A0E0D',
     paddingHorizontal: spacing.xl,
     paddingTop: 56,
     paddingBottom: spacing.xl,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
   },
   greeting: { 
-    fontSize: typography.sizes.xxl, 
+    fontSize: 32, 
     fontWeight: typography.weights.extrabold, 
-    color: colors.text.primary,
+    color: '#FFFFFF',
     letterSpacing: -0.5,
+    marginBottom: 4,
   },
   subtitle: { 
-    fontSize: typography.sizes.sm, 
-    color: colors.text.muted, 
-    marginTop: spacing.xs,
+    fontSize: typography.sizes.base, 
+    color: '#8B9A94', 
     fontWeight: typography.weights.medium,
   },
   list: { 
-    padding: spacing.lg, 
-    gap: spacing.md 
+    padding: spacing.xl,
+    paddingBottom: 100,
   },
   card: {
-    backgroundColor: colors.dark.card,
-    borderRadius: radius.lg,
+    backgroundColor: '#0F1713',
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: colors.dark.border,
+    borderColor: '#1A2520',
     overflow: 'hidden',
-    ...shadows.sm,
+    marginBottom: spacing.xl,
+  },
+  imageContainer: {
+    position: 'relative',
+    width: '100%',
+    height: 260,
   },
   cardImage: {
     width: '100%',
-    height: 180,
-    backgroundColor: colors.dark.surface,
+    height: '100%',
+  },
+  placeholderImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#1A2520',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderIcon: {
+    fontSize: 64,
+    opacity: 0.3,
+  },
+  ratingBadge: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0F4C2C',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+  },
+  ratingIcon: {
+    fontSize: 14,
+  },
+  ratingText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: typography.weights.bold,
   },
   cardContent: {
     padding: spacing.lg,
-    gap: spacing.sm,
+    gap: spacing.md,
   },
-  cardTop: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     gap: spacing.md,
   },
   cardName: { 
-    fontSize: typography.sizes.md, 
+    fontSize: 20, 
     fontWeight: typography.weights.extrabold, 
-    color: colors.text.primary, 
+    color: '#FFFFFF', 
     flex: 1,
     letterSpacing: -0.3,
   },
-  approvedBadge: { 
-    backgroundColor: colors.successBg, 
-    borderRadius: radius.md, 
-    paddingHorizontal: spacing.sm, 
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-  },
-  approvedText: { 
-    fontSize: typography.sizes.xs, 
-    color: '#15803D', 
-    fontWeight: typography.weights.bold,
-  },
-  cardLocation: { 
-    fontSize: typography.sizes.sm, 
-    color: colors.text.muted,
-    fontWeight: typography.weights.semibold,
-    flex: 1,
-  },
-  cardMeta: {
+  openBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.3)',
+  },
+  openIcon: {
+    color: '#22C55E',
+    fontSize: 12,
+    fontWeight: typography.weights.bold,
+  },
+  openText: {
+    color: '#22C55E',
+    fontSize: 13,
+    fontWeight: typography.weights.bold,
+  },
+  cardMeta: {
     gap: spacing.sm,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  locationIcon: {
+    fontSize: 14,
+    color: '#22C55E',
+  },
+  locationText: {
+    fontSize: typography.sizes.sm,
+    color: '#8B9A94',
+    fontWeight: typography.weights.medium,
+    flex: 1,
+  },
+  reviewRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  starsText: {
+    fontSize: 12,
+    letterSpacing: 1,
+    opacity: 0.4,
+  },
+  reviewText: {
+    fontSize: typography.sizes.sm,
+    color: '#8B9A94',
+    fontWeight: typography.weights.medium,
   },
   cardDesc: { 
     fontSize: typography.sizes.sm, 
-    color: colors.text.secondary,
+    color: '#8B9A94',
     lineHeight: 20,
   },
   empty: { 
@@ -221,29 +300,30 @@ const styles = StyleSheet.create({
   emptyIcon: { 
     fontSize: 64, 
     marginBottom: spacing.lg,
-    opacity: 0.5,
+    opacity: 0.3,
   },
   emptyTitle: {
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.extrabold,
-    color: colors.text.primary,
+    color: '#FFFFFF',
     marginBottom: spacing.xs,
   },
   emptyText: { 
     fontSize: typography.sizes.base, 
-    color: colors.text.muted,
+    color: '#8B9A94',
     textAlign: 'center',
   },
   errorContainer: {
-    margin: spacing.lg,
+    marginHorizontal: spacing.xl,
+    marginTop: spacing.lg,
     padding: spacing.lg,
-    backgroundColor: colors.dangerBg,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   error: { 
-    color: colors.danger,
+    color: '#EF4444',
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.medium,
   },

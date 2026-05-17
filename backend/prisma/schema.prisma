@@ -14,12 +14,13 @@ enum Role {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique
-  password  String
-  role      Role
-  createdAt DateTime  @default(now())
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  password    String
+  role        Role
+  phoneNumber String?   // Phone number for contact (required for players)
+  createdAt   DateTime  @default(now())
 
   stadiums  Stadium[]
   bookings  Booking[]
@@ -27,20 +28,36 @@ model User {
 }
 
 model Stadium {
-  id          String    @id @default(uuid())
-  name        String
-  locations   String[]  // Array of branch locations
-  description String?
-  imageUrl    String?   // Main stadium image
-  amenities   String[]  @default([]) // Stadium amenities/features
-  ownerId     String    @unique // One stadium per owner
-  isApproved  Boolean   @default(false)
-  createdAt   DateTime  @default(now())
+  id                String    @id @default(uuid())
+  name              String
+  locations         String[]  // Array of branch locations
+  description       String?
+  imageUrl          String?   // Main stadium image
+  amenities         String[]  @default([]) // Stadium amenities/features
+  ownerId           String    @unique // One stadium per owner
+  isApproved        Boolean   @default(false)
+  createdAt         DateTime  @default(now())
 
-  owner       User      @relation(fields: [ownerId], references: [id])
-  bookings    Booking[]
-  slots       Slot[]
-  reviews     Review[]
+  owner         User          @relation(fields: [ownerId], references: [id])
+  bookings      Booking[]
+  slots         Slot[]
+  reviews       Review[]
+  bankAccounts  BankAccount[]
+}
+
+model BankAccount {
+  id                String    @id @default(uuid())
+  stadiumId         String
+  bankName          String    // e.g., "Commercial Bank of Ethiopia"
+  accountNumber     String    // Bank account number
+  accountHolderName String    // Name on the bank account
+  isDefault         Boolean   @default(false) // One default account per stadium
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  stadium           Stadium   @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+
+  @@index([stadiumId])
 }
 
 model Booking {
@@ -72,14 +89,30 @@ model Slot {
 }
 
 model Payment {
-  id          String        @id @default(uuid())
-  bookingId   String        @unique
-  amount      Float
-  method      String        @default("CASH")
-  status      PaymentStatus @default(PENDING)
-  createdAt   DateTime      @default(now())
+  id                  String        @id @default(uuid())
+  bookingId           String        @unique
+  amount              Float
+  method              String        @default("CASH")
+  status              PaymentStatus @default(PENDING)
 
-  booking     Booking       @relation(fields: [bookingId], references: [id])
+  // Receipt submitted by player
+  receiptImageUrl     String?       // Path to uploaded receipt image
+  playerSubmittedAt   DateTime?     // When player submitted receipt
+
+  // Owner review
+  ownerConfirmedAt    DateTime?     // When owner confirmed payment
+  ownerRejectedAt     DateTime?     // When owner rejected
+  ownerRejectionReason String?      // Reason for rejection
+
+  // Dispute
+  isDisputed          Boolean       @default(false)
+  disputeReason       String?
+  disputedAt          DateTime?
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  booking             Booking       @relation(fields: [bookingId], references: [id])
 }
 
 enum BookingStatus {
@@ -89,9 +122,11 @@ enum BookingStatus {
 }
 
 enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
+  PENDING           // No receipt uploaded yet
+  RECEIPT_SUBMITTED // Player uploaded receipt, waiting for owner
+  PAID              // Owner confirmed payment
+  REJECTED          // Owner rejected receipt
+  DISPUTED          // Player disputed rejection
 }
 
 model Review {

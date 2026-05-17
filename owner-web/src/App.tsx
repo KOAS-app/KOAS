@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import SlotsPage from './pages/SlotsPage';
 import BookingsPage from './pages/BookingsPage';
 import ReviewsPage from './pages/ReviewsPage';
+import BankDetailsPage from './pages/BankDetailsPage';
 import { ReactNode } from 'react';
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="slots" element={<SlotsPage />} />
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
+        <Route path="bank-details" element={<BankDetailsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

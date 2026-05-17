@@ -12,12 +12,12 @@ type Props = StackScreenProps<AuthStackParamList, 'Register'>;
 
 export default function RegisterScreen({ navigation }: Props) {
   const { login } = useAuth();
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', phoneNumber: '' });
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const handleRegister = async () => {
-    if (!form.name || !form.email || !form.password || !form.confirm) {
+    if (!form.name || !form.email || !form.password || !form.confirm || !form.phoneNumber) {
       Alert.alert('Required Fields', 'Please fill in all fields');
       return;
     }
@@ -29,12 +29,17 @@ export default function RegisterScreen({ navigation }: Props) {
       Alert.alert('Password Mismatch', 'Passwords do not match');
       return;
     }
+    if (!/^\+251[79]\d{8}$/.test(form.phoneNumber)) {
+      Alert.alert('Invalid Phone Number', 'Phone number must be in Ethiopian format: +251XXXXXXXXX');
+      return;
+    }
     setLoading(true);
     try {
       const res = await api.post('/auth/register', {
         name: form.name,
         email: form.email,
         password: form.password,
+        phoneNumber: form.phoneNumber,
         role: 'PLAYER',
       });
       const { user, token } = res.data;
@@ -133,6 +138,30 @@ export default function RegisterScreen({ navigation }: Props) {
                     returnKeyType="next"
                   />
                 </View>
+              </View>
+
+              {/* Phone Number Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Phone Number</Text>
+                <View style={[
+                  styles.inputWrapper,
+                  focusedField === 'phoneNumber' && styles.inputWrapperFocused,
+                ]}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="+251912345678"
+                    placeholderTextColor={colors.input.placeholder}
+                    value={form.phoneNumber}
+                    onChangeText={(v) => setForm((p) => ({ ...p, phoneNumber: v }))}
+                    onFocus={() => setFocusedField('phoneNumber')}
+                    onBlur={() => setFocusedField(null)}
+                    keyboardType="phone-pad"
+                    autoCapitalize="none"
+                    editable={!loading}
+                    returnKeyType="next"
+                  />
+                </View>
+                <Text style={styles.hint}>Ethiopian format: +251XXXXXXXXX</Text>
               </View>
 
               {/* Password Input */}
@@ -355,6 +384,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md + 2,
     fontSize: typography.sizes.base,
     color: colors.text.primary,
+    fontWeight: typography.weights.medium,
+  },
+  hint: {
+    fontSize: typography.sizes.xs,
+    color: colors.text.muted,
+    marginTop: spacing.xs,
     fontWeight: typography.weights.medium,
   },
   

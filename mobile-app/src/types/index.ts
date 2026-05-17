@@ -3,6 +3,7 @@ export interface User {
   name: string;
   email: string;
   role: string;
+  phoneNumber?: string;
 }
 
 export interface Stadium {
@@ -12,6 +13,9 @@ export interface Stadium {
   description?: string;
   imageUrl?: string;
   amenities?: string[]; // Stadium amenities/features
+  bankName?: string; // Bank name for payments
+  accountNumber?: string; // Bank account number
+  accountHolderName?: string; // Account holder name
   isApproved: boolean;
   owner: { id: string; name: string };
   averageRating?: number;
@@ -33,11 +37,20 @@ export interface Booking {
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
   createdAt: string;
   slot: Slot;
-  stadium: { id: string; name: string };
+  stadium: {
+    id: string;
+    name: string;
+    bankName?: string;
+    accountNumber?: string;
+    accountHolderName?: string;
+  };
   payment?: {
     id: string;
-    status: 'PENDING' | 'PAID' | 'FAILED';
+    status: 'PENDING' | 'RECEIPT_SUBMITTED' | 'PAID' | 'REJECTED' | 'DISPUTED';
     amount: number;
+    receiptImageUrl?: string;
+    playerSubmittedAt?: string;
+    ownerRejectionReason?: string;
   };
 }
 

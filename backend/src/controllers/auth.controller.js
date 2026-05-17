@@ -4,11 +4,16 @@ import { generateToken } from '../utils/jwt.js';
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phoneNumber } = req.body;
 
     // ADMIN role cannot be self-registered
     if (role === 'ADMIN') {
       return res.status(403).json({ message: 'Admin accounts cannot be created via registration.' });
+    }
+
+    // Phone number is required for PLAYER role
+    if (role === 'PLAYER' && !phoneNumber) {
+      return res.status(400).json({ message: 'Phone number is required for player accounts.' });
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -27,6 +32,7 @@ export const register = async (req, res) => {
         email,
         password: hashedPassword,
         role,
+        phoneNumber: phoneNumber || null,
       },
     });
 

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticate, authorizeRoles } from '../middlewares/auth.middleware.js';
-import { upload, uploadStadiumImage, deleteStadiumImage } from '../controllers/upload.controller.js';
+import { upload, uploadReceipt, uploadStadiumImage, deleteStadiumImage, uploadReceiptImage } from '../controllers/upload.controller.js';
 
 const router = Router();
 
@@ -9,5 +9,8 @@ router.post('/stadium-image', authenticate, authorizeRoles('OWNER'), upload.sing
 
 // Delete stadium image (owner only)
 router.delete('/stadium-image/:filename', authenticate, authorizeRoles('OWNER'), deleteStadiumImage);
+
+// Upload payment receipt (player only)
+router.post('/receipt', authenticate, authorizeRoles('PLAYER'), uploadReceipt.single('receipt'), uploadReceiptImage);
 
 export default router;

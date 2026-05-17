@@ -11,6 +11,7 @@ import slotRoutes    from './routes/slot.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import reviewRoutes  from './routes/review.routes.js';
 import uploadRoutes  from './routes/upload.routes.js';
+import bankAccountRoutes from './routes/bankAccount.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,6 +46,7 @@ app.use('/api/slots',    slotRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reviews',  reviewRoutes);
 app.use('/api/upload',   uploadRoutes);
+app.use('/api/bank-accounts', bankAccountRoutes);
 
 app.get('/', (_req, res) => res.json({ message: 'KOAS API Running' }));
 

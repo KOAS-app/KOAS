@@ -11,7 +11,13 @@ interface Props {
 
 export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
   const isEdit = stadium !== null;
-  const [form, setForm] = useState({ name: '', locations: [''], description: '', imageUrl: '', amenities: [] as string[] });
+  const [form, setForm] = useState({ 
+    name: '', 
+    locations: [''], 
+    description: '', 
+    imageUrl: '', 
+    amenities: [] as string[]
+  });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [uploading, setUploading] = useState(false);
