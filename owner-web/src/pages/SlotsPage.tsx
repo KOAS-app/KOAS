@@ -28,7 +28,7 @@ export default function SlotsPage() {
   const [bulk, setBulk]     = useState<BulkForm>({
     location: '',
     date: new Date().toISOString().slice(0, 10),
-    openHour: '8', closeHour: '22', duration: '1', price: '',
+    openHour: '08:00', closeHour: '22:00', duration: '1', price: '',
   });
 
   const fetchStadiumAndSlots = async () => {
@@ -66,13 +66,31 @@ export default function SlotsPage() {
 
   const flash = (msg: string) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 3000); };
 
+  const timeToFloat = (timeStr: string) => {
+    const [h, m] = timeStr.split(':').map(Number);
+    return h + (m || 0) / 60;
+  };
+
   const handleBulkSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setError('');
     if (!stadiumId) return;
+
+    const selectedDate = new Date(bulk.date);
+    const today = new Date();
+    const closeFloat = timeToFloat(bulk.closeHour);
+    
+    if (selectedDate.toDateString() === today.toDateString()) {
+      if (closeFloat <= today.getHours() + today.getMinutes() / 60) {
+        setError('The selected time range is already in the past.');
+        setSaving(false);
+        return;
+      }
+    }
+
     try {
       const res = await api.post('/slots/bulk', {
         stadiumId, location: bulk.location, date: bulk.date,
-        openHour: parseInt(bulk.openHour), closeHour: parseInt(bulk.closeHour), 
+        openHour: timeToFloat(bulk.openHour), closeHour: closeFloat, 
         duration: parseFloat(bulk.duration), price: bulk.price,
       });
       flash(`${res.data.created} slot(s) generated.`);
@@ -84,6 +102,13 @@ export default function SlotsPage() {
   const handleSingleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setError('');
     if (!stadiumId) return;
+
+    if (new Date(single.startTime) < new Date()) {
+      setError('Cannot create a slot in the past.');
+      setSaving(false);
+      return;
+    }
+
     try {
       await api.post('/slots', { stadiumId, ...single });
       setSingle({ location: stadiumLocations[0] || '', startTime: '', endTime: '', price: '' });
@@ -93,8 +118,11 @@ export default function SlotsPage() {
     finally { setSaving(false); }
   };
 
-  const handleDelete = async (slotId: string) => {
-    if (!confirm('Delete this slot?')) return;
+  const handleDelete = async (slotId: string, isBooked: boolean) => {
+    const msg = isBooked 
+      ? 'This slot is currently booked. Deleting it will also cancel and delete the associated booking and payment. Are you sure?' 
+      : 'Delete this slot?';
+    if (!confirm(msg)) return;
     try {
       await api.delete(`/slots/${slotId}`);
       setSlots(prev => prev.filter(s => s.id !== slotId));
@@ -197,22 +225,20 @@ export default function SlotsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Open (0–23)</label>
+                    <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Open Time</label>
                     <input
-                      type="number"
+                      type="time"
                       className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
-                      min={0} max={23}
                       value={bulk.openHour}
                       onChange={e => setBulk(p => ({ ...p, openHour: e.target.value }))}
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Close (1–24)</label>
+                    <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Close Time</label>
                     <input
-                      type="number"
+                      type="time"
                       className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
-                      min={1} max={24}
                       value={bulk.closeHour}
                       onChange={e => setBulk(p => ({ ...p, closeHour: e.target.value }))}
                       required
@@ -295,6 +321,7 @@ export default function SlotsPage() {
                     type="datetime-local"
                     className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
                     value={single.startTime}
+                    min={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                     onChange={e => setSingle(p => ({ ...p, startTime: e.target.value }))}
                     required
                   />
@@ -305,6 +332,7 @@ export default function SlotsPage() {
                     type="datetime-local"
                     className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
                     value={single.endTime}
+                    min={single.startTime || new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                     onChange={e => setSingle(p => ({ ...p, endTime: e.target.value }))}
                     required
                   />
@@ -424,18 +452,16 @@ export default function SlotsPage() {
                           ETB
                         </span>
                       </div>
-                      {!slot.isBooked && (
-                        <button
-                          onClick={() => handleDelete(slot.id)}
-                          title="Delete slot"
-                          className="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-transparent flex items-center justify-center text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                          </svg>
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleDelete(slot.id, slot.isBooked)}
+                        title="Delete slot"
+                        className="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-transparent flex items-center justify-center text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 ))}

@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  TouchableOpacity, 
-  StyleSheet, 
-  ActivityIndicator, 
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
   Alert,
   SafeAreaView,
   Dimensions
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
 import { colors, radius, spacing, typography } from '../theme';
@@ -43,11 +44,11 @@ export default function BookingScreen({ route, navigation }: Props) {
       setLoading(true);
       const res = await api.get(`/stadiums/${stadiumId}`);
       setSlots(res.data.slots || []);
-      
+
       // Get unique locations from stadium
       const locations = res.data.locations || [];
       setStadiumLocations(locations);
-      
+
       // Set default location
       if (locations.length > 0 && !selectedLocation) {
         setSelectedLocation(locations[0]);
@@ -68,17 +69,17 @@ export default function BookingScreen({ route, navigation }: Props) {
     const startingDayOfWeek = firstDay.getDay();
 
     const days: (Date | null)[] = [];
-    
+
     // Add empty slots for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-    
+
     // Add all days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day));
     }
-    
+
     return days;
   };
 
@@ -110,10 +111,17 @@ export default function BookingScreen({ route, navigation }: Props) {
     setCurrentMonth(newMonth);
   };
 
+  const isPastDay = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
+
   const getSlotsForDate = (date: Date) => {
+    const now = new Date();
     return slots.filter(slot => {
       const slotDate = new Date(slot.startTime);
-      return isSameDay(slotDate, date) && slot.location === selectedLocation;
+      return isSameDay(slotDate, date) && slot.location === selectedLocation && slotDate >= now;
     });
   };
 
@@ -121,10 +129,10 @@ export default function BookingScreen({ route, navigation }: Props) {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     });
   };
 
@@ -179,7 +187,7 @@ export default function BookingScreen({ route, navigation }: Props) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Text style={styles.backButtonText}>←</Text>
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Select Date & Time</Text>
           <View style={styles.backButton} />
@@ -218,11 +226,11 @@ export default function BookingScreen({ route, navigation }: Props) {
           {/* Month Navigation */}
           <View style={styles.monthHeader}>
             <TouchableOpacity onPress={() => changeMonth('prev')} style={styles.monthButton}>
-              <Text style={styles.monthButtonText}>‹</Text>
+              <Feather name="chevron-left" size={24} color={colors.primary} />
             </TouchableOpacity>
             <Text style={styles.monthTitle}>{getMonthName(currentMonth)}</Text>
             <TouchableOpacity onPress={() => changeMonth('next')} style={styles.monthButton}>
-              <Text style={styles.monthButtonText}>›</Text>
+              <Feather name="chevron-right" size={24} color={colors.primary} />
             </TouchableOpacity>
           </View>
 
@@ -237,43 +245,47 @@ export default function BookingScreen({ route, navigation }: Props) {
 
           {/* Calendar Grid */}
           <View style={styles.calendarGrid}>
-            {days.map((day, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.dayCell,
-                  !day && styles.dayCellEmpty,
-                ]}
-                onPress={() => day && setSelectedDate(day)}
-                disabled={!day}
-              >
-                {day && (
-                  <View style={[
-                    styles.dayContent,
-                    isSameDay(day, selectedDate) && styles.dayContentSelected,
-                    isToday(day) && !isSameDay(day, selectedDate) && styles.dayContentToday,
-                  ]}>
-                    <Text style={[
-                      styles.dayText,
-                      isSameDay(day, selectedDate) && styles.dayTextSelected,
-                      isToday(day) && !isSameDay(day, selectedDate) && styles.dayTextToday,
+            {days.map((day, index) => {
+              const isPast = day ? isPastDay(day) : false;
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.dayCell,
+                    !day && styles.dayCellEmpty,
+                  ]}
+                  onPress={() => day && !isPast && setSelectedDate(day)}
+                  disabled={!day || isPast}
+                >
+                  {day && (
+                    <View style={[
+                      styles.dayContent,
+                      isSameDay(day, selectedDate) && styles.dayContentSelected,
+                      isToday(day) && !isSameDay(day, selectedDate) && styles.dayContentToday,
                     ]}>
-                      {day.getDate()}
-                    </Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
+                      <Text style={[
+                        styles.dayText,
+                        isSameDay(day, selectedDate) && styles.dayTextSelected,
+                        isToday(day) && !isSameDay(day, selectedDate) && styles.dayTextToday,
+                        isPast && styles.dayTextPast,
+                      ]}>
+                        {day.getDate()}
+                      </Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
         {/* Available Slots */}
         <View style={styles.slotsContainer}>
           <Text style={styles.slotsTitle}>
-            Available Slots - {selectedDate.toLocaleDateString('en-US', { 
-              month: 'long', 
-              day: 'numeric', 
-              year: 'numeric' 
+            Available Slots - {selectedDate.toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric'
             })}
           </Text>
           {selectedLocation && (
@@ -374,7 +386,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingTop: 36,
+    paddingBottom: spacing.xs,
     backgroundColor: '#fff',
   },
   backButton: {
@@ -383,13 +396,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backButtonText: {
-    fontSize: 28,
-    color: '#000',
-  },
   headerTitle: {
+    flex: 1,
+    textAlign: 'center',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#000',
   },
   calendarContainer: {
@@ -409,10 +420,6 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  monthButtonText: {
-    fontSize: 28,
-    color: '#666',
   },
   monthTitle: {
     fontSize: 17,
@@ -471,6 +478,9 @@ const styles = StyleSheet.create({
   dayTextToday: {
     color: colors.primary,
     fontWeight: '700',
+  },
+  dayTextPast: {
+    color: '#ccc',
   },
   slotsContainer: {
     backgroundColor: '#fff',

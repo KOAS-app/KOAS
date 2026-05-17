@@ -1,15 +1,43 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
-import { colors, radius } from '../theme';
+import { Feather } from '@expo/vector-icons';
+import api from '../api/axios';
+import { getApiError } from '../utils/apiError';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
+  const [deleting, setDeleting] = useState(false);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Logout', style: 'destructive', onPress: logout },
     ]);
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'This action is irreversible. All your bookings and data will be permanently deleted. Are you sure?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive', 
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await api.delete('/auth/delete-account');
+              logout();
+            } catch (err) {
+              Alert.alert('Error', getApiError(err, 'Failed to delete account.'));
+              setDeleting(false);
+            }
+          } 
+        },
+      ]
+    );
   };
 
   return (
@@ -19,61 +47,129 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.content}>
-        {/* Avatar */}
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {user?.name?.charAt(0).toUpperCase()}
-          </Text>
+        {/* Profile Info Card */}
+        <View style={styles.profileCard}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {user?.name?.charAt(0).toUpperCase()}
+            </Text>
+          </View>
+          <Text style={styles.name}>{user?.name}</Text>
+          <Text style={styles.email}>{user?.email}</Text>
         </View>
 
-        <Text style={styles.name}>{user?.name}</Text>
-        <Text style={styles.email}>{user?.email}</Text>
+        {/* Actions List */}
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity 
+            style={[styles.actionCard, styles.dangerCard]} 
+            onPress={handleLogout}
+            disabled={deleting}
+          >
+            <View style={[styles.iconBox, styles.dangerIconBox]}>
+              <Feather name="log-out" size={20} color="#EF4444" />
+            </View>
+            <View style={styles.actionTextContainer}>
+              <Text style={styles.actionTitle}>Logout</Text>
+              <Text style={styles.actionSubtitle}>Sign out from your account</Text>
+            </View>
+            <Feather name="chevron-right" size={20} color="#EF4444" />
+          </TouchableOpacity>
 
-        <View style={styles.roleBadge}>
-          <Text style={styles.roleText}>⚽ PLAYER</Text>
+          <TouchableOpacity 
+            style={[styles.actionCard, styles.dangerCard]} 
+            onPress={handleDeleteAccount}
+            disabled={deleting}
+          >
+            <View style={[styles.iconBox, styles.dangerIconBox]}>
+              {deleting ? (
+                <ActivityIndicator size="small" color="#EF4444" />
+              ) : (
+                <Feather name="trash-2" size={20} color="#EF4444" />
+              )}
+            </View>
+            <View style={styles.actionTextContainer}>
+              <Text style={styles.actionTitle}>Delete Account</Text>
+              <Text style={styles.actionSubtitle}>Permanently delete your account</Text>
+            </View>
+            <Feather name="chevron-right" size={20} color="#EF4444" />
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.dark.bg },
-  header: { backgroundColor: colors.dark.surface, padding: 20, paddingTop: 50 },
-  headerTitle: { fontSize: 24, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.5 },
-  content: { flex: 1, alignItems: 'center', padding: 32, gap: 12 },
+  container: { flex: 1, backgroundColor: '#0A0E0D' },
+  header: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 },
+  headerTitle: { fontSize: 28, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 },
+  content: { padding: 20, gap: 16 },
+  
+  profileCard: {
+    backgroundColor: '#0F1713',
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#1A2520',
+  },
   avatar: {
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: colors.primary,
+    backgroundColor: '#22C55E',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
+    // Add subtle glow
+    shadowColor: '#22C55E',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  avatarText: { fontSize: 36, fontWeight: '900', color: colors.text.inverse, letterSpacing: -1 },
-  name: { fontSize: 24, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.5 },
-  email: { fontSize: 14, color: colors.text.muted, fontWeight: '600' },
-  roleBadge: {
-    backgroundColor: '#DCFCE7',
-    borderRadius: radius.md,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginTop: 8,
+  avatarText: { fontSize: 36, fontWeight: '900', color: '#0A0E0D' },
+  name: { fontSize: 24, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5, marginBottom: 4 },
+  email: { fontSize: 15, color: '#8B9A94', fontWeight: '500' },
+
+  actionsContainer: { gap: 12 },
+  
+  actionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0F1713',
+    borderRadius: 16,
+    padding: 16,
     borderWidth: 1,
-    borderColor: '#BBF7D0',
+    borderColor: '#1A2520',
   },
-  roleText: { fontSize: 13, fontWeight: '700', color: '#166534', letterSpacing: 0.5 },
-  logoutBtn: {
-    backgroundColor: colors.danger,
-    borderRadius: radius.md,
-    paddingHorizontal: 48,
-    paddingVertical: 14,
-    marginTop: 40,
+  dangerCard: {
+    borderColor: 'rgba(239, 68, 68, 0.2)',
+    backgroundColor: 'rgba(239, 68, 68, 0.05)',
   },
-  logoutText: { color: colors.text.inverse, fontSize: 16, fontWeight: '700' },
+  iconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  dangerIconBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  actionTextContainer: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  actionSubtitle: {
+    fontSize: 13,
+    color: '#8B9A94',
+    fontWeight: '500',
+  },
 });

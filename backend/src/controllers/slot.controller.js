@@ -17,6 +17,10 @@ export const createSlot = async (req, res) => {
       return res.status(400).json({ message: 'Invalid location for this stadium' });
     }
 
+    if (new Date(startTime) < new Date()) {
+      return res.status(400).json({ message: 'Cannot create a slot in the past' });
+    }
+
     // Check for overlapping slots on the same stadium and location
     const overlap = await prisma.slot.findFirst({
       where: {
@@ -86,6 +90,12 @@ export const bulkCreateSlots = async (req, res) => {
       const start = new Date(`${date}T${String(startHourInt).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00`);
       const end = new Date(`${date}T${String(endHourInt).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00`);
 
+      // Skip if the slot is in the past
+      if (start < new Date()) {
+        currentHour = endHour;
+        continue;
+      }
+
       // Skip if overlapping slot already exists at this location
       const overlap = await prisma.slot.findFirst({
         where: {
@@ -123,20 +133,38 @@ export const getSlotsByStadium = async (req, res) => {
   }
 };
 
-// DELETE /api/slots/:id — owner deletes an unbooked slot
+// DELETE /api/slots/:id — owner deletes a slot (cascades to booking and payment)
 export const deleteSlot = async (req, res) => {
   try {
-    const slot = await prisma.slot.findUnique({ where: { id: req.params.id } });
+    const slot = await prisma.slot.findUnique({ 
+      where: { id: req.params.id },
+      include: { booking: true }
+    });
     if (!slot) return res.status(404).json({ message: 'Slot not found' });
-    if (slot.isBooked) return res.status(400).json({ message: 'Cannot delete a booked slot' });
 
     const stadium = await prisma.stadium.findUnique({ where: { id: slot.stadiumId } });
     if (stadium?.ownerId !== req.user.id) {
       return res.status(403).json({ message: 'Not your stadium' });
     }
 
-    await prisma.slot.delete({ where: { id: req.params.id } });
-    res.json({ message: 'Slot deleted' });
+    await prisma.$transaction(async (tx) => {
+      if (slot.booking) {
+        // Delete associated payment
+        await tx.payment.deleteMany({
+          where: { bookingId: slot.booking.id }
+        });
+        
+        // Delete the booking
+        await tx.booking.delete({
+          where: { id: slot.booking.id }
+        });
+      }
+
+      // Delete the slot
+      await tx.slot.delete({ where: { id: req.params.id } });
+    });
+
+    res.json({ message: 'Slot and any associated bookings deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

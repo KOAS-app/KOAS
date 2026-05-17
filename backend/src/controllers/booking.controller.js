@@ -13,6 +13,10 @@ export const createBooking = async (req, res) => {
       if (!slot) throw Object.assign(new Error('Slot not found'), { status: 404 });
       if (slot.isBooked) throw Object.assign(new Error('Slot already booked'), { status: 400 });
 
+      if (new Date(slot.startTime) < new Date()) {
+        throw Object.assign(new Error('Cannot book a slot in the past'), { status: 400 });
+      }
+
       await tx.slot.update({
         where: { id: slotId },
         data: { isBooked: true },

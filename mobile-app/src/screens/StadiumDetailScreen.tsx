@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useLayoutEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Image, Dimensions } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import Svg, { Path, Circle, Rect, Line } from 'react-native-svg';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
@@ -161,6 +162,12 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
     }
   };
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
+
   useEffect(() => {
     const init = async () => {
       setLoading(true);
@@ -207,6 +214,15 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
             </View>
           )}
           
+          {/* Back Button */}
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+          >
+            <Feather name="arrow-left" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+
           {/* Stadium Info Overlay */}
           <View style={styles.heroOverlay}>
             <Text style={styles.heroTitle}>{stadium.name}</Text>
@@ -400,14 +416,16 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 50,
-    left: 16,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    top: 56,
+    left: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(10, 14, 13, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   backButtonText: {
     fontSize: 24,
