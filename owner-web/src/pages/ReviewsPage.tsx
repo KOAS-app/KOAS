@@ -118,14 +118,16 @@ export default function ReviewsPage() {
       {/* Summary Card */}
       {!loading && totalReviews > 0 && (
         <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] p-6 shadow-sm mb-6">
-          <div className="flex items-center gap-6">
-            <div className="text-center">
-              <div className="text-5xl font-black text-[var(--color-primary)] mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+            <div className="text-center sm:text-left">
+              <div className="text-5xl font-black text-[var(--color-primary)] mb-2 flex justify-center sm:justify-start">
                 {averageRating.toFixed(1)}
               </div>
-              {renderStars(Math.round(averageRating))}
+              <div className="flex justify-center sm:justify-start">
+                {renderStars(Math.round(averageRating))}
+              </div>
             </div>
-            <div className="flex-1 border-l border-[var(--color-border)] pl-6">
+            <div className="flex-1 border-t sm:border-t-0 sm:border-l border-[var(--color-border)] pt-4 sm:pt-0 sm:pl-6 text-center sm:text-left">
               <p className="text-[var(--color-text-base)] font-bold text-lg mb-1">
                 {totalReviews} Review{totalReviews !== 1 ? 's' : ''}
               </p>
@@ -175,7 +177,7 @@ export default function ReviewsPage() {
               className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] p-5 shadow-sm transition-all hover:bg-[var(--color-surface-hover)]"
             >
               {/* Review Header */}
-              <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4 mb-3">
                 <div className="flex items-center gap-3">
                   {/* Avatar */}
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[#15803d] flex items-center justify-center flex-shrink-0">

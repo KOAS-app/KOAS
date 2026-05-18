@@ -365,7 +365,7 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
                 Amenities
                 <span className="text-[var(--color-text-muted)] font-normal ml-1">(optional)</span>
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {commonAmenities.map((amenity) => (
                   <label
                     key={amenity}

@@ -33,8 +33,8 @@ export default function BookingsPage() {
 
       {/* Summary */}
       {!loading && (
-        <div className="grid grid-cols-3 gap-3.5 mb-7">
-          {(['PENDING', 'CONFIRMED', 'CANCELLED'] as Filter[]).map((s) => {
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-7">
+          {(['PENDING', 'CONFIRMED', 'CANCELLED'] as const).map((s) => {
             const colors = {
               PENDING: { bg: '#fffbeb', border: '#fde68a', text: '#d97706' },
               CONFIRMED: { bg: '#f0fdf4', border: '#bbf7d0', text: '#16a34a' },
@@ -56,10 +56,10 @@ export default function BookingsPage() {
       )}
 
       {/* Filter tabs */}
-      <div className="flex gap-1 mb-6 p-1 rounded-[10px] bg-[var(--color-surface-muted)] border border-[var(--color-border)] w-fit">
+      <div className="flex flex-nowrap items-center gap-1 mb-6 p-1 rounded-[10px] bg-[var(--color-surface-muted)] border border-[var(--color-border)] overflow-x-auto w-full sm:w-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {(['ALL', 'PENDING', 'CONFIRMED', 'CANCELLED'] as Filter[]).map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`text-sm px-4 py-2 rounded-lg font-bold transition-all ${
+            className={`whitespace-nowrap flex-shrink-0 text-sm px-4 py-2 rounded-lg font-bold transition-all ${
               filter === f 
                 ? 'bg-[var(--color-surface-card)] text-[var(--color-primary)] shadow-sm' 
                 : 'bg-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
@@ -89,8 +89,7 @@ export default function BookingsPage() {
       {!loading && filtered.length > 0 && (
         <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden">
           {/* Header */}
-          <div className="grid px-5 py-3 text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] bg-[var(--color-surface-muted)] border-b border-[var(--color-border)] text-[var(--color-text-muted)]"
-            style={{ gridTemplateColumns: '1fr 1fr 1fr auto' }}>
+          <div className="hidden sm:grid grid-cols-[1.5fr_1fr_1.5fr_100px] gap-4 px-5 py-3 text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] bg-[var(--color-surface-muted)] border-b border-[var(--color-border)] text-[var(--color-text-muted)]">
             <span>Player</span>
             <span>Stadium</span>
             <span>Slot</span>
@@ -99,23 +98,43 @@ export default function BookingsPage() {
 
           {filtered.map((booking, i) => (
             <div key={booking.id}
-              className="grid items-center px-5 py-3.5 gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
+              className="flex flex-col sm:grid sm:grid-cols-[1.5fr_1fr_1.5fr_100px] items-stretch sm:items-center px-5 py-4 sm:py-3.5 gap-3.5 sm:gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
               style={{
-                gridTemplateColumns: '1fr 1fr 1fr auto',
                 borderBottom: i < filtered.length - 1 ? '1px solid var(--color-border)' : 'none',
               }}>
+              
+              {/* Player Info & Mobile Status */}
+              <div className="flex items-start justify-between gap-3 sm:block min-w-0">
+                <div className="min-w-0">
+                  <p className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight truncate">
+                    {booking.player.name}
+                  </p>
+                  <p className="text-xs text-[var(--color-text-muted)] mt-0.5 font-medium truncate">
+                    {booking.player.email}
+                  </p>
+                </div>
+                <span className={`sm:hidden inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${
+                  booking.status === 'CONFIRMED' 
+                    ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]' 
+                    : booking.status === 'PENDING'
+                      ? 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]'
+                      : 'bg-[var(--color-danger-bg)] text-[#b91c1c] border-[#fecaca]'
+                }`}>
+                  {booking.status}
+                </span>
+              </div>
+
+              {/* Stadium (Full width on mobile, inline on sm) */}
               <div>
-                <p className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight">
-                  {booking.player.name}
-                </p>
-                <p className="text-xs text-[var(--color-text-muted)] mt-0.5 font-medium">
-                  {booking.player.email}
+                <span className="sm:hidden text-[0.625rem] font-extrabold uppercase tracking-wider text-[var(--color-text-muted)] block mb-0.5">Stadium</span>
+                <p className="text-sm text-[var(--color-text-muted)] font-medium">
+                  {booking.stadium.name}
                 </p>
               </div>
-              <p className="text-sm text-[var(--color-text-muted)] font-medium">
-                {booking.stadium.name}
-              </p>
+
+              {/* Slot */}
               <div>
+                <span className="sm:hidden text-[0.625rem] font-extrabold uppercase tracking-wider text-[var(--color-text-muted)] block mb-0.5">Slot</span>
                 <p className="text-sm text-[var(--color-text-base)] font-medium">
                   {fmt(booking.slot.startTime)}
                 </p>
@@ -123,7 +142,9 @@ export default function BookingsPage() {
                   {booking.slot.price.toLocaleString()} ETB
                 </p>
               </div>
-              <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border ${
+
+              {/* Status (Desktop only) */}
+              <span className={`hidden sm:inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${
                 booking.status === 'CONFIRMED' 
                   ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]' 
                   : booking.status === 'PENDING'

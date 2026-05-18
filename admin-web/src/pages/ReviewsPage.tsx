@@ -85,10 +85,10 @@ export default function ReviewsPage() {
 
       {/* Stats */}
       {!loading && reviews.length > 0 && (
-        <div className="grid grid-cols-6 gap-3 mb-6">
+        <div className="flex flex-nowrap items-center gap-2 mb-6 overflow-x-auto pb-2 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-3 rounded-lg border transition-all ${
+            className={`px-4 py-3 rounded-lg border transition-all flex-shrink-0 min-w-[90px] ${
               filter === 'all'
                 ? 'bg-[#3b82f6] border-[#3b82f6] text-white shadow-sm'
                 : 'bg-white border-[#e5e7eb] text-[#6b7280] hover:border-[#d1d5db]'
@@ -101,7 +101,7 @@ export default function ReviewsPage() {
             <button
               key={rating}
               onClick={() => setFilter(rating.toString() as any)}
-              className={`px-4 py-3 rounded-lg border transition-all ${
+              className={`px-4 py-3 rounded-lg border transition-all flex-shrink-0 min-w-[90px] ${
                 filter === rating.toString()
                   ? 'bg-[#3b82f6] border-[#3b82f6] text-white shadow-sm'
                   : 'bg-white border-[#e5e7eb] text-[#6b7280] hover:border-[#d1d5db]'
@@ -148,7 +148,55 @@ export default function ReviewsPage() {
       {/* Reviews List */}
       {!loading && filteredReviews.length > 0 && (
         <div className="bg-white border border-[#e5e7eb] rounded-xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+          
+          {/* Mobile Reviews List */}
+          <div className="block sm:hidden divide-y divide-[#e5e7eb]">
+            {filteredReviews.map((review) => (
+              <div key={review.id} className="p-4 flex flex-col gap-3 hover:bg-[#f9fafb] transition-colors">
+                {/* Header: Player Avatar + Name + Date */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#1e40af] flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-xs">
+                        {review.player?.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-[#111827]">{review.player?.name}</p>
+                      <p className="text-[0.6875rem] text-[#6b7280]">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  {renderStars(review.rating)}
+                </div>
+
+                {/* Stadium details */}
+                <div>
+                  <p className="text-xs font-bold text-[#111827]">{review.stadium?.name}</p>
+                  <p className="text-[0.6875rem] text-[#6b7280]">📍 {review.stadium?.location}</p>
+                </div>
+
+                {/* Comment & Reply */}
+                {review.comment ? (
+                  <div className="bg-[#f9fafb] rounded-lg p-2.5 border border-[#e5e7eb]">
+                    <p className="text-xs text-[#6b7280] leading-relaxed">{review.comment}</p>
+                    {review.ownerReply && (
+                      <div className="mt-2 pt-2 border-t border-[#e5e7eb]">
+                        <p className="text-[0.625rem] font-extrabold text-[#16a34a] uppercase tracking-wide mb-0.5">Owner Response</p>
+                        <p className="text-xs text-[#166534] leading-relaxed">{review.ownerReply}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-[0.6875rem] text-[#9ca3af] italic">No comment</span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table List */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-[#f9fafb] border-b border-[#e5e7eb]">

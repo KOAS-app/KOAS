@@ -77,6 +77,7 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const [pwModal, setPwModal] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const breadcrumbs = useBreadcrumb();
 
   const initials = user?.name?.slice(0, 2).toUpperCase() ?? '??';
@@ -86,11 +87,21 @@ export default function DashboardLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--color-surface)]">
 
+      {/* Mobile overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden" 
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* ══════════════════════════════════════════════════════
           SIDEBAR
       ══════════════════════════════════════════════════════ */}
       <aside 
-        className="flex-shrink-0 flex flex-col bg-gradient-to-b from-[#0c1a12] to-[#0f1e15] border-r border-[rgba(22,163,74,.1)] transition-[width] duration-[220ms] ease-[cubic-bezier(.4,0,.2,1)] overflow-hidden relative z-20"
+        className={`fixed inset-y-0 left-0 z-40 md:relative flex-shrink-0 flex flex-col bg-gradient-to-b from-[#0c1a12] to-[#0f1e15] border-r border-[rgba(22,163,74,.1)] transition-all duration-[220ms] ease-[cubic-bezier(.4,0,.2,1)] overflow-hidden ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
         style={{ width: sidebarExpanded ? '240px' : '64px' }}
       >
 
@@ -118,10 +129,10 @@ export default function DashboardLayout() {
             <LogoMark />
           )}
 
-          {/* Collapse toggle */}
+          {/* Collapse toggle (Desktop only) */}
           <button
             onClick={() => setSidebarExpanded(p => !p)}
-            className="w-[26px] h-[26px] rounded-md bg-white/[0.04] border border-white/[0.08] flex items-center justify-center flex-shrink-0 text-white/40 transition-all duration-150 hover:text-white hover:bg-white/[0.08]"
+            className="hidden md:flex w-[26px] h-[26px] rounded-md bg-white/[0.04] border border-white/[0.08] items-center justify-center flex-shrink-0 text-white/40 transition-all duration-150 hover:text-white hover:bg-white/[0.08]"
             title={sidebarExpanded ? 'Collapse' : 'Expand'}
           >
             <svg 
@@ -137,6 +148,17 @@ export default function DashboardLayout() {
               style={{ transform: sidebarExpanded ? 'rotate(0deg)' : 'rotate(180deg)' }}
             >
               <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          {/* Close toggle (Mobile only) */}
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="md:hidden w-[26px] h-[26px] rounded-md bg-white/[0.04] border border-white/[0.08] flex items-center justify-center flex-shrink-0 text-white/40 transition-all duration-150 hover:text-white hover:bg-white/[0.08]"
+            title="Close Menu"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
@@ -163,6 +185,7 @@ export default function DashboardLayout() {
                       : 'border border-transparent text-white/50 hover:text-white/90 hover:bg-white/[0.05]'
                   }`
                 }
+                onClick={() => setMobileMenuOpen(false)}
               >
                 <span className="flex-shrink-0">{icon}</span>
                 {sidebarExpanded && <span className="text-[0.8125rem] font-semibold tracking-tight">{label}</span>}
@@ -220,9 +243,21 @@ export default function DashboardLayout() {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
         {/* Top bar */}
-        <header className="h-[52px] flex-shrink-0 flex items-center justify-between px-10 bg-[rgba(248,250,252,.9)] backdrop-blur-[8px] border-b border-[var(--color-border)]">
+        <header className="h-[52px] flex-shrink-0 flex items-center px-4 md:px-10 bg-[rgba(248,250,252,.9)] backdrop-blur-[8px] border-b border-[var(--color-border)]">
+          {/* Hamburger (Mobile) */}
+          <button 
+            className="md:hidden mr-3 text-[var(--color-text-secondary)] hover:text-[var(--color-text-base)]"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-1.5">
+          <nav className="flex items-center gap-1.5 flex-1">
             {breadcrumbs.map((crumb, i) => (
               <span key={crumb} className="flex items-center gap-1.5">
                 {i > 0 && (
@@ -247,7 +282,7 @@ export default function DashboardLayout() {
 
         {/* Scrollable content */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="max-w-[1200px] mx-auto px-10 py-10 pb-16">
+          <div className="max-w-[1200px] mx-auto px-4 py-6 md:px-10 md:py-10 pb-16">
             <Outlet />
           </div>
         </main>

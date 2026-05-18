@@ -156,9 +156,9 @@ export default function SlotsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-[340px_1fr] gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6 items-start">
         {/* Left: Form panel */}
-        <div className="sticky top-20 flex flex-col gap-4">
+        <div className="lg:sticky lg:top-20 flex flex-col gap-4">
           <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] p-6 shadow-sm">
             {/* Tab switcher */}
             <div className="flex gap-1 p-1 bg-[var(--color-surface-muted)] rounded-[10px] mb-6 border border-[var(--color-border)]">
@@ -223,7 +223,7 @@ export default function SlotsPage() {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Open Time</label>
                     <input
@@ -406,13 +406,13 @@ export default function SlotsPage() {
                 {daySlots.map((slot, i) => (
                   <div
                     key={slot.id}
-                    className={`flex items-center justify-between px-5 py-3.5 transition-all hover:bg-[var(--color-surface-muted)] ${
+                    className={`flex flex-col sm:flex-row sm:items-center justify-between px-5 py-3.5 transition-all hover:bg-[var(--color-surface-muted)] ${
                       i < daySlots.length - 1 ? 'border-b border-[var(--color-border)]' : ''
                     } ${slot.isBooked ? 'bg-[var(--color-surface-muted)] opacity-75' : 'bg-transparent'}`}
                   >
                     {/* Status dot + time + location */}
-                    <div className="flex items-center gap-3.5">
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    <div className="flex items-start sm:items-center gap-3.5">
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 sm:mt-0 ${
                         slot.isBooked 
                           ? 'bg-[var(--color-danger)]' 
                           : 'bg-[var(--color-success)] shadow-[0_0_6px_var(--color-success)]'
@@ -443,7 +443,7 @@ export default function SlotsPage() {
                     </div>
 
                     {/* Price + delete */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 sm:gap-4 mt-3 sm:mt-0">
                       <div className="text-right">
                         <span className="text-[1rem] font-black text-[var(--color-primary)] tracking-tight">
                           {slot.price.toLocaleString()}

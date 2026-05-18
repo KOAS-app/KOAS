@@ -86,7 +86,7 @@ export default function BookingInsights({ insights, stats }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[var(--color-border)]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-[var(--color-border)]">
          <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-[var(--color-primary-bg)] flex items-center justify-center text-[var(--color-primary)]">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">

@@ -43,7 +43,7 @@ export default function DisputesPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-[1.625rem] font-extrabold tracking-tight text-[var(--color-text-base)] leading-tight mb-1.5">
             Disputes
@@ -53,7 +53,7 @@ export default function DisputesPage() {
           </p>
         </div>
         {!loading && disputes.length > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] bg-[#fdf4ff] border border-[#e9d5ff] text-[#7e22ce] text-sm font-bold">
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] bg-[#fdf4ff] border border-[#e9d5ff] text-[#7e22ce] text-sm font-bold w-fit">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
@@ -151,7 +151,7 @@ function DisputeCard({ dispute, busy, onViewReceipt, onResolveForPlayer, onResol
         </div>
 
         {/* Two-column: player vs owner */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Player side */}
           <div className="rounded-[10px] bg-[#eff6ff] border border-[#bfdbfe] p-3.5">
             <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] text-[#1d4ed8] mb-2">
@@ -205,11 +205,11 @@ function DisputeCard({ dispute, busy, onViewReceipt, onResolveForPlayer, onResol
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-3 pt-1 border-t border-[var(--color-border)]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-3 border-t border-[var(--color-border)]">
           {dispute.receiptImageUrl && (
             <button
               onClick={onViewReceipt}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[#1d4ed8] bg-[#eff6ff] border border-[#bfdbfe] transition-all hover:bg-[#dbeafe]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[#1d4ed8] bg-[#eff6ff] border border-[#bfdbfe] transition-all hover:bg-[#dbeafe]"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
@@ -217,18 +217,18 @@ function DisputeCard({ dispute, busy, onViewReceipt, onResolveForPlayer, onResol
               View Receipt
             </button>
           )}
-          <div className="flex gap-2 ml-auto">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:ml-auto">
             <button
               onClick={onResolveForPlayer}
               disabled={busy}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {busy ? <div className="w-3 h-3 border-[1.5px] border-white/30 border-t-white rounded-full animate-spin" /> : '✓ Rule for Player (Mark Paid)'}
             </button>
             <button
               onClick={onResolveForOwner}
               disabled={busy}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ✗ Rule for Owner (Keep Rejected)
             </button>
@@ -299,11 +299,11 @@ function ReceiptReviewModal({ dispute, busy, onResolveForPlayer, onResolveForOwn
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2.5 px-5 pb-5 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-2.5 px-5 pb-5 flex-shrink-0">
           <button
             onClick={onResolveForPlayer}
             disabled={busy}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {busy
               ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -313,7 +313,7 @@ function ReceiptReviewModal({ dispute, busy, onResolveForPlayer, onResolveForOwn
           <button
             onClick={onResolveForOwner}
             disabled={busy}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-bold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-bold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ✗ Rule for Owner — Keep Rejected
           </button>

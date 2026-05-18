@@ -113,7 +113,7 @@ export default function BookingsPage() {
   return (
     <div className="max-w-[1400px] mx-auto pb-12">
       {/* ─── Top Bar ───────────────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
         <div>
           <div className="text-[11px] font-black text-[var(--color-primary)] uppercase tracking-[0.2em] mb-1.5">Overview</div>
           <h1 className="text-2xl font-black tracking-tight text-[var(--color-text-base)]">Bookings</h1>
@@ -145,7 +145,7 @@ export default function BookingsPage() {
       )}
 
       {/* ─── Stats Grid ────────────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-10">
         <StatCard label="Pending Approval" value={stats?.pending || 0} sub="Requires action" color="warning" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>} />
         <StatCard label="Confirmed" value={stats?.confirmed || 0} sub="Scheduled slots" color="success" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>} />
         <StatCard label="Paid" value={stats?.paid || 0} sub="Completed payments" color="info" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>} />
@@ -158,7 +158,7 @@ export default function BookingsPage() {
         doAction={doAction} actionLoading={actionLoading} setReceiptBooking={setReceiptBooking}
       />
 
-      <div className="grid grid-cols-[1fr_400px] gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
         <BookingInsights insights={insights} stats={stats} />
         <RecentActivity activities={activities} fmtDate={fmtDate} timeAgo={timeAgo} />
       </div>

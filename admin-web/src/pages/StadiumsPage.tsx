@@ -75,33 +75,33 @@ export default function StadiumsPage() {
         <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden">
           {filtered.map((stadium, i) => (
             <div key={stadium.id}
-              className="flex items-center justify-between px-5 py-4 gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
+              className="flex flex-col sm:flex-row sm:items-center justify-between px-5 py-4 gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
               style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-[0.9375rem] text-[var(--color-text-base)] tracking-tight">
-                  {stadium.name}
-                </p>
-                <p className="text-xs mt-1 text-[var(--color-text-muted)] font-medium">
-                  📍 {stadium.locations.length === 1 ? stadium.locations[0] : `${stadium.locations.length} locations`} · Owner: {stadium.owner.name}
-                </p>
+              {/* Info & Status */}
+              <div className="flex-1 min-w-0 flex items-start justify-between sm:justify-start sm:items-center gap-3">
+                <div className="min-w-0">
+                  <p className="font-bold text-[0.9375rem] text-[var(--color-text-base)] tracking-tight">
+                    {stadium.name}
+                  </p>
+                  <p className="text-xs mt-1 text-[var(--color-text-muted)] font-medium">
+                    📍 {stadium.locations.length === 1 ? stadium.locations[0] : `${stadium.locations.length} locations`} · Owner: {stadium.owner.name}
+                  </p>
+                </div>
+                <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${
+                  stadium.isApproved 
+                    ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]' 
+                    : 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]'
+                }`}>
+                  {stadium.isApproved ? 'Approved' : 'Pending'}
+                </span>
               </div>
 
-              {/* Status */}
-              <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border ${
-                stadium.isApproved 
-                  ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]' 
-                  : 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]'
-              }`}>
-                {stadium.isApproved ? 'Approved' : 'Pending'}
-              </span>
-
               {/* Actions */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full sm:w-auto">
                 {!stadium.isApproved ? (
                   <button 
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(59,130,246,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(59,130,246,0.25)] hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(59,130,246,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(59,130,246,0.25)] hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={actionLoading === stadium.id}
                     onClick={() => handleAction(stadium.id, stadium.owner.id, 'approve')}>
                     {actionLoading === stadium.id ? (
@@ -110,7 +110,7 @@ export default function StadiumsPage() {
                   </button>
                 ) : (
                   <button 
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)] disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={actionLoading === stadium.id}
                     onClick={() => handleAction(stadium.id, stadium.owner.id, 'reject')}>
                     Revoke Owner

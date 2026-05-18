@@ -22,13 +22,13 @@ export default function BookingTable({
   return (
     <div className="bg-white border border-[var(--color-border)] rounded-[20px] shadow-sm overflow-hidden mb-8">
       {/* Table Header / Filters */}
-      <div className="px-6 py-5 border-b border-[var(--color-border)] flex items-center justify-between bg-white">
-        <div className="flex items-center gap-1 p-1 bg-[var(--color-surface-muted)] rounded-xl">
+      <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-[var(--color-border)] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white">
+        <div className="flex flex-nowrap items-center gap-1 p-1 bg-[var(--color-surface-muted)] rounded-xl overflow-x-auto w-full sm:w-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {(['all', 'pending', 'confirmed', 'cancelled'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-lg text-xs font-black transition-all uppercase tracking-wider ${
+              className={`whitespace-nowrap flex-shrink-0 px-4 py-1.5 rounded-lg text-xs font-black transition-all uppercase tracking-wider ${
                 filter === f 
                   ? 'bg-white text-[var(--color-primary)] shadow-sm' 
                   : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
@@ -38,7 +38,7 @@ export default function BookingTable({
             </button>
           ))}
         </div>
-        <div className="relative w-64">
+        <div className="relative w-full sm:w-64">
           <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
           <input 
             type="text"
@@ -63,13 +63,9 @@ export default function BookingTable({
               <th className="px-6 py-4 text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--color-border)]">
-            {loading ? (
-              <tr><td colSpan={7} className="px-6 py-20 text-center text-sm text-[var(--color-text-muted)]">Updating bookings...</td></tr>
-            ) : bookings.length === 0 ? (
-              <tr><td colSpan={7} className="px-6 py-20 text-center text-sm text-[var(--color-text-muted)]">No bookings found matching your criteria.</td></tr>
-            ) : (
-              bookings.map((booking) => (
+          {bookings.length > 0 && (
+            <tbody className="divide-y divide-[var(--color-border)]">
+              {bookings.map((booking) => (
                 <tr key={booking.id} className="hover:bg-[var(--color-surface-muted)]/30 transition-all group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -136,11 +132,18 @@ export default function BookingTable({
                     </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
+              ))}
+            </tbody>
+          )}
         </table>
       </div>
+      
+      {loading && (
+        <div className="py-20 text-center text-sm text-[var(--color-text-muted)] border-t border-[var(--color-border)]">Updating bookings...</div>
+      )}
+      {!loading && bookings.length === 0 && (
+        <div className="py-20 text-center text-sm text-[var(--color-text-muted)] border-t border-[var(--color-border)]">No bookings found matching your criteria.</div>
+      )}
     </div>
   );
 }

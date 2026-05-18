@@ -3,7 +3,7 @@ import api from '../api/axios';
 import type { User } from '../types';
 import { getApiError } from '../utils/apiError';
 
-type RoleFilter = 'ALL' | 'PLAYER' | 'OWNER' | 'ADMIN';
+type RoleFilter = 'ALL' | 'PLAYER' | 'OWNER';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -36,7 +36,8 @@ export default function UsersPage() {
     .filter((u) =>
       search === '' ||
       u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
+      u.email.toLowerCase().includes(search.toLowerCase()) ||
+      (u.phoneNumber && u.phoneNumber.includes(search))
     );
 
   return (
@@ -48,13 +49,13 @@ export default function UsersPage() {
         <input
           type="text"
           className="px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all placeholder:text-[var(--color-text-muted)] hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)] focus:bg-white"
-          placeholder="Search by name or email..."
+          placeholder="Search by name, email or phone..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ maxWidth: 300 }}
         />
         <div className="flex gap-1 p-1 rounded-[10px] bg-[var(--color-surface-muted)] border border-[var(--color-border)]">
-          {(['ALL', 'PLAYER', 'OWNER', 'ADMIN'] as RoleFilter[]).map((f) => (
+          {(['ALL', 'PLAYER', 'OWNER'] as RoleFilter[]).map((f) => (
             <button key={f} onClick={() => setFilter(f)}
               className={`text-sm px-4 py-2 rounded-lg font-bold transition-all ${
                 filter === f 
@@ -87,33 +88,63 @@ export default function UsersPage() {
       {!loading && filtered.length > 0 && (
         <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden">
           {/* Table header */}
-          <div className="grid px-5 py-3 text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] bg-[var(--color-surface-muted)] border-b border-[var(--color-border)] text-[var(--color-text-muted)]"
-            style={{ gridTemplateColumns: '1fr 1fr auto auto' }}>
+          <div className="hidden sm:grid grid-cols-[1fr_1fr_1.2fr_120px_40px] gap-4 px-5 py-3 text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] bg-[var(--color-surface-muted)] border-b border-[var(--color-border)] text-[var(--color-text-muted)]">
             <span>Name</span>
             <span>Email</span>
+            <span>Phone</span>
             <span>Role</span>
             <span></span>
           </div>
 
           {filtered.map((user, i) => (
             <div key={user.id}
-              className="grid items-center px-5 py-3.5 gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
+              className="flex flex-col sm:grid sm:grid-cols-[1fr_1fr_1.2fr_120px_40px] items-stretch sm:items-center px-5 py-4 sm:py-3.5 gap-3.5 sm:gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
               style={{
-                gridTemplateColumns: '1fr 1fr auto auto',
                 borderBottom: i < filtered.length - 1 ? '1px solid var(--color-border)' : 'none',
               }}>
-              <div>
-                <p className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight">
-                  {user.name}
-                </p>
-                <p className="text-xs text-[var(--color-text-muted)] mt-0.5 font-medium">
-                  Joined {new Date(user.createdAt).toLocaleDateString()}
-                </p>
+              
+              {/* Mobile top row: Avatar + Name + Join Date & Role badge */}
+              <div className="flex items-start justify-between gap-3 sm:block min-w-0">
+                <div className="min-w-0">
+                  <p className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight truncate">
+                    {user.name}
+                  </p>
+                  <p className="text-xs text-[var(--color-text-muted)] mt-0.5 font-medium">
+                    Joined {new Date(user.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <span className={`sm:hidden inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${
+                  user.role === 'ADMIN' 
+                    ? 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]' 
+                    : user.role === 'OWNER'
+                      ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]'
+                      : 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] border-[var(--color-border)]'
+                }`}>
+                  {user.role}
+                </span>
               </div>
-              <p className="text-sm truncate text-[var(--color-text-muted)] font-medium">
+
+              {/* Email (Full width on mobile, inline on sm) */}
+              <p className="text-sm truncate text-[var(--color-text-muted)] font-medium min-w-0">
                 {user.email}
               </p>
-              <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border ${
+
+              {/* Phone (Full width on mobile, inline on sm) */}
+              <p className="text-sm truncate text-[var(--color-text-muted)] font-medium min-w-0">
+                {user.phoneNumber ? (
+                  <span className="flex items-center gap-1.5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-text-muted)]">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                    {user.phoneNumber}
+                  </span>
+                ) : (
+                  <span className="text-xs text-[var(--color-text-muted)] italic">No phone</span>
+                )}
+              </p>
+
+              {/* Role badge (Desktop only) */}
+              <span className={`hidden sm:inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${
                 user.role === 'ADMIN' 
                   ? 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]' 
                   : user.role === 'OWNER'
@@ -122,20 +153,24 @@ export default function UsersPage() {
               }`}>
                 {user.role}
               </span>
-              <button
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-transparent text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={deleting === user.id}
-                onClick={() => handleDelete(user.id, user.name)}
-                title="Delete user">
-                {deleting === user.id ? (
-                  <div className="inline-block w-3 h-3 border-[1.5px] border-[var(--color-danger)] border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                  </svg>
-                )}
-              </button>
+
+              {/* Delete action (Self aligned or right aligned) */}
+              <div className="flex justify-end sm:block">
+                <button
+                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-transparent text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={deleting === user.id}
+                  onClick={() => handleDelete(user.id, user.name)}
+                  title="Delete user">
+                  {deleting === user.id ? (
+                    <div className="inline-block w-3 h-3 border-[1.5px] border-[var(--color-danger)] border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
           ))}
         </div>

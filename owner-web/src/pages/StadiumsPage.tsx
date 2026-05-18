@@ -43,7 +43,7 @@ export default function StadiumsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-[1.625rem] font-extrabold tracking-tight text-[var(--color-text-base)] leading-tight mb-1.5">My Stadiums</h1>
           <p className="text-[var(--color-text-muted)] text-[0.9375rem] -mt-1">
@@ -103,7 +103,7 @@ export default function StadiumsPage() {
 
       {/* Grid */}
       {!loading && stadiums.length > 0 && (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(310px,1fr))] gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(310px,1fr))] gap-5">
           {stadiums.map(stadium => (
             <StadiumCard
               key={stadium.id}
