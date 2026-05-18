@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Animated } from 'react-native';
+import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -7,6 +7,8 @@ import { getApiError } from '../utils/apiError';
 import { colors, spacing, radius, typography, shadows, animation } from '../theme';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { AuthStackParamList } from '../navigation/types';
+
+const logoDark = require('../../assets/logo/koas_logo_dark.png');
 
 type Props = StackScreenProps<AuthStackParamList, 'Login'>;
 
@@ -66,9 +68,11 @@ export default function LoginScreen({ navigation }: Props) {
           {/* Brand Header */}
           <View style={styles.header}>
             <View style={styles.logoContainer}>
-              <Text style={styles.logo}>
-                KO<Text style={styles.logoAccent}>A</Text>S
-              </Text>
+              <Image 
+                source={logoDark} 
+                style={styles.logoImage} 
+                resizeMode="contain"
+              />
             </View>
             <Text style={styles.tagline}>Book your game. Play your best.</Text>
           </View>
@@ -225,16 +229,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxxl,
   },
   logoContainer: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
-  logo: { 
-    fontSize: typography.sizes.huge + 4,
-    fontWeight: typography.weights.black, 
-    color: colors.text.primary,
-    letterSpacing: -2,
-  },
-  logoAccent: { 
-    color: colors.primary,
+  logoImage: {
+    width: 100,
+    height: 100,
   },
   tagline: { 
     fontSize: typography.sizes.base,

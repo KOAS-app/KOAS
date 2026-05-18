@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
+import logoDark from '../assets/logo/koas_logo_dark.png';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -40,26 +41,14 @@ export default function LoginPage() {
         backgroundImage: 'radial-gradient(circle at 1px 1px, #3b82f6 1px, transparent 1px)',
         backgroundSize: '40px 40px'
       }} />
-      
+
       {/* Very subtle accent glow - minimal, sophisticated */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none opacity-[0.03] blur-3xl bg-gradient-to-r from-[#3b82f6] via-transparent to-transparent" />
 
       <div className="w-full max-w-[440px] relative z-10">
         {/* Logo and branding */}
-        <div className="text-center mb-12 sm:mb-14">
-          <div className="flex items-center justify-center mb-3">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-[#3b82f6] to-[#1e40af] shadow-lg shadow-[#3b82f6]/30">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 11l3 3L15 9" />
-              </svg>
-            </div>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-1">
-            KO<span className="text-[#60a5fa]">A</span>S
-          </h1>
-          <p className="text-xs font-semibold text-[#6b7280] tracking-widest uppercase mt-2">
-            Admin Dashboard
-          </p>
+        <div className="flex flex-col items-center justify-center mb-6">
+          <img src={logoDark} alt="KOAS Logo" className="w-28 h-28 object-contain " />
         </div>
 
         {/* Main card */}

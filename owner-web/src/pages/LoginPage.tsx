@@ -3,15 +3,16 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
+import logoDark from '../assets/logo/koas_logo_dark.png';
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -40,19 +41,14 @@ export default function LoginPage() {
         backgroundImage: 'radial-gradient(circle at 1px 1px, #16a34a 1px, transparent 1px)',
         backgroundSize: '40px 40px'
       }} />
-      
+
       {/* Very subtle accent glow - minimal, sophisticated */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none opacity-[0.03] blur-3xl bg-gradient-to-r from-[#16a34a] via-transparent to-transparent" />
 
       <div className="w-full max-w-[440px] relative z-10">
         {/* Logo and branding */}
-        <div className="text-center mb-12 sm:mb-14">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-1">
-            KO<span className="text-[#4ade80]">A</span>S
-          </h1>
-          <p className="text-xs font-semibold text-[#6b7280] tracking-widest uppercase mt-2">
-            Owner Portal
-          </p>
+        <div className="flex flex-col items-center justify-center mb-6">
+          <img src={logoDark} alt="KOAS Logo" className="w-28 h-28 object-contain " />
         </div>
 
         {/* Main card */}

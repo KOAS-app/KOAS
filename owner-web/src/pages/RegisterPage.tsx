@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
+import logoDark from '../assets/logo/koas_logo_dark.png';
 
 export default function RegisterPage() {
   const { login } = useAuth();
@@ -71,13 +72,9 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-[440px] relative z-10">
         {/* Logo and branding */}
-        <div className="text-center mb-12 sm:mb-14">
-          <div className="flex items-center justify-center mb-3">
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-1">
-            KO<span className="text-[#4ade80]">A</span>S
-          </h1>
-          <p className="text-xs font-semibold text-[#6b7280] tracking-widest uppercase mt-2">
+        <div className="flex flex-col items-center justify-center mb-12 sm:mb-14">
+          <img src={logoDark} alt="KOAS Logo" className="w-28 h-28 object-contain mb-3" />
+          <p className="text-[0.6875rem] font-bold text-[#4ade80] tracking-widest uppercase mt-1">
             Owner Portal
           </p>
         </div>
