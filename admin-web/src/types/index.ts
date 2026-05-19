@@ -21,7 +21,7 @@ interface Stadium {
   accountHolderName?: string;
   isApproved: boolean;
   createdAt: string;
-  owner: { id: string; name: string; email: string };
+  owner: { id: string; name: string; email: string; phoneNumber?: string };
 }
 
 interface Slot {

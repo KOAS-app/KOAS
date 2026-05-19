@@ -36,8 +36,7 @@ export default function UsersPage() {
     .filter((u) =>
       search === '' ||
       u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()) ||
-      (u.phoneNumber && u.phoneNumber.includes(search))
+      u.email.toLowerCase().includes(search.toLowerCase())
     );
 
   return (
@@ -49,7 +48,7 @@ export default function UsersPage() {
         <input
           type="text"
           className="px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all placeholder:text-[var(--color-text-muted)] hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)] focus:bg-white"
-          placeholder="Search by name, email or phone..."
+          placeholder="Search by name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ maxWidth: 300 }}
@@ -88,17 +87,16 @@ export default function UsersPage() {
       {!loading && filtered.length > 0 && (
         <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden">
           {/* Table header */}
-          <div className="hidden sm:grid grid-cols-[1fr_1fr_1.2fr_120px_40px] gap-4 px-5 py-3 text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] bg-[var(--color-surface-muted)] border-b border-[var(--color-border)] text-[var(--color-text-muted)]">
+          <div className="hidden sm:grid grid-cols-[1.2fr_1.5fr_120px_40px] gap-4 px-5 py-3 text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] bg-[var(--color-surface-muted)] border-b border-[var(--color-border)] text-[var(--color-text-muted)]">
             <span>Name</span>
             <span>Email</span>
-            <span>Phone</span>
             <span>Role</span>
             <span></span>
           </div>
 
           {filtered.map((user, i) => (
             <div key={user.id}
-              className="flex flex-col sm:grid sm:grid-cols-[1fr_1fr_1.2fr_120px_40px] items-stretch sm:items-center px-5 py-4 sm:py-3.5 gap-3.5 sm:gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
+              className="flex flex-col sm:grid sm:grid-cols-[1.2fr_1.5fr_120px_40px] items-stretch sm:items-center px-5 py-4 sm:py-3.5 gap-3.5 sm:gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
               style={{
                 borderBottom: i < filtered.length - 1 ? '1px solid var(--color-border)' : 'none',
               }}>
@@ -127,20 +125,6 @@ export default function UsersPage() {
               {/* Email (Full width on mobile, inline on sm) */}
               <p className="text-sm truncate text-[var(--color-text-muted)] font-medium min-w-0">
                 {user.email}
-              </p>
-
-              {/* Phone (Full width on mobile, inline on sm) */}
-              <p className="text-sm truncate text-[var(--color-text-muted)] font-medium min-w-0">
-                {user.phoneNumber ? (
-                  <span className="flex items-center gap-1.5">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-text-muted)]">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                    </svg>
-                    {user.phoneNumber}
-                  </span>
-                ) : (
-                  <span className="text-xs text-[var(--color-text-muted)] italic">No phone</span>
-                )}
               </p>
 
               {/* Role badge (Desktop only) */}

@@ -75,7 +75,7 @@ export const rejectUser = async (req, res) => {
 export const getAllStadiums = async (req, res) => {
   try {
     const stadiums = await prisma.stadium.findMany({
-      include: { owner: { select: { id: true, name: true, email: true } } },
+      include: { owner: { select: { id: true, name: true, email: true, phoneNumber: true } } },
       orderBy: { createdAt: 'desc' },
     });
 

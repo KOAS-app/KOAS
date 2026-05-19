@@ -14,14 +14,15 @@ enum Role {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  name        String
-  email       String    @unique
-  password    String
-  role        Role
-  phoneNumber String?   // Phone number for contact (required for players)
-  isApproved  Boolean   @default(false)
-  createdAt   DateTime  @default(now())
+  id               String    @id @default(uuid())
+  name             String
+  email            String    @unique
+  password         String
+  role             Role
+  phoneNumber      String?   // Phone number for contact (required for players)
+  isApproved       Boolean   @default(false)
+  subscriptionPlan String    @default("STARTER") // STARTER, PRO, ELITE
+  createdAt        DateTime  @default(now())
 
   stadiums  Stadium[]
   bookings  Booking[]

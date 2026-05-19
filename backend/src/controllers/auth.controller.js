@@ -4,7 +4,7 @@ import { generateToken } from '../utils/jwt.js';
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role, phoneNumber, stadiumName, stadiumLocation } = req.body;
+    const { name, email, password, role, phoneNumber, stadiumName, stadiumLocation, subscriptionPlan } = req.body;
 
     // ADMIN role cannot be self-registered
     if (role === 'ADMIN') {
@@ -42,6 +42,7 @@ export const register = async (req, res) => {
             role,
             phoneNumber: phoneNumber || null,
             isApproved: false, // Pending admin approval
+            subscriptionPlan: subscriptionPlan ? subscriptionPlan.toUpperCase() : 'STARTER',
           },
         });
         
@@ -73,7 +74,7 @@ export const register = async (req, res) => {
         },
       });
 
-      const token = generateToken(user);
+      const token = generateToken(user, req);
       return res.status(201).json({ user, token });
     }
   } catch (err) {
@@ -103,7 +104,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user);
+    const token = generateToken(user, req);
 
     res.status(200).json({
       user,

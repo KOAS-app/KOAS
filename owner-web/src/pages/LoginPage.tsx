@@ -35,22 +35,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 bg-gradient-to-b from-[#050a08] via-[#0a1110] to-[#070c0a] relative overflow-hidden">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle at 1px 1px, #16a34a 1px, transparent 1px)',
-        backgroundSize: '40px 40px'
-      }} />
-
-      {/* Very subtle accent glow - minimal, sophisticated */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none opacity-[0.03] blur-3xl bg-gradient-to-r from-[#16a34a] via-transparent to-transparent" />
-
+    <div className="py-12 flex items-center justify-center px-4 sm:px-6 md:px-8 relative">
       <div className="w-full max-w-[440px] relative z-10">
-        {/* Logo and branding */}
-        <div className="flex flex-col items-center justify-center mb-6">
-          <img src={logoDark} alt="KOAS Logo" className="w-28 h-28 object-contain " />
-        </div>
-
+        
         {/* Main card */}
         <div className="bg-gradient-to-b from-[#111819] to-[#0d0f11] border border-[#1f2d2a] rounded-2xl p-8 sm:p-10 shadow-2xl shadow-black/50 backdrop-blur-xl">
           {/* Header */}

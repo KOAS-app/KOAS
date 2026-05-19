@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
@@ -8,6 +8,15 @@ import logoDark from '../assets/logo/koas_logo_dark.png';
 export default function RegisterPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const plan = searchParams.get('plan') || 'starter';
+  const plansInfo: Record<string, { name: string; price: string }> = {
+    starter: { name: 'Kickoff Starter', price: '1,000 ETB/mo' },
+    pro: { name: 'Pro Turf Master', price: '2,500 ETB/mo' },
+    elite: { name: 'Elite Arena Complex', price: '5,000 ETB/mo' }
+  };
+  const planDetails = plansInfo[plan.toLowerCase()] || plansInfo.starter;
+
   const [form, setForm]       = useState({ name: '', email: '', phoneNumber: '', password: '', confirm: '', stadiumName: '', stadiumLocation: '' });
   const [error, setError]     = useState('');
   const [success, setSuccess] = useState('');
@@ -50,6 +59,7 @@ export default function RegisterPage() {
       const res = await api.post('/auth/register', {
         name: form.name, email: form.email, phoneNumber: form.phoneNumber, password: form.password, 
         stadiumName: form.stadiumName, stadiumLocation: form.stadiumLocation, role: 'OWNER',
+        subscriptionPlan: plan.toUpperCase()
       });
       setSuccess(res.data.message || 'Registration successful. Pending admin approval.');
     } catch (err) {
@@ -60,24 +70,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 bg-gradient-to-b from-[#050a08] via-[#0a1110] to-[#070c0a] relative overflow-hidden">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle at 1px 1px, #16a34a 1px, transparent 1px)',
-        backgroundSize: '40px 40px'
-      }} />
-      
-      {/* Very subtle accent glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none opacity-[0.03] blur-3xl bg-gradient-to-r from-[#16a34a] via-transparent to-transparent" />
-
+    <div className="py-12 flex items-center justify-center px-4 sm:px-6 md:px-8 relative">
       <div className="w-full max-w-[440px] relative z-10">
-        {/* Logo and branding */}
-        <div className="flex flex-col items-center justify-center mb-12 sm:mb-14">
-          <img src={logoDark} alt="KOAS Logo" className="w-28 h-28 object-contain mb-3" />
-          <p className="text-[0.6875rem] font-bold text-[#4ade80] tracking-widest uppercase mt-1">
-            Owner Portal
-          </p>
-        </div>
 
         {/* Main card */}
         <div className="bg-gradient-to-b from-[#111819] to-[#0d0f11] border border-[#1f2d2a] rounded-2xl p-8 sm:p-10 shadow-2xl shadow-black/50 backdrop-blur-xl">
@@ -118,6 +112,18 @@ export default function RegisterPage() {
             </div>
           ) : (
             <>
+              {/* Selected Plan Summary Badge */}
+              <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-[#16a34a]/10 to-[#10b981]/5 border border-[#16a34a]/20 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold text-[#4ade80] uppercase tracking-wider block">Selected Plan</span>
+                  <span className="text-sm font-extrabold text-white">{planDetails.name}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-extrabold text-[#4ade80] block">{planDetails.price}</span>
+                  <Link to="/#pricing" className="text-[10px] text-[#9ca3af] hover:text-[#4ade80] underline">Change Plan</Link>
+                </div>
+              </div>
+
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full name field */}

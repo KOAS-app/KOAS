@@ -31,7 +31,7 @@ export default function BookingScreen({ route, navigation }: Props) {
   const [selectedLocation, setSelectedLocation] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [booking, setBooking] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -136,18 +136,33 @@ export default function BookingScreen({ route, navigation }: Props) {
     });
   };
 
+  const toggleSlotSelection = (slotId: string) => {
+    setSelectedSlots((prev) => {
+      if (prev.includes(slotId)) {
+        return prev.filter((id) => id !== slotId);
+      } else {
+        return [...prev, slotId];
+      }
+    });
+  };
+
   const handleContinue = async () => {
-    if (!selectedSlot) {
-      Alert.alert('No Slot Selected', 'Please select a time slot to continue.');
+    if (selectedSlots.length === 0) {
+      Alert.alert('No Slots Selected', 'Please select at least one time slot to continue.');
       return;
     }
 
-    const slot = slots.find(s => s.id === selectedSlot);
-    if (!slot) return;
+    const selectedSlotsData = slots.filter(s => selectedSlots.includes(s.id));
+    if (selectedSlotsData.length === 0) return;
+
+    const totalPrice = selectedSlotsData.reduce((sum, s) => sum + s.price, 0);
+    const slotsInfoString = selectedSlotsData
+      .map(s => `• ${formatTime(s.startTime)} - ${formatTime(s.endTime)} (📍 ${s.location})`)
+      .join('\n');
 
     Alert.alert(
       'Confirm Booking',
-      `Book this slot for ${slot.price.toLocaleString()} ETB?\n\n${stadiumName}\n📍 ${slot.location}\n${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`,
+      `Book ${selectedSlotsData.length} slot(s) for ${totalPrice.toLocaleString()} ETB?\n\n${stadiumName}\n${slotsInfoString}`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -155,8 +170,8 @@ export default function BookingScreen({ route, navigation }: Props) {
           onPress: async () => {
             setBooking(true);
             try {
-              await api.post('/bookings', { slotId: selectedSlot });
-              Alert.alert('Success', 'Booking created successfully!', [
+              await api.post('/bookings', { slotIds: selectedSlots });
+              Alert.alert('Success', 'Bookings created successfully!', [
                 { text: 'OK', onPress: () => navigation.navigate('Main') },
               ]);
             } catch (err) {
@@ -206,7 +221,7 @@ export default function BookingScreen({ route, navigation }: Props) {
                   ]}
                   onPress={() => {
                     setSelectedLocation(location);
-                    setSelectedSlot(null); // Reset slot selection when location changes
+                    setSelectedSlots([]); // Reset slot selection when location changes
                   }}
                 >
                   <Text style={[
@@ -314,33 +329,36 @@ export default function BookingScreen({ route, navigation }: Props) {
             </View>
           ) : (
             <View style={styles.slotsGrid}>
-              {selectedDateSlots.map((slot) => (
-                <TouchableOpacity
-                  key={slot.id}
-                  style={[
-                    styles.slotButton,
-                    slot.isBooked && styles.slotButtonBooked,
-                    selectedSlot === slot.id && styles.slotButtonSelected,
-                  ]}
-                  onPress={() => !slot.isBooked && setSelectedSlot(slot.id)}
-                  disabled={slot.isBooked}
-                >
-                  <Text style={[
-                    styles.slotButtonText,
-                    slot.isBooked && styles.slotButtonTextBooked,
-                    selectedSlot === slot.id && styles.slotButtonTextSelected,
-                  ]}>
-                    {formatTime(slot.startTime)}
-                  </Text>
-                  <Text style={[
-                    styles.slotLocationText,
-                    slot.isBooked && styles.slotLocationTextBooked,
-                    selectedSlot === slot.id && styles.slotLocationTextSelected,
-                  ]}>
-                    📍 {slot.location}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              {selectedDateSlots.map((slot) => {
+                const isSelected = selectedSlots.includes(slot.id);
+                return (
+                  <TouchableOpacity
+                    key={slot.id}
+                    style={[
+                      styles.slotButton,
+                      slot.isBooked && styles.slotButtonBooked,
+                      isSelected && styles.slotButtonSelected,
+                    ]}
+                    onPress={() => !slot.isBooked && toggleSlotSelection(slot.id)}
+                    disabled={slot.isBooked}
+                  >
+                    <Text style={[
+                      styles.slotButtonText,
+                      slot.isBooked && styles.slotButtonTextBooked,
+                      isSelected && styles.slotButtonTextSelected,
+                    ]}>
+                      {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                    </Text>
+                    <Text style={[
+                      styles.slotLocationText,
+                      slot.isBooked && styles.slotLocationTextBooked,
+                      isSelected && styles.slotLocationTextSelected,
+                    ]}>
+                      📍 {slot.location}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           )}
         </View>
@@ -351,10 +369,10 @@ export default function BookingScreen({ route, navigation }: Props) {
         <TouchableOpacity
           style={[
             styles.continueButton,
-            (!selectedSlot || booking) && styles.continueButtonDisabled,
+            (selectedSlots.length === 0 || booking) && styles.continueButtonDisabled,
           ]}
           onPress={handleContinue}
-          disabled={!selectedSlot || booking}
+          disabled={selectedSlots.length === 0 || booking}
         >
           {booking ? (
             <ActivityIndicator color="#fff" />
@@ -571,7 +589,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   slotButton: {
-    width: '30%',
+    width: '47.5%',
     paddingVertical: spacing.lg,
     borderRadius: radius.md,
     backgroundColor: '#dcfce7',
@@ -589,7 +607,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   slotButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: '#166534',
   },

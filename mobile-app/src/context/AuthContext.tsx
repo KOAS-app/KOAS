@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { User } from '../types';
+import { setLogoutCallback } from '../api/axios';
 
 interface AuthContextType {
   user: User | null;
@@ -38,6 +39,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await AsyncStorage.removeItem('user');
     setUser(null);
   };
+
+  useEffect(() => {
+    setLogoutCallback(logout);
+    return () => {
+      setLogoutCallback(async () => {});
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>

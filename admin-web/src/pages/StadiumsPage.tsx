@@ -84,8 +84,21 @@ export default function StadiumsPage() {
                   <p className="font-bold text-[0.9375rem] text-[var(--color-text-base)] tracking-tight">
                     {stadium.name}
                   </p>
-                  <p className="text-xs mt-1 text-[var(--color-text-muted)] font-medium">
-                    📍 {stadium.locations.length === 1 ? stadium.locations[0] : `${stadium.locations.length} locations`} · Owner: {stadium.owner.name}
+                  <p className="text-xs mt-1 text-[var(--color-text-muted)] font-medium flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span>📍 {stadium.locations.length === 1 ? stadium.locations[0] : `${stadium.locations.length} locations`}</span>
+                    <span className="text-[var(--color-border-strong)]">•</span>
+                    <span>Owner: {stadium.owner.name}</span>
+                    {stadium.owner.phoneNumber && (
+                      <>
+                        <span className="text-[var(--color-border-strong)]">•</span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-text-muted)]">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                          </svg>
+                          {stadium.owner.phoneNumber}
+                        </span>
+                      </>
+                    )}
                   </p>
                 </div>
                 <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${

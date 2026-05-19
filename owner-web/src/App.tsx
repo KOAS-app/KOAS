@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import LandingPage from './pages/LandingPage';
+import PublicLayout from './layouts/PublicLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
 import SlotsPage from './pages/SlotsPage';
@@ -23,24 +25,31 @@ const PublicRoute = ({ children }: { children: ReactNode }) => {
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      {/* Public Routes with Shared Navbar and Footer */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      </Route>
+
+      {/* Private Dashboard & Operations */}
       <Route
-        path="/"
         element={
           <PrivateRoute>
             <DashboardLayout />
           </PrivateRoute>
         }
       >
-        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="slots" element={<SlotsPage />} />
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
         <Route path="bank-details" element={<BankDetailsPage />} />
       </Route>
+
+      {/* Fallback to root */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
+

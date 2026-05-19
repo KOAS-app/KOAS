@@ -26,10 +26,31 @@ const api = axios.create({
   timeout: 10000,
 });
 
+let logoutCallback: (() => Promise<void>) | null = null;
+
+export const setLogoutCallback = (cb: () => Promise<void>) => {
+  logoutCallback = cb;
+};
+
 api.interceptors.request.use(async (config) => {
   const token = await AsyncStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      if (logoutCallback) {
+        await logoutCallback();
+      } else {
+        await AsyncStorage.removeItem('token');
+        await AsyncStorage.removeItem('user');
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

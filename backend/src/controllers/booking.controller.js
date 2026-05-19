@@ -1,50 +1,59 @@
 import prisma from '../config/prisma.js';
 
-// POST /api/bookings — player books a slot
+// POST /api/bookings — player books a slot (or multiple slots)
 export const createBooking = async (req, res) => {
   try {
-    const { slotId } = req.body;
+    const { slotId, slotIds } = req.body;
+
+    const idsToBook = Array.isArray(slotIds) ? slotIds : (slotId ? [slotId] : []);
+    if (idsToBook.length === 0) {
+      return res.status(400).json({ message: 'No slot ID(s) provided' });
+    }
 
     // Use a transaction to prevent race conditions —
     // check + update happen atomically
-    const booking = await prisma.$transaction(async (tx) => {
-      const slot = await tx.slot.findUnique({ where: { id: slotId } });
+    const bookings = await prisma.$transaction(async (tx) => {
+      const results = [];
+      for (const id of idsToBook) {
+        const slot = await tx.slot.findUnique({ where: { id } });
 
-      if (!slot) throw Object.assign(new Error('Slot not found'), { status: 404 });
-      if (slot.isBooked) throw Object.assign(new Error('Slot already booked'), { status: 400 });
+        if (!slot) throw Object.assign(new Error('Slot not found'), { status: 404 });
+        if (slot.isBooked) throw Object.assign(new Error('Slot already booked'), { status: 400 });
 
-      if (new Date(slot.startTime) < new Date()) {
-        throw Object.assign(new Error('Cannot book a slot in the past'), { status: 400 });
+        if (new Date(slot.startTime) < new Date()) {
+          throw Object.assign(new Error('Cannot book a slot in the past'), { status: 400 });
+        }
+
+        await tx.slot.update({
+          where: { id },
+          data: { isBooked: true },
+        });
+
+        const newBooking = await tx.booking.create({
+          data: {
+            playerId: req.user.id,
+            stadiumId: slot.stadiumId,
+            slotId: id,
+          },
+          include: { slot: true, stadium: true },
+        });
+
+        // Create a pending cash payment placeholder
+        await tx.payment.create({
+          data: {
+            bookingId: newBooking.id,
+            amount: slot.price,
+            method: 'CASH',
+            status: 'PENDING',
+          },
+        });
+
+        results.push(newBooking);
       }
-
-      await tx.slot.update({
-        where: { id: slotId },
-        data: { isBooked: true },
-      });
-
-      const newBooking = await tx.booking.create({
-        data: {
-          playerId: req.user.id,
-          stadiumId: slot.stadiumId,
-          slotId,
-        },
-        include: { slot: true, stadium: true },
-      });
-
-      // Create a pending cash payment placeholder
-      await tx.payment.create({
-        data: {
-          bookingId: newBooking.id,
-          amount: slot.price,
-          method: 'CASH',
-          status: 'PENDING',
-        },
-      });
-
-      return newBooking;
+      return results;
     });
 
-    res.status(201).json(booking);
+    res.status(201).json(Array.isArray(slotIds) ? bookings : bookings[0]);
   } catch (err) {
     const status = err.status ?? 500;
     res.status(status).json({ message: err.message });
