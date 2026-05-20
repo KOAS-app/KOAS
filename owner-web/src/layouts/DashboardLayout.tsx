@@ -1,8 +1,10 @@
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import logoDark from '../assets/logo/koas_logo_dark.png';
+import { isTrialActive, getTrialDaysRemaining } from '../utils/tier';
+
 
 /* ─── Nav config ────────────────────────────────────────────── */
 const NAV = [
@@ -59,6 +61,46 @@ const NAV = [
       </svg>
     ),
   },
+  {
+    to: '/subscription',
+    label: 'My Subscription',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+    ),
+  },
+  {
+    to: '/subscription-plans',
+    label: 'Subscription Plans',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <path d="M7 11h10M7 15h10M7 7h2" />
+      </svg>
+    ),
+  },
+  {
+    to: '/subscription-requests',
+    label: 'Sub Requests',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+        <polyline points="22,6 12,13 2,6" />
+      </svg>
+    ),
+  },
+  {
+    to: '/verify-membership',
+    label: 'Verify Member',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="8.5" cy="7" r="4" />
+        <polyline points="17 11 19 13 23 9" />
+      </svg>
+    ),
+  },
 ];
 
 /* ─── Breadcrumb map ─────────────────────────────────────────── */
@@ -69,6 +111,10 @@ function useBreadcrumb() {
   if (pathname.includes('/slots')) return ['Time Slots'];
   if (pathname.includes('/reviews')) return ['Reviews'];
   if (pathname.includes('/bank-details')) return ['Bank Details'];
+  if (pathname.includes('/subscription')) return ['My Subscription'];
+  if (pathname.includes('/subscription-plans')) return ['Subscription Plans'];
+  if (pathname.includes('/subscription-requests')) return ['Subscription Requests'];
+  if (pathname.includes('/verify-membership')) return ['Verify Membership'];
   return [];
 }
 
@@ -279,10 +325,49 @@ export default function DashboardLayout() {
             ))}
           </nav>
 
+          {/* Back to Homepage Button */}
+          <Link
+            to="/"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[var(--color-text-secondary)] hover:text-[#16a34a] border border-[var(--color-border)] hover:border-[#16a34a]/30 bg-white hover:bg-[#16a34a]/5 rounded-lg transition-all no-underline shadow-sm"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            <span className="hidden sm:inline">Back to Homepage</span>
+          </Link>
+
         </header>
 
         {/* Scrollable content */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
+          {isTrialActive(user) && (
+            <div className="bg-gradient-to-r from-[#0c1a12] via-[#0f2d1a] to-[#0c1a12] border-b border-[rgba(74,222,128,0.25)] px-6 py-2.5 flex items-center justify-between shadow-[0_4px_20px_rgba(22,163,74,0.08)] select-none">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4ade80] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22c55e]"></span>
+                </span>
+                <span className="text-[0.8125rem] font-bold text-white tracking-tight flex items-center gap-1">
+                  👑 Elite Free Trial Active:
+                  <span className="text-[#4ade80] bg-[rgba(74,222,128,0.1)] px-2 py-0.5 rounded border border-[rgba(74,222,128,0.2)] ml-1 font-extrabold animate-pulse">
+                    {getTrialDaysRemaining(user)} {getTrialDaysRemaining(user) === 1 ? 'day' : 'days'} remaining
+                  </span>
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <p className="hidden md:block text-[0.75rem] text-white/60">
+                  Enjoy unlimited locations, auto slot generators, and reviews management!
+                </p>
+                <button
+                  onClick={() => navigate('/subscription')}
+                  className="px-3 py-1 rounded-[6px] text-[0.75rem] font-black text-white bg-[#16a34a] border border-[#16a34a] transition-all hover:bg-[#15803d] hover:shadow-[0_2px_8px_rgba(22,163,74,0.3)] active:translate-y-0 hover:-translate-y-px"
+                >
+                  Upgrade Now
+                </button>
+              </div>
+            </div>
+          )}
           <div className="max-w-[1200px] mx-auto px-4 py-6 md:px-10 md:py-10 pb-16">
             <Outlet />
           </div>

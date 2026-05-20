@@ -3,9 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Review } from '../types';
 import { getApiError } from '../utils/apiError';
+import { useAuth } from '../context/AuthContext';
+import { getActiveTier, TIER_LIMITS } from '../utils/tier';
 
 export default function ReviewsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const activeTier = getActiveTier(user);
+  const limits = TIER_LIMITS[activeTier];
+  const canReply = limits.reviewReplies;
 
   const [stadiumId, setStadiumId] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -171,6 +178,33 @@ export default function ReviewsPage() {
       {/* Reviews List */}
       {!loading && reviews.length > 0 && (
         <div className="flex flex-col gap-4">
+          {/* Locked features banner */}
+          {!canReply && (
+            <div className="relative overflow-hidden bg-gradient-to-r from-[#064e3b]/90 to-[#022c22]/90 backdrop-blur-md border border-[#059669]/30 rounded-[14px] p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4 text-left">
+                <div className="w-12 h-12 rounded-full bg-[#059669]/10 border border-[#059669]/30 flex items-center justify-center flex-shrink-0 text-2xl text-[#34d399] animate-pulse">
+                  💬
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
+                    Unlock Player Engagement
+                    <span className="text-[10px] bg-[#059669] text-white px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider">
+                      PRO Feature
+                    </span>
+                  </h4>
+                  <p className="text-sm text-[#a7f3d0] mt-0.5 max-w-xl">
+                    Starter tier accounts can read reviews, but replying to player feedback requires a PRO or ELITE plan. Build a loyal community today!
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/subscription')}
+                className="w-full sm:w-auto px-4 py-2 text-xs font-bold text-[#064e3b] bg-[#34d399] rounded-lg shadow-[0_4px_12px_rgba(52,211,153,0.3)] hover:bg-[#6ee7b7] hover:shadow-[0_6px_16px_rgba(52,211,153,0.4)] transition-all whitespace-nowrap"
+              >
+                Upgrade Now
+              </button>
+            </div>
+          )}
           {reviews.map((review) => (
             <div
               key={review.id}
@@ -218,20 +252,30 @@ export default function ReviewsPage() {
                       <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wide">
                         Owner Response
                       </p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleReply(review.id, review.ownerReply)}
-                          className="text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteReply(review.id)}
-                          className="text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-danger)] transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      {canReply ? (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleReply(review.id, review.ownerReply)}
+                            className="text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReply(review.id)}
+                            className="text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-danger)] transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)]">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                          </svg>
+                          <span className="font-semibold text-xs text-[var(--color-text-muted)]">Locked (Starter)</span>
+                        </div>
+                      )}
                     </div>
                     <p className="text-sm text-[#166534] leading-relaxed">{review.ownerReply}</p>
                     {review.repliedAt && (
@@ -287,16 +331,29 @@ export default function ReviewsPage() {
               {/* Reply Button */}
               {!review.ownerReply && replyingTo !== review.id && (
                 <div className="pl-[52px] mt-3">
-                  <button
-                    onClick={() => handleReply(review.id)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--color-primary)] bg-[var(--color-primary-bg)] border border-[#bbf7d0] transition-all hover:bg-[var(--color-primary)] hover:text-white"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="9 10 4 15 9 20"></polyline>
-                      <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
-                    </svg>
-                    Reply to Review
-                  </button>
+                  {canReply ? (
+                    <button
+                      onClick={() => handleReply(review.id)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--color-primary)] bg-[var(--color-primary-bg)] border border-[#bbf7d0] transition-all hover:bg-[var(--color-primary)] hover:text-white"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="9 10 4 15 9 20"></polyline>
+                        <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
+                      </svg>
+                      Reply to Review
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => navigate('/subscription')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#64748b] bg-[#f1f5f9] border border-[#e2e8f0] transition-all hover:bg-[#e2e8f0] hover:text-[#475569] dark:bg-[#1e293b] dark:border-[#334155] dark:text-[#94a3b8] dark:hover:bg-[#334155] dark:hover:text-white"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                      Reply to Review (PRO)
+                    </button>
+                  )}
                 </div>
               )}
             </div>

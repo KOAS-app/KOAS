@@ -8,7 +8,7 @@ import { colors, radius, spacing, typography } from '../theme';
 import StarRating from '../components/StarRating';
 import ReviewModal from '../components/ReviewModal';
 import { API_BASE_URL } from '../config/api';
-import type { Stadium, Review, Slot } from '../types';
+import type { Stadium, Review, Slot, SubscriptionPlan } from '../types';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -126,6 +126,7 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
   const [stadium, setStadium] = useState<Stadium & { slots?: Slot[] } | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [myReview, setMyReview] = useState<Review | null>(null);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -162,6 +163,15 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
     }
   };
 
+  const fetchPlans = async () => {
+    try {
+      const res = await api.get(`/subscription-plans/stadium/${stadiumId}`);
+      setPlans(res.data);
+    } catch (err) {
+      console.error('Failed to load subscription plans:', err);
+    }
+  };
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -171,7 +181,7 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await Promise.all([fetchStadium(), fetchReviews(), fetchMyReview()]);
+      await Promise.all([fetchStadium(), fetchReviews(), fetchMyReview(), fetchPlans()]);
       setLoading(false);
     };
     init();
@@ -273,6 +283,54 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
               {stadium.description || 'No description available.'}
             </Text>
           </View>
+
+          {/* Subscription Plans Section */}
+          {plans.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Subscription Plans</Text>
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false} 
+                contentContainerStyle={styles.plansContainer}
+                style={{ marginTop: spacing.md }}
+              >
+                {plans.map((plan) => (
+                  <View key={plan.id} style={styles.planCard}>
+                    <View style={styles.planBadge}>
+                      <Text style={styles.planBadgeText}>MEMBERSHIP</Text>
+                    </View>
+                    <Text style={styles.planName}>{plan.name}</Text>
+                    <View style={styles.planPriceContainer}>
+                      <Text style={styles.planPrice}>{plan.price.toLocaleString()}</Text>
+                      <Text style={styles.planPriceUnit}> ETB / {plan.duration} Days</Text>
+                    </View>
+                    {plan.description && (
+                      <View style={styles.planBenefits}>
+                        {plan.description.split('\n').filter(Boolean).map((benefit, idx) => (
+                          <View key={idx} style={styles.benefitRow}>
+                            <Text style={styles.benefitCheck}>✓</Text>
+                            <Text style={styles.benefitText} numberOfLines={2}>{benefit}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                    <TouchableOpacity
+                      style={styles.subscribeButton}
+                      onPress={() => navigation.navigate('SubscriptionCheckout', {
+                        planId: plan.id,
+                        planName: plan.name,
+                        price: plan.price,
+                        stadiumId,
+                        stadiumName
+                      })}
+                    >
+                      <Text style={styles.subscribeButtonText}>Subscribe Now</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
 
           {/* Reviews Section */}
           <View style={styles.section}>
@@ -715,5 +773,104 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
     letterSpacing: -0.2,
+  },
+  plansContainer: {
+    paddingRight: spacing.xl,
+    gap: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  planCard: {
+    width: width * 0.72,
+    backgroundColor: colors.dark.card,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    borderColor: 'rgba(22, 163, 74, 0.25)', // slight primary green highlight border
+    padding: spacing.lg,
+    marginRight: spacing.xs,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  planBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(22, 163, 74, 0.15)',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radius.sm,
+    borderWidth: 0.5,
+    borderColor: 'rgba(22, 163, 74, 0.4)',
+    marginBottom: spacing.sm,
+  },
+  planBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: colors.primary,
+    letterSpacing: 1,
+  },
+  planName: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: colors.text.primary,
+    marginBottom: spacing.xs,
+    letterSpacing: -0.2,
+  },
+  planPriceContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: spacing.md,
+  },
+  planPrice: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: colors.primary,
+  },
+  planPriceUnit: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.text.muted,
+  },
+  planBenefits: {
+    borderTopWidth: 1,
+    borderTopColor: colors.dark.border,
+    paddingTop: spacing.md,
+    gap: spacing.sm,
+  },
+  benefitRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+  },
+  benefitCheck: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: '700',
+    marginTop: 1,
+  },
+  benefitText: {
+    fontSize: 12,
+    color: colors.text.secondary,
+    lineHeight: 16,
+    flex: 1,
+  },
+  subscribeButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.md,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  subscribeButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: -0.1,
   },
 });

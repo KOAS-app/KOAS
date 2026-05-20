@@ -81,3 +81,15 @@ export interface OwnerStats {
   paid: number;
   revenue: number;
 }
+
+export interface SubscriptionPlan {
+  id: string;
+  stadiumId: string;
+  name: string;
+  price: number;
+  duration: number; // in days
+  description?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

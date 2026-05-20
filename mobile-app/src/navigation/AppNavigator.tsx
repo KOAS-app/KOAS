@@ -13,6 +13,8 @@ import StadiumDetailScreen from '../screens/StadiumDetailScreen';
 import BookingScreen from '../screens/BookingScreen';
 import BookingsScreen from '../screens/BookingsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import SubscriptionCheckoutScreen from '../screens/SubscriptionCheckoutScreen';
+import MyMembershipsScreen from '../screens/MyMembershipsScreen';
 
 import type { RootStackParamList, AuthStackParamList, TabParamList } from './types';
 
@@ -132,6 +134,25 @@ const ProfileIcon = ({ color, focused }: { color: string; focused: boolean }) =>
   </Svg>
 );
 
+const MembershipsIcon = ({ color, focused }: { color: string; focused: boolean }) => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+      stroke={color}
+      strokeWidth={focused ? 2.25 : 2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {focused && (
+      <Path
+        d="M12 2L2 7l10 5-10-5-10-5z"
+        fill={color}
+        opacity={0.2}
+      />
+    )}
+  </Svg>
+);
+
 function AuthNavigator() {
   return (
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
@@ -186,7 +207,7 @@ function TabNavigator() {
           ),
           tabBarButton: (props) => (
             <View style={{ flex: 1, position: 'relative' }}>
-              <TouchableOpacity {...props} />
+              <TouchableOpacity {...(props as any)} />
               {props.accessibilityState?.selected && (
                 <View style={{
                   position: 'absolute',
@@ -215,7 +236,36 @@ function TabNavigator() {
           ),
           tabBarButton: (props) => (
             <View style={{ flex: 1, position: 'relative' }}>
-              <TouchableOpacity {...props} />
+              <TouchableOpacity {...(props as any)} />
+              {props.accessibilityState?.selected && (
+                <View style={{
+                  position: 'absolute',
+                  bottom: Platform.OS === 'ios' ? 24 : 8,
+                  left: '50%',
+                  marginLeft: -20,
+                  width: 40,
+                  height: 3,
+                  backgroundColor: '#22C55E',
+                  borderRadius: 2,
+                }} />
+              )}
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="MyMemberships"
+        component={MyMembershipsScreen}
+        options={{
+          tabBarLabel: 'Memberships',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: 'center' }}>
+              <MembershipsIcon color={color} focused={focused} />
+            </View>
+          ),
+          tabBarButton: (props) => (
+            <View style={{ flex: 1, position: 'relative' }}>
+              <TouchableOpacity {...(props as any)} />
               {props.accessibilityState?.selected && (
                 <View style={{
                   position: 'absolute',
@@ -244,7 +294,7 @@ function TabNavigator() {
           ),
           tabBarButton: (props) => (
             <View style={{ flex: 1, position: 'relative' }}>
-              <TouchableOpacity {...props} />
+              <TouchableOpacity {...(props as any)} />
               {props.accessibilityState?.selected && (
                 <View style={{
                   position: 'absolute',
@@ -287,6 +337,11 @@ export default function AppNavigator() {
               name="Booking"
               component={BookingScreen}
               options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="SubscriptionCheckout"
+              component={SubscriptionCheckoutScreen}
+              options={{ title: 'Membership Checkout', headerStyle: { backgroundColor: '#0A0E0D', borderBottomColor: '#1A2520' }, headerTintColor: '#22C55E' }}
             />
           </>
         )}

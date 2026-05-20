@@ -159,7 +159,7 @@ export default function BookingsPage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
-        <BookingInsights insights={insights} stats={stats} />
+        <BookingInsights insights={insights} stats={stats} bookings={bookings} />
         <RecentActivity activities={activities} fmtDate={fmtDate} timeAgo={timeAgo} />
       </div>
 

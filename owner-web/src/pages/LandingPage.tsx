@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import HeroSection from '../components/HeroSection';
 import FeaturesSection from '../components/FeaturesSection';
+import { getActiveTier } from '../utils/tier';
 
 interface FAQItem {
   question: string;
@@ -13,6 +14,8 @@ export default function LandingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  
+  const activeTier = getActiveTier(user);
 
   const plans = [
     {
@@ -20,20 +23,21 @@ export default function LandingPage() {
       name: 'Kickoff Starter',
       description: 'Ideal for independent local turfs managing a single stadium with basic manual scheduling.',
       priceETB: 1000,
-      priceUSD: 19,
+      priceUSD: 6.67,
       features: [
         '1 Turf Branch Location',
         'Manual Slot Management & Scheduling',
         'Manual Cash Booking Entries',
         '1 Bank Account Integrated (CBE/Telebirr)',
-        'Basic Dashboard Analytics',
-        'Standard Email Support'
+        '1 Player Membership Plan template max',
+        'Basic Booking Counts & Stats'
       ],
       notIncluded: [
         'Automatic Slot Schedule Generator Flow',
         'Secure Receipt Verification Flow',
         'Visual Earnings Area Charts',
         'Multiple Bank Accounts Integration',
+        'Multiple Player Membership Plans',
         'Reviews & Player Feedback Replies'
       ],
       popular: false,
@@ -45,19 +49,21 @@ export default function LandingPage() {
       name: 'Pro Turf Master',
       description: 'Our most popular plan. Outfitted with automatic scheduling, receipt verification, and advanced metrics.',
       priceETB: 2500,
-      priceUSD: 49,
+      priceUSD: 16.67,
       features: [
         'Up to 3 Turf Branch Locations',
         'Automatic Slot Schedule Generator Flow',
         'Secure Receipt Verification Flow',
         'Visual Earnings Area Charts & Stats',
         'Up to 3 Bank Accounts Integrated',
+        'Up to 3 Player Membership Plan templates',
         'Reviews & Player Feedback Replies',
-        'Priority Chat & Email Support (24/7)'
+        'Advanced Booking Insights (Daily Revenue Chart & Peak Slots Hours)'
       ],
       notIncluded: [
         'Unlimited Stadium Branches',
-        'Unlimited Bank Accounts Integrated'
+        'Unlimited Bank Accounts Integrated',
+        'Up to 10 Player Membership Plans'
       ],
       popular: true,
       ctaText: 'Go Pro Today',
@@ -68,15 +74,16 @@ export default function LandingPage() {
       name: 'Elite Arena Complex',
       description: 'Designed for large multi-turf complex networks and franchises seeking ultimate limits.',
       priceETB: 5000,
-      priceUSD: 99,
+      priceUSD: 33.33,
       features: [
         'Unlimited Turf Branch Locations',
         'Automatic Slot Schedule Generator Flow',
         'Secure Receipt Verification Flow',
         'Visual Earnings Area Charts & Stats',
         'Unlimited Bank Accounts Integrated',
+        'Up to 10 Player Membership Plan templates',
         'Reviews & Player Feedback Replies',
-        'Priority Chat, Email & Phone Support (24/7)'
+        'Elite AI Analytics (Daily Revenue Chart, Peak Hours, Circular Loyalty Ring & Forecasts)'
       ],
       notIncluded: [],
       popular: false,
@@ -100,16 +107,20 @@ export default function LandingPage() {
     },
     {
       question: 'Do you offer a free trial?',
-      answer: 'Yes! All plans include a 14-day free trial, allowing you to list your turf, generate slots, and receive live bookings from players without paying anything upfront.'
+      answer: 'Yes! All new accounts begin with a 14-day free trial. During the trial period, your account is automatically upgraded to the Elite Arena Complex tier, giving you unrestricted access to try all platform features (such as automated slot generation, review replies, bank integrations, and player membership plans) completely free.'
     },
     {
       question: 'Are there any hidden transaction fees?',
-      answer: 'No hidden fees. KOAS operates on a transparent flat SaaS subscription plan (Starter, Pro, or Elite). All turf booking revenue goes 100% directly to your bank account, without KOAS taking any percentage cuts.'
+      answer: 'No hidden fees. KOAS operates on a transparent flat subscription plan (Starter, Pro, or Elite). All turf booking revenue goes 100% directly to your bank account, without KOAS taking any percentage cuts.'
     }
   ];
 
   const handleSelectPlan = (planId: string) => {
-    navigate(`/register?plan=${planId}&billing=monthly`);
+    if (user) {
+      navigate('/subscription');
+    } else {
+      navigate(`/register?plan=${planId}&billing=monthly`);
+    }
   };
 
   const toggleFaq = (index: number) => {
@@ -135,6 +146,9 @@ export default function LandingPage() {
           <p className="mt-4 text-base text-[#9ca3af] leading-relaxed">
             Keep 100% of your turf bookings income. Pay only a simple flat subscription to maintain your listing and access advanced stadium dashboard tools.
           </p>
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#16a34a]/10 border border-[#16a34a]/30 text-xs font-bold text-[#4ade80]">
+            <span>🎁</span> All plans start with a 14-day free trial unlocking ALL features (Elite Tier) with zero risk
+          </div>
         </div>
 
         {/* Pricing Cards */}
@@ -201,12 +215,19 @@ export default function LandingPage() {
               <button
                 onClick={() => handleSelectPlan(plan.id)}
                 className={`w-full mt-8 py-3.5 px-4 rounded-lg text-sm font-bold tracking-wide transition-all shadow-md ${
-                  plan.popular
-                    ? 'bg-[#16a34a] hover:bg-[#15803d] text-white hover:shadow-lg hover:shadow-[#16a34a]/30'
-                    : 'bg-[#1f2d2a] hover:bg-[#2d3d37] text-white border border-[#2d3d37] hover:text-[#4ade80]'
+                  user && activeTier === plan.id.toUpperCase()
+                    ? 'bg-[#1f2d2a]/30 text-slate-500 border border-[#1f2d2a]/40 cursor-default'
+                    : plan.popular
+                      ? 'bg-[#16a34a] hover:bg-[#15803d] text-white hover:shadow-lg hover:shadow-[#16a34a]/30'
+                      : 'bg-[#1f2d2a] hover:bg-[#2d3d37] text-white border border-[#2d3d37] hover:text-[#4ade80]'
                 }`}
               >
-                {plan.ctaText}
+                {user
+                  ? activeTier === plan.id.toUpperCase()
+                    ? 'Current Plan'
+                    : 'Manage Plan'
+                  : plan.ctaText
+                }
               </button>
             </div>
           ))}
@@ -235,11 +256,11 @@ export default function LandingPage() {
                 { name: 'Turf Branch Locations', star: '1 Branch', pro: 'Up to 3 Branches', elite: 'Unlimited' },
                 { name: 'Slot Schedule Engine', star: 'Manual entries', pro: 'Auto Generator', elite: 'Auto Generator + Rules' },
                 { name: 'Receipt Verification', star: 'Basic (Offline)', pro: 'Secure Online Flow', elite: 'Fraud-Proof Flow' },
-                { name: 'Revenue Analytics', star: 'Basic Metrics', pro: 'Detailed Graph Chart', elite: 'Premium Area Charts' },
+                { name: 'Revenue Analytics', star: 'Basic Metrics', pro: 'Daily Revenue & Peak Hours Charts', elite: 'AI Loyalty Circular Gauge & Velocity Forecasts' },
                 { name: 'Integrated Bank Accounts', star: '1 Account', pro: 'Up to 3 Accounts', elite: 'Unlimited' },
+                { name: 'Player Membership Plans', star: '1 Plan max', pro: 'Up to 3 Plans', elite: 'Up to 10 Plans' },
                 { name: 'Platform Commissions', star: '0% Flat Rate', pro: '0% Flat Rate', elite: '0% Flat Rate' },
-                { name: 'Admin Account Gate', star: 'Standard Approval', pro: 'Standard Approval', elite: 'Instant Priority Approval' },
-                { name: 'Support Availability', star: 'Email (24-48h)', pro: 'Chat/Email (24/7)', elite: 'Dedicated Account Manager' }
+                { name: 'Admin Account Gate', star: 'Standard Approval', pro: 'Standard Approval', elite: 'Instant Priority Approval' }
               ].map((row, idx) => (
                 <tr key={idx} className="hover:bg-[#111819]/35 text-[#d1d5db]">
                   <td className="p-5 font-medium text-white">{row.name}</td>
@@ -312,14 +333,20 @@ export default function LandingPage() {
             Ready to Streamline Your Stadium Business?
           </h2>
           <p className="mt-4 text-base sm:text-lg text-[#9ca3af] max-w-xl mx-auto leading-relaxed">
-            Create an account, select your subscription plan, and start accepting soccer bookings under 5 minutes.
+            Start your 14-day free trial today with instant access to all Elite features. Set up your turf under 5 minutes, cancel anytime.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/register" className="w-full sm:w-auto px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold rounded-lg shadow-lg shadow-[#16a34a]/30 hover:shadow-xl transition-all no-underline text-center">
-              Claim 14-Day Free Trial
-            </Link>
-            <a href="mailto:support@koas.com" className="w-full sm:w-auto px-8 py-4 bg-[#1f2d2a] hover:bg-[#2d3d37] text-white font-bold rounded-lg transition-all border border-[#2d3d37] no-underline text-center">
+            {user ? (
+              <Link to="/dashboard" className="w-full sm:w-auto px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold rounded-lg shadow-lg shadow-[#16a34a]/30 hover:shadow-xl transition-all no-underline text-center">
+                Go to Dashboard
+              </Link>
+            ) : (
+              <Link to="/register" className="w-full sm:w-auto px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold rounded-lg shadow-lg shadow-[#16a34a]/30 hover:shadow-xl transition-all no-underline text-center">
+                Claim 14-Day Free Trial
+              </Link>
+            )}
+            <a href="#" className="w-full sm:w-auto px-8 py-4 bg-[#1f2d2a] hover:bg-[#2d3d37] text-white font-bold rounded-lg transition-all border border-[#2d3d37] no-underline text-center">
               Contact Sales Support
             </a>
           </div>

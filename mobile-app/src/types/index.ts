@@ -6,6 +6,17 @@ export interface User {
   phoneNumber?: string;
 }
 
+export interface BankAccount {
+  id: string;
+  stadiumId: string;
+  bankName: string;
+  accountNumber: string;
+  accountHolderName: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Stadium {
   id: string;
   name: string;
@@ -16,6 +27,7 @@ export interface Stadium {
   bankName?: string; // Bank name for payments
   accountNumber?: string; // Bank account number
   accountHolderName?: string; // Account holder name
+  bankAccounts?: BankAccount[]; // Related bank accounts
   isApproved: boolean;
   owner: { id: string; name: string };
   averageRating?: number;
@@ -66,4 +78,39 @@ export interface Review {
   updatedAt: string;
   player?: { id: string; name: string };
   stadium?: { id: string; name: string; location: string };
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  stadiumId: string;
+  name: string;
+  price: number;
+  duration: number; // in days
+  description?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type SubscriptionStatus = 'RECEIPT_SUBMITTED' | 'ACTIVE' | 'REJECTED' | 'EXPIRED';
+
+export interface PlayerSubscription {
+  id: string;
+  playerId: string;
+  subscriptionPlanId: string;
+  subscriptionCode: string;
+  pricePaid: number;
+  receiptImageUrl: string;
+  status: SubscriptionStatus;
+  playerSubmittedAt: string;
+  ownerConfirmedAt?: string;
+  ownerRejectedAt?: string;
+  ownerRejectionReason?: string;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  subscriptionPlan: SubscriptionPlan & {
+    stadium: Stadium;
+  };
 }

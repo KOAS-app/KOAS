@@ -1,4 +1,5 @@
 import prisma from '../config/prisma.js';
+import { getActiveTier } from '../utils/tier.js';
 
 // POST /api/reviews — player creates/updates a review for a stadium
 export const createOrUpdateReview = async (req, res) => {
@@ -150,6 +151,13 @@ export const replyToReview = async (req, res) => {
     const { id } = req.params;
     const { reply } = req.body;
     const ownerId = req.user.id;
+
+    const activeTier = await getActiveTier(ownerId);
+    if (activeTier === 'STARTER') {
+      return res.status(403).json({ 
+        message: 'Feature locked: Starter plan does not support replying to reviews. Upgrade your plan to unlock review interactions.' 
+      });
+    }
 
     // Get the review with stadium info
     const review = await prisma.review.findUnique({

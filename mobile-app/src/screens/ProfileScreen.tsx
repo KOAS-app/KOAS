@@ -1,9 +1,18 @@
-import { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  ScrollView,
+} from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
+import { colors, radius, spacing } from '../theme';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -46,7 +55,7 @@ export default function ProfileScreen() {
         <Text style={styles.headerTitle}>Profile</Text>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Profile Info Card */}
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
@@ -94,7 +103,7 @@ export default function ProfileScreen() {
             <Feather name="chevron-right" size={20} color="#EF4444" />
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -103,35 +112,36 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0A0E0D' },
   header: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 },
   headerTitle: { fontSize: 28, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 },
-  content: { padding: 20, gap: 16 },
+  scrollContainer: { flex: 1 },
+  scrollContent: { padding: 20, gap: 24, paddingBottom: 60 },
   
   profileCard: {
     backgroundColor: '#0F1713',
     borderRadius: 20,
-    padding: 32,
+    padding: 24,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#1A2520',
   },
   avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: '#22C55E',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-    // Add subtle glow
+    marginBottom: 12,
     shadowColor: '#22C55E',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  avatarText: { fontSize: 36, fontWeight: '900', color: '#0A0E0D' },
-  name: { fontSize: 24, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5, marginBottom: 4 },
-  email: { fontSize: 15, color: '#8B9A94', fontWeight: '500' },
+  avatarText: { fontSize: 28, fontWeight: '900', color: '#0A0E0D' },
+  name: { fontSize: 20, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.3, marginBottom: 4 },
+  email: { fontSize: 13, color: '#8B9A94', fontWeight: '500' },
 
+  // Actions Container
   actionsContainer: { gap: 12 },
   
   actionCard: {

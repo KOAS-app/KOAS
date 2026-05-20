@@ -1,9 +1,24 @@
 import prisma from '../config/prisma.js';
+import { getActiveTier } from '../utils/tier.js';
 
 // POST /api/stadiums — owner creates a stadium
 export const createStadium = async (req, res) => {
   try {
     const { name, locations, description, imageUrl, amenities } = req.body;
+    
+    if (locations && Array.isArray(locations)) {
+      const activeTier = await getActiveTier(req.user.id);
+      if (activeTier === 'STARTER' && locations.length > 1) {
+        return res.status(400).json({ 
+          message: 'Subscription limit reached: Starter tier is limited to 1 branch location. Upgrade your plan to manage more branches.' 
+        });
+      }
+      if (activeTier === 'PRO' && locations.length > 3) {
+        return res.status(400).json({ 
+          message: 'Subscription limit reached: Pro tier is limited to 3 branch locations. Upgrade your plan to manage more branches.' 
+        });
+      }
+    }
     
     console.log('Creating stadium with data:', { name, locations, description, imageUrl, amenities });
 
@@ -76,6 +91,7 @@ export const getStadiumById = async (req, res) => {
         owner: { select: { id: true, name: true } },
         slots: true, // Include all slots (both booked and available)
         reviews: { select: { rating: true } },
+        bankAccounts: true, // Include bank details so players can verify transfer info
       },
     });
 
@@ -115,6 +131,20 @@ export const updateStadium = async (req, res) => {
     }
 
     const { name, locations, description, imageUrl, amenities } = req.body;
+    
+    if (locations && Array.isArray(locations)) {
+      const activeTier = await getActiveTier(req.user.id);
+      if (activeTier === 'STARTER' && locations.length > 1) {
+        return res.status(400).json({ 
+          message: 'Subscription limit reached: Starter tier is limited to 1 branch location. Upgrade your plan to manage more branches.' 
+        });
+      }
+      if (activeTier === 'PRO' && locations.length > 3) {
+        return res.status(400).json({ 
+          message: 'Subscription limit reached: Pro tier is limited to 3 branch locations. Upgrade your plan to manage more branches.' 
+        });
+      }
+    }
     
     console.log('Extracted values:', { name, locations, description, imageUrl, amenities });
     

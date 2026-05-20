@@ -10,6 +10,10 @@ import SlotsPage from './pages/SlotsPage';
 import BookingsPage from './pages/BookingsPage';
 import ReviewsPage from './pages/ReviewsPage';
 import BankDetailsPage from './pages/BankDetailsPage';
+import SubscriptionPage from './pages/SubscriptionPage';
+import SubscriptionPlansPage from './pages/SubscriptionPlansPage';
+import SubscriptionRequestsPage from './pages/SubscriptionRequestsPage';
+import VerifyMembershipPage from './pages/VerifyMembershipPage';
 import { ReactNode } from 'react';
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
@@ -45,6 +49,10 @@ export default function App() {
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
         <Route path="bank-details" element={<BankDetailsPage />} />
+        <Route path="subscription" element={<SubscriptionPage />} />
+        <Route path="subscription-plans" element={<SubscriptionPlansPage />} />
+        <Route path="subscription-requests" element={<SubscriptionRequestsPage />} />
+        <Route path="verify-membership" element={<VerifyMembershipPage />} />
       </Route>
 
       {/* Fallback to root */}
@@ -52,4 +60,3 @@ export default function App() {
     </Routes>
   );
 }
-

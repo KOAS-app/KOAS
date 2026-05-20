@@ -1,7 +1,10 @@
 import { useState, FormEvent, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Stadium } from '../types';
 import { getApiError } from '../utils/apiError';
+import { useAuth } from '../context/AuthContext';
+import { getActiveTier, TIER_LIMITS } from '../utils/tier';
 
 interface Props {
   stadium: Stadium | null;
@@ -10,7 +13,14 @@ interface Props {
 }
 
 export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const isEdit = stadium !== null;
+  
+  const activeTier = getActiveTier(user);
+  const limits = TIER_LIMITS[activeTier];
+  const maxLocations = limits.maxLocations;
+
   const [form, setForm] = useState({ 
     name: '', 
     locations: [''], 
@@ -306,13 +316,22 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
                 <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] tracking-tight">
                   Branch Locations
                 </label>
-                <button
-                  type="button"
-                  onClick={addLocation}
-                  className="text-[0.75rem] font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors"
-                >
-                  + Add Location
-                </button>
+                {isLimitReached ? (
+                  <span className="inline-flex items-center gap-1 text-[0.75rem] font-semibold text-[var(--color-warning)] bg-[var(--color-warning-bg)] px-2 py-0.5 rounded border border-[rgba(217,119,6,0.15)] select-none">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="mr-0.5">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    Tier Limit Reached ({form.locations.length}/{maxLocations})
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={addLocation}
+                    className="text-[0.75rem] font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors"
+                  >
+                    + Add Location
+                  </button>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 {form.locations.map((location, index) => (
@@ -340,9 +359,37 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
                   </div>
                 ))}
               </div>
-              <p className="text-[0.75rem] text-[var(--color-text-muted)] mt-1.5">
-                Add all your branch locations. At least one location is required.
-              </p>
+              
+              {isLimitReached ? (
+                <div className="mt-3 p-3 rounded-[10px] bg-[rgba(217,119,6,0.05)] border border-[rgba(217,119,6,0.15)]">
+                  <div className="flex gap-2.5">
+                    <span className="text-base select-none">👑</span>
+                    <div className="flex-1">
+                      <p className="text-[0.75rem] font-bold text-[var(--color-text-base)]">
+                        Need more locations?
+                      </p>
+                      <p className="text-[0.7rem] text-[var(--color-text-muted)] mt-0.5 leading-relaxed">
+                        Your active tier ({activeTier}) restricts your stadium to a maximum of {maxLocations} branch location{maxLocations > 1 ? 's' : ''}.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          navigate('/subscription');
+                        }}
+                        className="mt-1.5 text-[0.7rem] font-extrabold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] inline-flex items-center gap-0.5 transition-all group"
+                      >
+                        Upgrade Subscription
+                        <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[0.75rem] text-[var(--color-text-muted)] mt-1.5">
+                  Add all your branch locations. At least one location is required.
+                </p>
+              )}
             </div>
 
             <div>

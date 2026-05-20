@@ -459,7 +459,7 @@ The KOAS authentication experience has been transformed from a generic, light-mo
 - Works beautifully on mobile and desktop
 - Provides clear feedback and states
 - Reduces friction and cognitive load
-- Matches the quality of top-tier SaaS products
+- Matches the quality of top-tier premium platforms
 - Maintains KOAS's athletic identity
 
 The auth flow is now **production-ready** and sets the tone for a premium sports booking platform that users will trust enough to sign up, return weekly, and eventually pay for.

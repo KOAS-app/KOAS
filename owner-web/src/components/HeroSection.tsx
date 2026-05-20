@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function HeroSection() {
+  const { user } = useAuth();
+
   return (
     <section className="relative z-10 py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -20,28 +23,50 @@ export default function HeroSection() {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-6">
-            <Link
-              to="/register"
-              className="flex items-center gap-3 px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-bold rounded-xl transition-all duration-200 shadow-lg shadow-[#16a34a]/30 hover:shadow-xl hover:shadow-[#16a34a]/40 group no-underline"
-            >
-              {/* Stadium Icon */}
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
-                <path d="M22 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4" />
-                <path d="M2 14v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4" />
-                <path d="M12 2v20" />
-                <path d="M17 10H7" />
-                <circle cx="12" cy="12" r="4" />
-              </svg>
-              <span>List Your Stadium</span>
-              {/* Arrow Icon */}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </Link>
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="flex items-center gap-3 px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-bold rounded-xl transition-all duration-200 shadow-lg shadow-[#16a34a]/30 hover:shadow-xl hover:shadow-[#16a34a]/40 group no-underline"
+              >
+                {/* Stadium Icon */}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
+                  <path d="M22 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4" />
+                  <path d="M2 14v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4" />
+                  <path d="M12 2v20" />
+                  <path d="M17 10H7" />
+                  <circle cx="12" cy="12" r="4" />
+                </svg>
+                <span>Go to Dashboard</span>
+                {/* Arrow Icon */}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </Link>
+            ) : (
+              <Link
+                to="/register"
+                className="flex items-center gap-3 px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-bold rounded-xl transition-all duration-200 shadow-lg shadow-[#16a34a]/30 hover:shadow-xl hover:shadow-[#16a34a]/40 group no-underline"
+              >
+                {/* Stadium Icon */}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
+                  <path d="M22 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4" />
+                  <path d="M2 14v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4" />
+                  <path d="M12 2v20" />
+                  <path d="M17 10H7" />
+                  <circle cx="12" cy="12" r="4" />
+                </svg>
+                <span>List Your Stadium</span>
+                {/* Arrow Icon */}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </Link>
+            )}
 
             <a
-              href="mailto:support@koas.com"
+              href="#"
               className="flex items-center gap-2.5 px-7 py-4 bg-transparent border border-[#1f2d2a] hover:border-[#2d3d37] hover:bg-[#111819]/40 text-[#d1d5db] hover:text-white font-bold rounded-xl transition-all duration-200 group no-underline"
             >
               {/* Play Video Icon */}

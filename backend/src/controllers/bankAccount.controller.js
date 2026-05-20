@@ -1,4 +1,5 @@
 import prisma from '../config/prisma.js';
+import { getActiveTier } from '../utils/tier.js';
 
 // Get all bank accounts for the owner's stadium
 export const getBankAccounts = async (req, res) => {
@@ -44,6 +45,18 @@ export const createBankAccount = async (req, res) => {
 
     if (!stadium) {
       return res.status(404).json({ message: 'Stadium not found. Please create a stadium first.' });
+    }
+
+    const activeTier = await getActiveTier(req.user.id);
+    if (activeTier === 'STARTER' && stadium.bankAccounts.length >= 1) {
+      return res.status(400).json({ 
+        message: 'Subscription limit reached: Starter tier is limited to 1 integrated bank account. Upgrade your plan to link more accounts.' 
+      });
+    }
+    if (activeTier === 'PRO' && stadium.bankAccounts.length >= 3) {
+      return res.status(400).json({ 
+        message: 'Subscription limit reached: Pro tier is limited to 3 integrated bank accounts. Upgrade your plan to link more accounts.' 
+      });
     }
 
     // Check limit of 5 bank accounts

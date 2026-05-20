@@ -1,4 +1,5 @@
 import prisma from '../config/prisma.js';
+import { getActiveTier } from '../utils/tier.js';
 
 // POST /api/slots — owner creates a single slot
 export const createSlot = async (req, res) => {
@@ -61,6 +62,13 @@ export const bulkCreateSlots = async (req, res) => {
     if (!stadium) return res.status(404).json({ message: 'Stadium not found' });
     if (stadium.ownerId !== req.user.id) {
       return res.status(403).json({ message: 'Not your stadium' });
+    }
+
+    const activeTier = await getActiveTier(req.user.id);
+    if (activeTier === 'STARTER') {
+      return res.status(403).json({ 
+        message: 'Feature locked: Starter plan does not support the Automatic Slot Generator flow. Upgrade your plan to auto-generate slot templates.' 
+      });
     }
 
     // Verify location exists in stadium locations

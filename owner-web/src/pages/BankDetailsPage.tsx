@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
 import BankAccountCard from '../components/bank/BankAccountCard';
 import BankAccountModal from '../components/bank/BankAccountModal';
+import { useAuth } from '../context/AuthContext';
+import { getActiveTier, TIER_LIMITS } from '../utils/tier';
 
 interface BankAccount {
   id: string;
@@ -14,6 +17,13 @@ interface BankAccount {
 }
 
 export default function BankDetailsPage() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const activeTier = getActiveTier(user);
+  const limits = TIER_LIMITS[activeTier];
+  const maxAccounts = limits.maxBankAccounts;
+
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -37,9 +47,11 @@ export default function BankDetailsPage() {
     }
   };
 
+  const isLimitReached = accounts.length >= maxAccounts;
+
   const handleAdd = () => {
-    if (accounts.length >= 5) {
-      setError('Maximum of 5 bank accounts allowed.');
+    if (isLimitReached) {
+      setError(`Your plan (${activeTier}) allows a maximum of ${maxAccounts} bank account${maxAccounts > 1 ? 's' : ''}.`);
       return;
     }
     setEditingAccount(null);
@@ -118,7 +130,7 @@ export default function BankDetailsPage() {
         </div>
         <button
           onClick={handleAdd}
-          disabled={accounts.length >= 5}
+          disabled={isLimitReached}
           className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -136,13 +148,35 @@ export default function BankDetailsPage() {
           <line x1="12" y1="16" x2="12" y2="12" />
           <line x1="12" y1="8" x2="12.01" y2="8" />
         </svg>
-        <div className="text-[0.8125rem] leading-relaxed">
-          <p className="font-bold mb-1">Payment Information</p>
+        <div className="text-[0.8125rem] leading-relaxed flex-1">
+          <p className="font-bold mb-1">Payment Information ({activeTier} Plan)</p>
           <p className="text-[#1e40af]/80">
-            You can add up to 5 bank accounts. Players will see your default account when making payments. {accounts.length}/5 accounts added.
+            Players will see your default account when making payments. You have added <span className="font-extrabold">{accounts.length}</span> of {maxAccounts === Infinity ? 'unlimited' : maxAccounts} allowed bank account{maxAccounts !== 1 ? 's' : ''}.
           </p>
         </div>
       </div>
+
+      {/* Tier limit warning banner */}
+      {isLimitReached && (
+        <div className="mb-6 p-4 rounded-[12px] bg-gradient-to-r from-[rgba(217,119,6,0.06)] to-[rgba(217,119,6,0.02)] border border-[rgba(217,119,6,0.25)] shadow-[0_4px_20px_rgba(217,119,6,0.05)] flex items-start gap-3">
+          <span className="text-xl select-none">👑</span>
+          <div className="flex-1">
+            <h4 className="text-[0.875rem] font-black text-[var(--color-text-base)] tracking-tight">
+              Bank Integration Limit Reached
+            </h4>
+            <p className="text-[0.8125rem] text-[var(--color-text-muted)] mt-0.5 leading-relaxed">
+              Your {activeTier} subscription allows up to {maxAccounts} active bank account{maxAccounts > 1 ? 's' : ''}. Upgrade to add more accounts for versatile payout routing.
+            </p>
+            <button
+              onClick={() => navigate('/subscription')}
+              className="mt-2.5 px-3 py-1.5 rounded-[6px] text-[0.75rem] font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] inline-flex items-center gap-1 transition-all group"
+            >
+              Upgrade Your Plan
+              <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       {error && (
