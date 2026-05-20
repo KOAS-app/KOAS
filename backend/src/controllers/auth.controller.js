@@ -4,7 +4,7 @@ import { generateToken } from '../utils/jwt.js';
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role, phoneNumber, stadiumName, stadiumLocation, subscriptionPlan } = req.body;
+    const { name, email, password, role, phoneNumber, subscriptionPlan } = req.body;
 
     // ADMIN role cannot be self-registered
     if (role === 'ADMIN') {
@@ -14,12 +14,6 @@ export const register = async (req, res) => {
     // Phone number is required for all roles
     if (!phoneNumber) {
       return res.status(400).json({ message: 'Phone number is required.' });
-    }
-
-    if (role === 'OWNER') {
-      if (!stadiumName || !stadiumLocation) {
-        return res.status(400).json({ message: 'Stadium name and location are required for owner registration.' });
-      }
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -33,32 +27,20 @@ export const register = async (req, res) => {
     const hashedPassword = await hashPassword(password);
 
     if (role === 'OWNER') {
-      const user = await prisma.$transaction(async (tx) => {
-        const newUser = await tx.user.create({
-          data: {
-            name,
-            email,
-            password: hashedPassword,
-            role,
-            phoneNumber: phoneNumber || null,
-            isApproved: false, // Pending admin approval
-            subscriptionPlan: subscriptionPlan ? subscriptionPlan.toUpperCase() : 'STARTER',
-          },
-        });
-        
-        await tx.stadium.create({
-          data: {
-            name: stadiumName,
-            locations: [stadiumLocation],
-            ownerId: newUser.id,
-          },
-        });
-
-        return newUser;
+      const user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          role,
+          phoneNumber: phoneNumber || null,
+          isApproved: false, // Pending admin approval
+          subscriptionPlan: subscriptionPlan ? subscriptionPlan.toUpperCase() : 'STARTER',
+        },
       });
 
       return res.status(201).json({
-        message: 'Registration successful. Your account is pending admin approval.',
+        message: 'Registration successful. Your account is pending admin approval. You can add your stadium details in the dashboard.',
         user,
       });
     } else {

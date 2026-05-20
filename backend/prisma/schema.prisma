@@ -41,7 +41,7 @@ model Stadium {
   isApproved        Boolean   @default(false)
   createdAt         DateTime  @default(now())
 
-  owner         User          @relation(fields: [ownerId], references: [id])
+  owner         User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   bookings      Booking[]
   slots         Slot[]
   reviews       Review[]
@@ -72,9 +72,9 @@ model Booking {
   status       BookingStatus @default(PENDING)
   createdAt    DateTime      @default(now())
 
-  player       User          @relation(fields: [playerId], references: [id])
-  stadium      Stadium       @relation(fields: [stadiumId], references: [id])
-  slot         Slot          @relation(fields: [slotId], references: [id])
+  player       User          @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  stadium      Stadium       @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+  slot         Slot          @relation(fields: [slotId], references: [id], onDelete: Cascade)
   payment      Payment?
 }
 
@@ -88,7 +88,7 @@ model Slot {
   isBooked    Boolean     @default(false)
   createdAt   DateTime    @default(now())
 
-  stadium     Stadium     @relation(fields: [stadiumId], references: [id])
+  stadium     Stadium     @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
   booking     Booking?
 }
 
@@ -116,7 +116,7 @@ model Payment {
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
-  booking             Booking       @relation(fields: [bookingId], references: [id])
+  booking             Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }
 
 enum BookingStatus {

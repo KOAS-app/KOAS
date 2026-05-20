@@ -27,6 +27,21 @@ const PublicRoute = ({ children }: { children: ReactNode }) => {
 };
 
 export default function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050a08] flex flex-col items-center justify-center gap-4">
+        {/* Sleek Glowing Circular Loader */}
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 border-4 border-[#16a34a]/10 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-t-[#16a34a] rounded-full animate-spin shadow-[0_0_15px_rgba(22,163,74,0.5)]"></div>
+        </div>
+        <p className="text-sm font-semibold text-[#a3a3a3] tracking-widest uppercase animate-pulse">Verifying Session...</p>
+      </div>
+    );
+  }
+
   return (
     <Routes>
       {/* Public Routes with Shared Navbar and Footer */}

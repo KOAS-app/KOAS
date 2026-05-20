@@ -5,7 +5,7 @@ export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       where: { role: { not: 'ADMIN' } },
-      select: { id: true, name: true, email: true, role: true, phoneNumber: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, phoneNumber: true, isApproved: true, subscriptionPlan: true, createdAt: true },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -75,7 +75,7 @@ export const rejectUser = async (req, res) => {
 export const getAllStadiums = async (req, res) => {
   try {
     const stadiums = await prisma.stadium.findMany({
-      include: { owner: { select: { id: true, name: true, email: true, phoneNumber: true } } },
+      include: { owner: { select: { id: true, name: true, email: true, phoneNumber: true, subscriptionPlan: true } } },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -188,6 +188,25 @@ export const resolveForOwner = async (req, res) => {
     });
 
     res.json({ payment, resolution });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// PATCH /api/admin/users/:id/subscription — update owner's plan tier
+export const updateUserPlan = async (req, res) => {
+  try {
+    const { subscriptionPlan } = req.body;
+    if (!['STARTER', 'PRO', 'ELITE'].includes(subscriptionPlan)) {
+      return res.status(400).json({ message: 'Invalid subscription plan tier.' });
+    }
+
+    const user = await prisma.user.update({
+      where: { id: req.params.id },
+      data: { subscriptionPlan },
+    });
+
+    res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

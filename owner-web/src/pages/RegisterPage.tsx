@@ -17,7 +17,7 @@ export default function RegisterPage() {
   };
   const planDetails = plansInfo[plan.toLowerCase()] || plansInfo.starter;
 
-  const [form, setForm]       = useState({ name: '', email: '', phoneNumber: '', password: '', confirm: '', stadiumName: '', stadiumLocation: '' });
+  const [form, setForm]       = useState({ name: '', email: '', phoneNumber: '', password: '', confirm: '' });
   const [error, setError]     = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,15 +51,12 @@ export default function RegisterPage() {
     if (passwordError) { setError(passwordError); return; }
     if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
     if (!form.phoneNumber.match(/^\+251[79]\d{8}$/)) { setError('Phone number must be in Ethiopian format: +251XXXXXXXXX'); return; }
-    if (!form.stadiumName.trim()) { setError('Stadium name is required.'); return; }
-    if (!form.stadiumLocation.trim()) { setError('Stadium location is required.'); return; }
 
     setLoading(true);
     try {
       const res = await api.post('/auth/register', {
         name: form.name, email: form.email, phoneNumber: form.phoneNumber, password: form.password, 
-        stadiumName: form.stadiumName, stadiumLocation: form.stadiumLocation, role: 'OWNER',
-        subscriptionPlan: plan.toUpperCase()
+        role: 'OWNER', subscriptionPlan: plan.toUpperCase()
       });
       setSuccess(res.data.message || 'Registration successful. Pending admin approval.');
     } catch (err) {
@@ -176,40 +173,6 @@ export default function RegisterPage() {
                 required
                 disabled={loading}
               />
-            </div>
-
-            {/* Stadium Details fields - two column on desktop, stacked on mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-[#d1d5db] mb-2">
-                  Stadium Name
-                </label>
-                <input
-                  type="text"
-                  name="stadiumName"
-                  className="w-full px-4 py-3 bg-[#0f1413] border border-[#1f2d2a] rounded-lg text-white text-sm outline-none transition-all duration-200 placeholder:text-[#4b5563] hover:border-[#2d3d37] focus:border-[#16a34a] focus:ring ring-[#16a34a]/20 focus:bg-[#0f1413] disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="e.g. KOAS Arena"
-                  value={form.stadiumName}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-[#d1d5db] mb-2">
-                  Stadium Location
-                </label>
-                <input
-                  type="text"
-                  name="stadiumLocation"
-                  className="w-full px-4 py-3 bg-[#0f1413] border border-[#1f2d2a] rounded-lg text-white text-sm outline-none transition-all duration-200 placeholder:text-[#4b5563] hover:border-[#2d3d37] focus:border-[#16a34a] focus:ring ring-[#16a34a]/20 focus:bg-[#0f1413] disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="e.g. Bole, Addis Ababa"
-                  value={form.stadiumLocation}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
             </div>
 
             {/* Password fields - two column on desktop, stacked on mobile */}

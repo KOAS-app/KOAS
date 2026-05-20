@@ -27,14 +27,13 @@ export default function LandingPage() {
       features: [
         '1 Turf Branch Location',
         'Manual Slot Management & Scheduling',
-        'Manual Cash Booking Entries',
+        'Secure Receipt Verification Flow',
         '1 Bank Account Integrated (CBE/Telebirr)',
         '1 Player Membership Plan template max',
         'Basic Booking Counts & Stats'
       ],
       notIncluded: [
         'Automatic Slot Schedule Generator Flow',
-        'Secure Receipt Verification Flow',
         'Visual Earnings Area Charts',
         'Multiple Bank Accounts Integration',
         'Multiple Player Membership Plans',

@@ -28,6 +28,7 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
     imageUrl: '', 
     amenities: [] as string[]
   });
+  const isLimitReached = form.locations.length >= maxLocations;
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [uploading, setUploading] = useState(false);

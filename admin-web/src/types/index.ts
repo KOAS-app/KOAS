@@ -6,6 +6,8 @@ interface User {
   email: string;
   role: 'PLAYER' | 'OWNER' | 'ADMIN';
   phoneNumber?: string;
+  isApproved?: boolean;
+  subscriptionPlan?: string;
   createdAt: string;
 }
 
@@ -21,7 +23,7 @@ interface Stadium {
   accountHolderName?: string;
   isApproved: boolean;
   createdAt: string;
-  owner: { id: string; name: string; email: string; phoneNumber?: string };
+  owner: { id: string; name: string; email: string; phoneNumber?: string; subscriptionPlan?: string };
 }
 
 interface Slot {

@@ -13,8 +13,6 @@ export const registerSchema = z.object({
   role: z.enum(['PLAYER', 'OWNER'], { message: 'Role must be PLAYER or OWNER' }),
   phoneNumber: z.string()
     .regex(/^\+251[79]\d{8}$/, 'Phone number must be in Ethiopian format: +251XXXXXXXXX'),
-  stadiumName: z.string().min(2, 'Stadium name must be at least 2 characters').optional(),
-  stadiumLocation: z.string().min(2, 'Stadium location must be at least 2 characters').optional(),
 });
 
 export const loginSchema = z.object({

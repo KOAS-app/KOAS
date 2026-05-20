@@ -53,7 +53,7 @@ export default function ReviewsPage() {
           <span
             key={star}
             className={`text-base ${
-              star <= rating ? 'text-[#F59E0B]' : 'text-[#e5e7eb]'
+              star <= rating ? 'text-[#F59E0B]' : 'text-[var(--color-border-strong)]'
             }`}
           >
             ★
@@ -74,12 +74,12 @@ export default function ReviewsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-[1.625rem] font-extrabold tracking-tight text-[#111827] leading-tight mb-0">
+      <div className="mb-6">
+        <h1 className="text-[1.625rem] font-extrabold tracking-tight text-[var(--color-text-base)] leading-tight mb-1.5">
           All Reviews
         </h1>
-        <p className="text-[#6b7280] text-sm mt-0.5">
-          Monitor and manage player reviews across all stadiums
+        <p className="text-[var(--color-text-muted)] text-sm">
+          Monitor and manage player reviews and turf owner replies across all stadiums.
         </p>
       </div>
 
@@ -88,27 +88,27 @@ export default function ReviewsPage() {
         <div className="flex flex-nowrap items-center gap-2 mb-6 overflow-x-auto pb-2 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-3 rounded-lg border transition-all flex-shrink-0 min-w-[90px] ${
+            className={`px-4 py-3 rounded-xl border transition-all flex-shrink-0 min-w-[90px] text-center ${
               filter === 'all'
-                ? 'bg-[#3b82f6] border-[#3b82f6] text-white shadow-sm'
-                : 'bg-white border-[#e5e7eb] text-[#6b7280] hover:border-[#d1d5db]'
+                ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm font-extrabold'
+                : 'bg-[var(--color-surface-card)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-border-strong)] font-semibold hover:text-[var(--color-text-secondary)]'
             }`}
           >
             <div className="text-2xl font-black mb-1">{reviews.length}</div>
-            <div className="text-xs font-semibold">All Reviews</div>
+            <div className="text-[10px] uppercase tracking-wider">All Reviews</div>
           </button>
           {[5, 4, 3, 2, 1].map((rating) => (
             <button
               key={rating}
               onClick={() => setFilter(rating.toString() as any)}
-              className={`px-4 py-3 rounded-lg border transition-all flex-shrink-0 min-w-[90px] ${
+              className={`px-4 py-3 rounded-xl border transition-all flex-shrink-0 min-w-[90px] text-center ${
                 filter === rating.toString()
-                  ? 'bg-[#3b82f6] border-[#3b82f6] text-white shadow-sm'
-                  : 'bg-white border-[#e5e7eb] text-[#6b7280] hover:border-[#d1d5db]'
+                  ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm font-extrabold'
+                  : 'bg-[var(--color-surface-card)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-border-strong)] font-semibold hover:text-[var(--color-text-secondary)]'
               }`}
             >
               <div className="text-2xl font-black mb-1">{ratingCounts[rating as keyof typeof ratingCounts]}</div>
-              <div className="text-xs font-semibold flex items-center justify-center gap-1">
+              <div className="text-[10px] uppercase tracking-wider flex items-center justify-center gap-1">
                 {rating} <span className={filter === rating.toString() ? 'text-white' : 'text-[#F59E0B]'}>★</span>
               </div>
             </button>
@@ -118,7 +118,7 @@ export default function ReviewsPage() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 px-3.5 py-2.5 mb-4 rounded-lg bg-[#fef2f2] border border-[#fecaca] text-[#dc2626] text-[0.8125rem] font-medium">
+        <div className="flex items-center gap-2 px-3.5 py-2.5 mb-4 rounded-lg bg-[var(--color-danger-bg)] border border-[#fecaca] text-[var(--color-danger)] text-[0.8125rem] font-medium">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
@@ -128,18 +128,18 @@ export default function ReviewsPage() {
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center gap-3 py-16">
-          <div className="inline-block w-6 h-6 border-2 border-[#e5e7eb] border-t-[#3b82f6] rounded-full animate-spin" />
-          <span className="text-[#6b7280] text-sm">Loading reviews…</span>
+        <div className="flex items-center justify-center gap-3.5 py-16">
+          <div className="inline-block w-6 h-6 border-2 border-[var(--color-border)] border-t-[var(--color-primary)] rounded-full animate-spin" />
+          <span className="text-[var(--color-text-muted)] text-sm font-medium">Loading reviews…</span>
         </div>
       )}
 
       {/* Empty State */}
       {!loading && reviews.length === 0 && (
-        <div className="bg-white border border-[#e5e7eb] rounded-xl p-14 shadow-sm text-center">
+        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-xl p-14 shadow-sm text-center">
           <div className="text-5xl opacity-50 mb-4">💬</div>
-          <p className="text-base font-bold text-[#111827] mb-2">No reviews yet</p>
-          <p className="text-sm text-[#6b7280] max-w-md mx-auto">
+          <p className="text-base font-bold text-[var(--color-text-base)] mb-2">No reviews yet</p>
+          <p className="text-sm text-[var(--color-text-muted)] max-w-md mx-auto">
             Reviews will appear here once players start reviewing stadiums.
           </p>
         </div>
@@ -147,12 +147,12 @@ export default function ReviewsPage() {
 
       {/* Reviews List */}
       {!loading && filteredReviews.length > 0 && (
-        <div className="bg-white border border-[#e5e7eb] rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-xl shadow-sm overflow-hidden">
           
           {/* Mobile Reviews List */}
-          <div className="block sm:hidden divide-y divide-[#e5e7eb]">
+          <div className="block sm:hidden divide-y divide-[var(--color-border)]">
             {filteredReviews.map((review) => (
-              <div key={review.id} className="p-4 flex flex-col gap-3 hover:bg-[#f9fafb] transition-colors">
+              <div key={review.id} className="p-4 flex flex-col gap-3 hover:bg-[var(--color-surface-muted)] transition-colors">
                 {/* Header: Player Avatar + Name + Date */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -162,8 +162,8 @@ export default function ReviewsPage() {
                       </span>
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-[#111827]">{review.player?.name}</p>
-                      <p className="text-[0.6875rem] text-[#6b7280]">
+                      <p className="text-xs font-bold text-[var(--color-text-base)]">{review.player?.name}</p>
+                      <p className="text-[0.6875rem] text-[var(--color-text-muted)]">
                         {new Date(review.createdAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -173,23 +173,23 @@ export default function ReviewsPage() {
 
                 {/* Stadium details */}
                 <div>
-                  <p className="text-xs font-bold text-[#111827]">{review.stadium?.name}</p>
-                  <p className="text-[0.6875rem] text-[#6b7280]">📍 {review.stadium?.location}</p>
+                  <p className="text-xs font-bold text-[var(--color-text-base)]">{review.stadium?.name}</p>
+                  <p className="text-[0.6875rem] text-[var(--color-text-muted)]">📍 {review.stadium?.location}</p>
                 </div>
 
                 {/* Comment & Reply */}
                 {review.comment ? (
-                  <div className="bg-[#f9fafb] rounded-lg p-2.5 border border-[#e5e7eb]">
-                    <p className="text-xs text-[#6b7280] leading-relaxed">{review.comment}</p>
+                  <div className="bg-[var(--color-surface-muted)] rounded-lg p-2.5 border border-[var(--color-border)]">
+                    <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{review.comment}</p>
                     {review.ownerReply && (
-                      <div className="mt-2 pt-2 border-t border-[#e5e7eb]">
+                      <div className="mt-2 pt-2 border-t border-[var(--color-border)]">
                         <p className="text-[0.625rem] font-extrabold text-[#16a34a] uppercase tracking-wide mb-0.5">Owner Response</p>
                         <p className="text-xs text-[#166534] leading-relaxed">{review.ownerReply}</p>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <span className="text-[0.6875rem] text-[#9ca3af] italic">No comment</span>
+                  <span className="text-[0.6875rem] text-[var(--color-text-muted)] italic">No comment</span>
                 )}
               </div>
             ))}
@@ -199,17 +199,17 @@ export default function ReviewsPage() {
           <div className="hidden sm:block overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-[#f9fafb] border-b border-[#e5e7eb]">
-                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[#6b7280] uppercase tracking-wide">Player</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[#6b7280] uppercase tracking-wide">Stadium</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[#6b7280] uppercase tracking-wide">Rating</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[#6b7280] uppercase tracking-wide">Comment</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[#6b7280] uppercase tracking-wide">Date</th>
+                <tr className="bg-[var(--color-surface-muted)] border-b border-[var(--color-border)]">
+                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide">Player</th>
+                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide">Stadium</th>
+                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide">Rating</th>
+                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide">Comment</th>
+                  <th className="px-5 py-3.5 text-left text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e5e7eb]">
+              <tbody className="divide-y divide-[var(--color-border)]">
                 {filteredReviews.map((review) => (
-                  <tr key={review.id} className="hover:bg-[#f9fafb] transition-colors">
+                  <tr key={review.id} className="hover:bg-[var(--color-surface-muted)] transition-colors">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#1e40af] flex items-center justify-center flex-shrink-0">
@@ -218,14 +218,14 @@ export default function ReviewsPage() {
                           </span>
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-[#111827]">{review.player?.name}</p>
+                          <p className="text-sm font-bold text-[var(--color-text-base)]">{review.player?.name}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-5 py-4">
                       <div>
-                        <p className="text-sm font-bold text-[#111827]">{review.stadium?.name}</p>
-                        <p className="text-xs text-[#6b7280] mt-0.5">📍 {review.stadium?.location}</p>
+                        <p className="text-sm font-bold text-[var(--color-text-base)]">{review.stadium?.name}</p>
+                        <p className="text-xs text-[var(--color-text-muted)] mt-0.5">📍 {review.stadium?.location}</p>
                       </div>
                     </td>
                     <td className="px-5 py-4">
@@ -234,20 +234,20 @@ export default function ReviewsPage() {
                     <td className="px-5 py-4 max-w-md">
                       {review.comment ? (
                         <div>
-                          <p className="text-sm text-[#6b7280] line-clamp-2 mb-2">{review.comment}</p>
+                          <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed mb-2">{review.comment}</p>
                           {review.ownerReply && (
-                            <div className="mt-2 pt-2 border-t border-[#e5e7eb]">
+                            <div className="mt-2 pt-2 border-t border-[var(--color-border)]">
                               <p className="text-xs font-bold text-[#16a34a] uppercase tracking-wide mb-1">Owner Response</p>
-                              <p className="text-sm text-[#166534] line-clamp-2">{review.ownerReply}</p>
+                              <p className="text-sm text-[#166534] leading-relaxed">{review.ownerReply}</p>
                             </div>
                           )}
                         </div>
                       ) : (
-                        <span className="text-xs text-[#9ca3af] italic">No comment</span>
+                        <span className="text-xs text-[var(--color-text-muted)] italic">No comment</span>
                       )}
                     </td>
                     <td className="px-5 py-4">
-                      <span className="text-xs text-[#6b7280] font-semibold whitespace-nowrap">
+                      <span className="text-xs text-[var(--color-text-muted)] font-semibold whitespace-nowrap">
                         {new Date(review.createdAt).toLocaleDateString([], {
                           month: 'short',
                           day: 'numeric',
@@ -264,10 +264,10 @@ export default function ReviewsPage() {
       )}
 
       {!loading && filteredReviews.length === 0 && reviews.length > 0 && (
-        <div className="bg-white border border-[#e5e7eb] rounded-xl p-14 shadow-sm text-center">
+        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-xl p-14 shadow-sm text-center">
           <div className="text-5xl opacity-50 mb-4">🔍</div>
-          <p className="text-base font-bold text-[#111827] mb-2">No {filter}-star reviews</p>
-          <p className="text-sm text-[#6b7280]">Try selecting a different rating filter</p>
+          <p className="text-base font-bold text-[var(--color-text-base)] mb-2">No {filter}-star reviews</p>
+          <p className="text-sm text-[var(--color-text-muted)]">Try selecting a different rating filter</p>
         </div>
       )}
     </div>

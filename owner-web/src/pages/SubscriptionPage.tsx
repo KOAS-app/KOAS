@@ -64,7 +64,7 @@ export default function SubscriptionPage() {
       features: [
         '1 Turf Branch Location',
         'Manual Slot Management & Scheduling',
-        'Manual Cash Booking Entries',
+        'Secure Receipt Verification Flow',
         '1 Bank Account Integrated (CBE/Telebirr)',
         '1 Player Membership Plan template max',
         'Basic Booking Counts & Stats'

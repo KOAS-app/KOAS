@@ -11,6 +11,7 @@ import {
   getAllDisputes,
   resolveForPlayer,
   resolveForOwner,
+  updateUserPlan,
 } from '../controllers/admin.controller.js';
 import { authenticate, authorizeRoles } from '../middlewares/auth.middleware.js';
 
@@ -23,6 +24,7 @@ router.get('/users', getAllUsers);
 router.delete('/users/:id', deleteUser);
 router.patch('/users/:id/approve', approveUser);
 router.patch('/users/:id/reject', rejectUser);
+router.patch('/users/:id/subscription', updateUserPlan);
 
 router.get('/stadiums', getAllStadiums);
 router.patch('/stadiums/:id/approve', approveStadium);

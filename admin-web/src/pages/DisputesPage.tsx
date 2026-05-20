@@ -41,20 +41,20 @@ export default function DisputesPage() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-6 text-left">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-[1.625rem] font-extrabold tracking-tight text-[var(--color-text-base)] leading-tight mb-1.5">
-            Disputes
+          <h1 className="text-[1.625rem] font-black tracking-tight text-[var(--color-text-base)] leading-tight">
+            Disputed Transfers
           </h1>
-          <p className="text-[var(--color-text-muted)] text-[0.9375rem] -mt-1">
-            Review and resolve payment disputes between players and owners.
+          <p className="text-[var(--color-text-muted)] text-sm mt-1">
+            Review and resolve bank transfer receipt disputes flagged by turf owners.
           </p>
         </div>
         {!loading && disputes.length > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] bg-[#fdf4ff] border border-[#e9d5ff] text-[#7e22ce] text-sm font-bold w-fit">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-purple-50 border border-purple-200/50 text-purple-700 text-xs font-extrabold w-fit shadow-xs">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
@@ -65,24 +65,24 @@ export default function DisputesPage() {
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center gap-3 py-20">
-          <div className="inline-block w-6 h-6 border-2 border-[var(--color-border)] border-t-[var(--color-primary)] rounded-full animate-spin" />
-          <span className="text-[var(--color-text-muted)] text-sm">Loading disputes…</span>
+        <div className="flex flex-col items-center justify-center gap-3.5 py-40">
+          <div className="inline-block w-8 h-8 border-[3px] border-[var(--color-border)] border-t-[var(--color-primary)] rounded-full animate-spin" />
+          <span className="text-[var(--color-text-muted)] text-sm font-medium">Loading disputes…</span>
         </div>
       )}
 
       {/* Empty */}
       {!loading && disputes.length === 0 && (
-        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] p-16 shadow-sm text-center">
-          <div className="text-5xl opacity-40 mb-4">✅</div>
-          <p className="text-base font-bold text-[var(--color-text-base)] mb-2">No open disputes</p>
-          <p className="text-sm text-[var(--color-text-muted)]">All payment disputes have been resolved.</p>
+        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-2xl p-16 shadow-sm text-center">
+          <div className="text-5xl opacity-40 mb-4">🛡️</div>
+          <p className="text-base font-bold text-[var(--color-text-base)]">All Resolved</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">Every payment dispute has been arbitrated successfully.</p>
         </div>
       )}
 
       {/* Dispute cards */}
       {!loading && disputes.length > 0 && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-5">
           {disputes.map(dispute => (
             <DisputeCard
               key={dispute.id}
@@ -123,112 +123,120 @@ function DisputeCard({ dispute, busy, onViewReceipt, onResolveForPlayer, onResol
   const { booking } = dispute;
 
   return (
-    <div className="bg-[var(--color-surface-card)] border border-[#e9d5ff] rounded-[14px] shadow-sm overflow-hidden">
-      {/* Purple top bar */}
-      <div className="h-1 bg-gradient-to-r from-[#7e22ce] to-[#a855f7]" />
+    <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-2xl shadow-xs overflow-hidden transition-all duration-200 hover:shadow-md">
+      {/* Premium glowing top stripe */}
+      <div className="h-[3px] bg-gradient-to-r from-purple-600 via-indigo-500 to-pink-500" />
 
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-6 flex flex-col gap-5">
         {/* Top row: stadium + slot + disputed badge */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <p className="text-base font-extrabold text-[var(--color-text-base)] tracking-tight">
               {booking.stadium.name}
             </p>
-            <p className="text-[0.8125rem] text-[var(--color-text-muted)] mt-0.5">
-              📍 {booking.slot.location} &nbsp;·&nbsp;
-              {new Date(booking.slot.startTime).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
-              &nbsp; {fmtTime(booking.slot.startTime)} – {fmtTime(booking.slot.endTime)}
+            <p className="text-[11px] text-[var(--color-text-muted)] mt-1.5 flex items-center gap-1">
+              <span>📍 {booking.slot.location}</span>
+              <span className="opacity-40">·</span>
+              <span>{new Date(booking.slot.startTime).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+              <span className="opacity-40">·</span>
+              <span>{fmtTime(booking.slot.startTime)} – {fmtTime(booking.slot.endTime)}</span>
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border bg-[#fdf4ff] text-[#7e22ce] border-[#e9d5ff]">
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider border bg-purple-50 text-purple-700 border-purple-200/50">
               ⚠ DISPUTED
             </span>
-            <span className="text-[1rem] font-black text-[var(--color-primary)]">
+            <span className="text-lg font-black text-[var(--color-primary)]">
               {dispute.amount.toLocaleString()} ETB
             </span>
           </div>
         </div>
 
         {/* Two-column: player vs owner */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Player side */}
-          <div className="rounded-[10px] bg-[#eff6ff] border border-[#bfdbfe] p-3.5">
-            <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] text-[#1d4ed8] mb-2">
-              Player (Claimant)
-            </p>
-            <p className="text-[0.9375rem] font-bold text-[var(--color-text-base)]">{booking.player.name}</p>
-            <p className="text-[0.8125rem] text-[var(--color-text-muted)] mt-0.5">{booking.player.email}</p>
-            {booking.player.phoneNumber && (
-              <a
-                href={`tel:${booking.player.phoneNumber}`}
-                className="text-[0.8125rem] font-semibold text-[#1d4ed8] hover:underline mt-0.5 flex items-center gap-1"
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                </svg>
-                {booking.player.phoneNumber}
-              </a>
-            )}
+          <div className="rounded-2xl bg-[var(--color-info-bg)] border border-[var(--color-info)]/15 p-4.5 flex flex-col justify-between">
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-[var(--color-info)] mb-2.5 flex items-center gap-1.5">
+                👤 Player (Claimant)
+              </p>
+              <p className="text-sm font-extrabold text-[var(--color-text-base)]">{booking.player.name}</p>
+              <p className="text-xs text-[var(--color-text-muted)] mt-0.5 font-medium truncate">{booking.player.email}</p>
+              {booking.player.phoneNumber && (
+                <a
+                  href={`tel:${booking.player.phoneNumber}`}
+                  className="text-xs font-bold text-[var(--color-primary)] hover:underline mt-1.5 inline-flex items-center gap-1"
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                  {booking.player.phoneNumber}
+                </a>
+              )}
+            </div>
+            
             {dispute.disputeReason && (
-              <div className="mt-2.5 pt-2.5 border-t border-[#bfdbfe]">
-                <p className="text-[0.6875rem] font-bold text-[#1d4ed8] mb-1">Player's Claim:</p>
-                <p className="text-[0.8125rem] text-[var(--color-text-secondary)] leading-relaxed">
+              <div className="mt-3.5 pt-3.5 border-t border-[var(--color-info)]/15">
+                <p className="text-[9px] font-black uppercase text-[var(--color-info)] mb-1">Player's Claim:</p>
+                <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed italic bg-white/60 p-2.5 rounded-lg border border-[var(--color-info)]/5">
                   "{dispute.disputeReason}"
                 </p>
               </div>
             )}
-            <p className="text-[0.75rem] text-[var(--color-text-muted)] mt-2">
-              Disputed: {fmtDate(dispute.disputedAt)}
+            <p className="text-[10px] text-[var(--color-text-muted)] mt-3">
+              Flagged: {fmtDate(dispute.disputedAt)}
             </p>
           </div>
 
           {/* Owner side */}
-          <div className="rounded-[10px] bg-[var(--color-danger-bg)] border border-[#fecaca] p-3.5">
-            <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] text-[#b91c1c] mb-2">
-              Owner (Respondent)
-            </p>
-            <p className="text-[0.9375rem] font-bold text-[var(--color-text-base)]">{booking.stadium.owner.name}</p>
-            <p className="text-[0.8125rem] text-[var(--color-text-muted)] mt-0.5">{booking.stadium.owner.email}</p>
+          <div className="rounded-2xl bg-[var(--color-danger-bg)] border border-[var(--color-danger)]/15 p-4.5 flex flex-col justify-between">
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-[var(--color-danger)] mb-2.5 flex items-center gap-1.5">
+                🏟️ Owner (Respondent)
+              </p>
+              <p className="text-sm font-extrabold text-[var(--color-text-base)]">{booking.stadium.owner.name}</p>
+              <p className="text-xs text-[var(--color-text-muted)] mt-0.5 font-medium truncate">{booking.stadium.owner.email}</p>
+            </div>
+
             {dispute.ownerRejectionReason && (
-              <div className="mt-2.5 pt-2.5 border-t border-[#fecaca]">
-                <p className="text-[0.6875rem] font-bold text-[#b91c1c] mb-1">Owner's Rejection Reason:</p>
-                <p className="text-[0.8125rem] text-[var(--color-text-secondary)] leading-relaxed">
+              <div className="mt-3.5 pt-3.5 border-t border-[var(--color-danger)]/15">
+                <p className="text-[9px] font-black uppercase text-[var(--color-danger)] mb-1">Owner's Rejection Reason:</p>
+                <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed italic bg-white/60 p-2.5 rounded-lg border border-[var(--color-danger)]/5">
                   "{dispute.ownerRejectionReason}"
                 </p>
               </div>
             )}
-            <p className="text-[0.75rem] text-[var(--color-text-muted)] mt-2">
+            <p className="text-[10px] text-[var(--color-text-muted)] mt-3">
               Rejected: {fmtDate(dispute.ownerRejectedAt)}
             </p>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-3 border-t border-[var(--color-border)]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 pt-4 border-t border-[var(--color-border)]">
           {dispute.receiptImageUrl && (
             <button
               onClick={onViewReceipt}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[#1d4ed8] bg-[#eff6ff] border border-[#bfdbfe] transition-all hover:bg-[#dbeafe]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl text-xs font-extrabold text-[#7e22ce] bg-[#fdf4ff] border border-[#e9d5ff] transition-all hover:bg-[#f5e3ff]"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
               </svg>
-              View Receipt
+              Inspect Receipt Image
             </button>
           )}
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:ml-auto">
+          <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto sm:ml-auto">
             <button
               onClick={onResolveForPlayer}
               disabled={busy}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl text-xs font-extrabold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
             >
-              {busy ? <div className="w-3 h-3 border-[1.5px] border-white/30 border-t-white rounded-full animate-spin" /> : '✓ Rule for Player (Mark Paid)'}
+              {busy ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : '✓ Rule for Player (Mark Paid)'}
             </button>
             <button
               onClick={onResolveForOwner}
               disabled={busy}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl text-xs font-extrabold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[var(--color-danger)]/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ✗ Rule for Owner (Keep Rejected)
             </button>
@@ -251,16 +259,16 @@ interface ModalProps {
 function ReceiptReviewModal({ dispute, busy, onResolveForPlayer, onResolveForOwner, onClose }: ModalProps) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-opacity duration-200"
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-xl bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-xl bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] transition-transform duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)] flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4.5 border-b border-[var(--color-border)] flex-shrink-0">
           <div>
-            <h2 className="text-base font-bold text-[var(--color-text-base)]">Receipt Evidence</h2>
-            <p className="text-[0.8125rem] text-[var(--color-text-muted)] mt-0.5">
-              {dispute.booking.player.name} → {dispute.booking.stadium.name}
+            <h2 className="text-sm font-black text-[var(--color-text-base)]">Review Receipt Evidence</h2>
+            <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+              Player {dispute.booking.player.name} &nbsp;·&nbsp; {dispute.booking.stadium.name}
             </p>
           </div>
           <button
@@ -274,36 +282,40 @@ function ReceiptReviewModal({ dispute, busy, onResolveForPlayer, onResolveForOwn
         </div>
 
         {/* Receipt image */}
-        <div className="p-4 overflow-y-auto flex-1">
+        <div className="p-5 overflow-y-auto flex-1 bg-[var(--color-surface-muted)]/50">
           <img
             src={`${API_URL}${dispute.receiptImageUrl}`}
             alt="Payment receipt"
-            className="w-full object-contain rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface-muted)]"
+            className="w-full object-contain rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-card)] shadow-xs"
           />
         </div>
 
         {/* Dispute summary */}
-        <div className="px-5 pb-3 flex flex-col gap-1.5 text-[0.8125rem]">
+        <div className="px-6 py-4.5 flex flex-col gap-2.5 text-xs border-t border-[var(--color-border)] bg-[var(--color-surface-card)]">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-[var(--color-text-muted)] w-28">Amount:</span>
+            <span className="font-extrabold text-[var(--color-text-muted)] w-28">Amount:</span>
             <span className="font-black text-[var(--color-primary)]">{dispute.amount.toLocaleString()} ETB</span>
           </div>
           <div className="flex items-start gap-2">
-            <span className="font-semibold text-[var(--color-text-muted)] w-28">Player says:</span>
-            <span className="text-[var(--color-text-secondary)] italic">"{dispute.disputeReason}"</span>
+            <span className="font-extrabold text-[var(--color-text-muted)] w-28">Player Claims:</span>
+            <span className="text-[var(--color-text-secondary)] italic bg-[var(--color-info-bg)] px-2 py-1 rounded border border-[var(--color-info)]/10 font-medium flex-1">
+              "{dispute.disputeReason}"
+            </span>
           </div>
           <div className="flex items-start gap-2">
-            <span className="font-semibold text-[var(--color-text-muted)] w-28">Owner says:</span>
-            <span className="text-[var(--color-text-secondary)] italic">"{dispute.ownerRejectionReason}"</span>
+            <span className="font-extrabold text-[var(--color-text-muted)] w-28">Owner Claims:</span>
+            <span className="text-[var(--color-text-secondary)] italic bg-[var(--color-danger-bg)] px-2 py-1 rounded border border-[var(--color-danger)]/10 font-medium flex-1">
+              "{dispute.ownerRejectionReason}"
+            </span>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-2.5 px-5 pb-5 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-2.5 px-6 pb-6 pt-3 flex-shrink-0 bg-[var(--color-surface-card)]">
           <button
             onClick={onResolveForPlayer}
             disabled={busy}
-            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-extrabold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
           >
             {busy
               ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -313,7 +325,7 @@ function ReceiptReviewModal({ dispute, busy, onResolveForPlayer, onResolveForOwn
           <button
             onClick={onResolveForOwner}
             disabled={busy}
-            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-bold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-extrabold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[var(--color-danger)]/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ✗ Rule for Owner — Keep Rejected
           </button>
