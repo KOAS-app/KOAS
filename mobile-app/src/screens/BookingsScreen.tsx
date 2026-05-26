@@ -45,6 +45,7 @@ export default function BookingsScreen() {
   const [disputeReason, setDisputeReason] = useState('');
   const [disputing, setDisputing]         = useState(false);
   const [previewReceipt, setPreviewReceipt] = useState<{ uri: string; mimeType?: string; booking: Booking } | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null); // For viewing booking pass
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -258,6 +259,7 @@ export default function BookingsScreen() {
                       </View>
                     </View>
 
+
                     <View style={styles.infoRow}>
                       <Feather name="calendar" size={14} color="#8B9A94" />
                       <Text style={styles.infoText}>
@@ -336,8 +338,18 @@ export default function BookingsScreen() {
                 </View>
 
                 {/* Action buttons */}
-                {(item.status === 'PENDING' || canUploadReceipt || (isRejected && item.payment?.status !== 'DISPUTED') || item.payment?.status === 'RECEIPT_SUBMITTED') && (
+                {(item.status === 'PENDING' || canUploadReceipt || (isRejected && item.payment?.status !== 'DISPUTED') || item.payment?.status === 'RECEIPT_SUBMITTED' || item.status === 'CONFIRMED') && (
                   <View style={styles.actions}>
+                    {item.status === 'CONFIRMED' && item.bookingCode && (
+                      <TouchableOpacity
+                        style={styles.viewPassBtn}
+                        onPress={() => setSelectedBooking(item)}
+                      >
+                        <Feather name="credit-card" size={14} color={colors.primary} style={{ marginRight: 6 }} />
+                        <Text style={styles.viewPassBtnText}>View Booking Pass</Text>
+                      </TouchableOpacity>
+                    )}
+
                     {item.status === 'PENDING' && (
                       <TouchableOpacity
                         style={[styles.cancelBtn, cancelling === item.id && styles.btnDisabled]}
@@ -493,6 +505,110 @@ export default function BookingsScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Booking Pass Modal */}
+      <Modal
+        visible={!!selectedBooking}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedBooking(null)}
+      >
+        <View style={styles.passModalOverlay}>
+          <View style={styles.passModalContent}>
+            {/* Drag handle */}
+            <View style={styles.dragHandle} />
+
+            {/* Close Button */}
+            <TouchableOpacity style={styles.closePassBtn} onPress={() => setSelectedBooking(null)}>
+              <Feather name="x" size={20} color="#8B9A94" />
+            </TouchableOpacity>
+
+            {/* Pass Header */}
+            <Text style={styles.passModalHeading}>Digital Booking Pass</Text>
+            <Text style={styles.passModalSubheading}>Present this pass at the turf to check in</Text>
+
+            {/* Booking Pass Card */}
+            {selectedBooking && (
+              <View style={styles.passTicket}>
+                {/* Header */}
+                <View style={styles.ticketHeader}>
+                  <Text style={styles.ticketTitle}>{selectedBooking.stadium.name}</Text>
+                  <View style={styles.ticketValidBadge}>
+                    <Text style={styles.ticketValidText}>CONFIRMED</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.ticketLocation}>📍 {selectedBooking.slot.location}</Text>
+
+                {/* Divider with notches */}
+                <View style={styles.ticketDividerWrapper}>
+                  <View style={styles.ticketLeftNotch} />
+                  <View style={styles.ticketDashedLine} />
+                  <View style={styles.ticketRightNotch} />
+                </View>
+
+                {/* Body */}
+                <View style={styles.ticketBody}>
+                  {/* Booking Code */}
+                  <View style={styles.codeContainer}>
+                    <Text style={styles.codeLabel}>BOOKING CODE</Text>
+                    <Text style={styles.codeText}>{selectedBooking.bookingCode}</Text>
+                  </View>
+
+                  {/* Details Grid */}
+                  <View style={styles.passDetailsGrid}>
+                    <View style={styles.gridItem}>
+                      <Text style={styles.gridLabel}>DATE</Text>
+                      <Text style={styles.gridValue}>
+                        {new Date(selectedBooking.slot.startTime).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </Text>
+                    </View>
+                    
+                    <View style={styles.gridItem}>
+                      <Text style={styles.gridLabel}>TIME</Text>
+                      <Text style={[styles.gridValue, { color: colors.primary }]}>
+                        {new Date(selectedBooking.slot.startTime).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.passDetailsGrid}>
+                    <View style={styles.gridItem}>
+                      <Text style={styles.gridLabel}>DURATION</Text>
+                      <Text style={styles.gridValueSub}>
+                        {(() => {
+                          const start = new Date(selectedBooking.slot.startTime);
+                          const end = new Date(selectedBooking.slot.endTime);
+                          const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                          return `${hours} hour${hours !== 1 ? 's' : ''}`;
+                        })()}
+                      </Text>
+                    </View>
+                    
+                    <View style={styles.gridItem}>
+                      <Text style={styles.gridLabel}>AMOUNT PAID</Text>
+                      <Text style={styles.gridValueSub}>
+                        {selectedBooking.slot.price.toLocaleString()} ETB
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            <TouchableOpacity style={styles.doneBtn} onPress={() => setSelectedBooking(null)}>
+              <Text style={styles.doneBtnText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -601,6 +717,22 @@ const styles = StyleSheet.create({
     color: '#8B9A94',
     fontWeight: '500',
   },
+  bookingCodeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  bookingCodeText: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
 
   divider: {
     height: 1,
@@ -692,6 +824,17 @@ const styles = StyleSheet.create({
   },
   viewReceiptBtnText: { color: '#8B9A94', fontSize: 14, fontWeight: '600' },
   btnDisabled: { opacity: 0.5 },
+  viewPassBtn: {
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  viewPassBtnText: { color: colors.primary, fontSize: 14, fontWeight: '700' },
 
   // Empty
   empty:     { alignItems: 'center', marginTop: 80, paddingHorizontal: 20 },
@@ -736,4 +879,116 @@ const styles = StyleSheet.create({
     minHeight: 100,
     textAlignVertical: 'top',
   },
+
+  // Booking Pass Modal
+  passModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
+  passModalContent: {
+    backgroundColor: '#0F1713',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+    borderWidth: 1,
+    borderColor: '#1A2520',
+  },
+  dragHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#2A3530',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  closePassBtn: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#1A2520',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  passModalHeading: { fontSize: 20, fontWeight: '900', color: '#FFFFFF', letterSpacing: -0.3, marginTop: 8 },
+  passModalSubheading: { fontSize: 13, color: '#8B9A94', marginTop: 4, fontWeight: '500', marginBottom: 20 },
+  passTicket: {
+    backgroundColor: '#070C0A',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#1A2520',
+    overflow: 'hidden',
+    marginBottom: 20,
+  },
+  ticketHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    paddingBottom: 12,
+  },
+  ticketTitle: { fontSize: 18, fontWeight: '800', color: '#FFFFFF', flex: 1, marginRight: 8 },
+  ticketValidBadge: {
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.3)',
+  },
+  ticketValidText: { fontSize: 9, fontWeight: '800', color: colors.primary, letterSpacing: 1 },
+  ticketLocation: { fontSize: 13, color: '#8B9A94', paddingHorizontal: 16, marginBottom: 16, fontWeight: '600' },
+  ticketDividerWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  ticketLeftNotch: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#0F1713',
+    marginLeft: -8,
+  },
+  ticketDashedLine: {
+    flex: 1,
+    height: 1,
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: '#2A3530',
+  },
+  ticketRightNotch: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#0F1713',
+    marginRight: -8,
+  },
+  ticketBody: { padding: 16, paddingTop: 8, gap: 16 },
+  codeContainer: {
+    backgroundColor: 'rgba(34, 197, 94, 0.08)',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.2)',
+  },
+  codeLabel: { fontSize: 10, fontWeight: '800', color: '#8B9A94', letterSpacing: 1.5, marginBottom: 8 },
+  codeText: { fontSize: 24, fontWeight: '900', color: colors.primary, letterSpacing: 2 },
+  passDetailsGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  gridItem: { flex: 1 },
+  gridLabel: { fontSize: 10, fontWeight: '800', color: '#8B9A94', letterSpacing: 1, marginBottom: 6 },
+  gridValue: { fontSize: 14, fontWeight: '800', color: '#FFFFFF' },
+  gridValueSub: { fontSize: 13, fontWeight: '700', color: '#D1D5DB' },
+  doneBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  doneBtnText: { fontSize: 16, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.2 },
 });

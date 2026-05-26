@@ -304,6 +304,27 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
                       <Text style={styles.planPrice}>{plan.price.toLocaleString()}</Text>
                       <Text style={styles.planPriceUnit}> ETB / {plan.duration} Days</Text>
                     </View>
+                    
+                    {/* Schedule & usage info */}
+                    <View style={styles.planScheduleContainer}>
+                      {plan.location && (
+                        <Text style={styles.planScheduleText}>
+                          📍 {plan.location}
+                        </Text>
+                      )}
+                      <Text style={styles.planScheduleText}>
+                        📅 {plan.openingDay} - {plan.closingDay}
+                      </Text>
+                      <Text style={styles.planScheduleText}>
+                        🕒 {plan.openingTime} - {plan.closingTime}
+                      </Text>
+                      <Text style={styles.planScheduleText}>
+                        ⏱️ {plan.hoursPerDay || 1} {(plan.hoursPerDay || 1) === 1 ? 'hour' : 'hours'} per day
+                      </Text>
+                      <Text style={styles.planScheduleHighlight}>
+                        ⭐ Max {(plan.weeklyAllowedDays || 1) * Math.floor(plan.duration / 7)} play days ({plan.weeklyAllowedDays || 1} { (plan.weeklyAllowedDays || 1) === 1 ? 'day' : 'days' }/week)
+                      </Text>
+                    </View>
                     {plan.description && (
                       <View style={styles.planBenefits}>
                         {plan.description.split('\n').filter(Boolean).map((benefit, idx) => (
@@ -872,5 +893,25 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
     letterSpacing: -0.1,
+  },
+  planScheduleContainer: {
+    backgroundColor: '#111814',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: '#1D2A20',
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    gap: 4,
+  },
+  planScheduleText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.text.secondary,
+  },
+  planScheduleHighlight: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.primary,
+    marginTop: 2,
   },
 });

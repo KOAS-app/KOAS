@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
-import logoDark from '../assets/logo/koas_logo_dark.png';
+import officialLogo from '../assets/logo/koas_official_logo.png';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -48,7 +48,7 @@ export default function LoginPage() {
       <div className="w-full max-w-[440px] relative z-10">
         {/* Logo and branding */}
         <div className="flex flex-col items-center justify-center mb-6">
-          <img src={logoDark} alt="KOAS Logo" className="w-28 h-28 object-contain " />
+          <img src={officialLogo} alt="KOAS Logo" className="w-28 h-28 object-contain " />
         </div>
 
         {/* Main card */}

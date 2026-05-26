@@ -53,16 +53,26 @@ export const getMySubscriptionPlans = async (req, res) => {
 // Create a new subscription plan (Owner only)
 export const createSubscriptionPlan = async (req, res) => {
   try {
-    const { name, price, duration, description, isActive } = req.body;
+    const { name, price, duration, description, isActive, location, openingTime, closingTime, openingDay, closingDay, weeklyAllowedDays, hoursPerDay } = req.body;
 
-    // Get owner's stadium
+    // Get owner's stadium with bank accounts
     const stadium = await prisma.stadium.findUnique({
       where: { ownerId: req.user.id },
-      include: { subscriptionPlans: true },
+      include: { 
+        subscriptionPlans: true,
+        bankAccounts: true,
+      },
     });
 
     if (!stadium) {
       return res.status(404).json({ message: 'Stadium not found. Please create a stadium first.' });
+    }
+
+    // Check if owner has added bank details
+    if (!stadium.bankAccounts || stadium.bankAccounts.length === 0) {
+      return res.status(400).json({ 
+        message: 'You must add bank account details before creating a subscription plan. Players need bank details to make payments.' 
+      });
     }
 
     // Resolve owner tier and apply limit
@@ -89,6 +99,13 @@ export const createSubscriptionPlan = async (req, res) => {
         duration,
         description,
         isActive: isActive !== undefined ? isActive : true,
+        location: location || null,
+        openingTime,
+        closingTime,
+        openingDay,
+        closingDay,
+        weeklyAllowedDays: weeklyAllowedDays !== undefined ? Number(weeklyAllowedDays) : 1,
+        hoursPerDay: hoursPerDay !== undefined ? Number(hoursPerDay) : 1.0,
       },
     });
 
@@ -103,7 +120,7 @@ export const createSubscriptionPlan = async (req, res) => {
 export const updateSubscriptionPlan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, duration, description, isActive } = req.body;
+    const { name, price, duration, description, isActive, location, openingTime, closingTime, openingDay, closingDay, weeklyAllowedDays, hoursPerDay } = req.body;
 
     // Verify owner's stadium
     const stadium = await prisma.stadium.findUnique({
@@ -132,6 +149,13 @@ export const updateSubscriptionPlan = async (req, res) => {
         ...(duration !== undefined && { duration }),
         ...(description !== undefined && { description }),
         ...(isActive !== undefined && { isActive }),
+        ...(location !== undefined && { location: location || null }),
+        ...(openingTime !== undefined && { openingTime }),
+        ...(closingTime !== undefined && { closingTime }),
+        ...(openingDay !== undefined && { openingDay }),
+        ...(closingDay !== undefined && { closingDay }),
+        ...(weeklyAllowedDays !== undefined && { weeklyAllowedDays: Number(weeklyAllowedDays) }),
+        ...(hoursPerDay !== undefined && { hoursPerDay: Number(hoursPerDay) }),
       },
     });
 

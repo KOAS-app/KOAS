@@ -24,6 +24,7 @@ export interface Slot {
 
 export interface Booking {
   id: string;
+  bookingCode?: string;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
   createdAt: string;
   slot: Slot;
@@ -90,6 +91,13 @@ export interface SubscriptionPlan {
   duration: number; // in days
   description?: string;
   isActive: boolean;
+  location?: string;
+  openingTime: string;
+  closingTime: string;
+  openingDay: string;
+  closingDay: string;
+  weeklyAllowedDays: number;
+  hoursPerDay: number;
   createdAt: string;
   updatedAt: string;
 }

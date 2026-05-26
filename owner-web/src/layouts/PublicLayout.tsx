@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import logoDark from '../assets/logo/koas_logo_dark_without_label.png';
+import logoOfficial from '../assets/logo/koas_official_logo.png';
 import PublicNavbar from '../components/PublicNavbar';
 
 export default function PublicLayout() {
@@ -31,7 +31,7 @@ export default function PublicLayout() {
       <footer className="relative z-10 bg-[#040807] border-t border-[#1f2d2a]/80 py-12 text-sm text-[#6b7280]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <img src={logoDark} alt="KOAS Logo" className="w-10 h-10 object-contain" />
+            <img src={logoOfficial} alt="KOAS Logo" className="w-20 h-20 object-contain" />
             <div className="text-left">
               <span className="block text-white font-extrabold tracking-wide">KOAS Stadium Portal</span>
               <span className="block text-xs text-[#4b5563]">© 2026 KOAS Inc. All rights reserved.</span>

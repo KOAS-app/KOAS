@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import logoDark from '../assets/logo/koas_logo_dark_without_label.png';
+import logoOfficial from '../assets/logo/koas_official_logo.png';
 
 export default function PublicNavbar() {
   const { user } = useAuth();
@@ -13,10 +13,7 @@ export default function PublicNavbar() {
           {/* Logo */}
           <div className="flex justify-start">
             <Link to="/" className="flex items-center gap-3 no-underline group">
-              <img src={logoDark} alt="KOAS Logo" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
-              <div className="flex flex-col">
-                <span className="text-xl font-black text-white tracking-wider">KOAS</span>
-              </div>
+              <img src={logoOfficial} alt="KOAS Logo" className="h-16 w-auto object-contain group-hover:scale-105 transition-transform" />
             </Link>
           </div>
 

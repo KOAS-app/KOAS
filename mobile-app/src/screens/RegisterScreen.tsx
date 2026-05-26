@@ -8,7 +8,7 @@ import { colors, spacing, radius, typography, shadows } from '../theme';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { AuthStackParamList } from '../navigation/types';
 
-const logoDark = require('../../assets/logo/koas_logo_dark.png');
+const koasLogo = require('../../assets/logo/koas_official_logo.png');
 
 type Props = StackScreenProps<AuthStackParamList, 'Register'>;
 
@@ -103,13 +103,11 @@ export default function RegisterScreen({ navigation }: Props) {
         >
           {/* Brand Header */}
           <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <Image 
-                source={logoDark} 
-                style={styles.logoImage} 
-                resizeMode="contain"
-              />
-            </View>
+            <Image 
+              source={koasLogo} 
+              style={styles.logo} 
+              resizeMode="contain"
+            />
             <Text style={styles.tagline}>Join thousands of players</Text>
           </View>
 
@@ -338,12 +336,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xxl + spacing.sm,
   },
-  logoContainer: {
-    marginBottom: spacing.sm,
-  },
-  logoImage: {
-    width: 100,
-    height: 100,
+  logo: {
+    width: 180,
+    height: 60,
+    marginBottom: spacing.md,
   },
   tagline: {
     fontSize: typography.sizes.base,

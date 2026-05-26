@@ -69,6 +69,7 @@ model Booking {
   playerId     String
   stadiumId    String
   slotId       String        @unique
+  bookingCode  String?       @unique // Unique code for the booking
   status       BookingStatus @default(PENDING)
   createdAt    DateTime      @default(now())
 
@@ -160,6 +161,13 @@ model SubscriptionPlan {
   duration    Int       // Number of days (e.g., 30 for monthly)
   description String?   // Detailed benefits/features list
   isActive    Boolean   @default(true)
+  location    String?   // Which stadium location this plan applies to
+  openingTime String    @default("08:00 AM")
+  closingTime String    @default("10:00 PM")
+  openingDay  String    @default("Monday")
+  closingDay  String    @default("Sunday")
+  weeklyAllowedDays Int   @default(1)
+  hoursPerDay Float     @default(1.0) // Maximum hours player can play per day
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -190,6 +198,9 @@ model PlayerSubscription {
   pricePaid          Float
   receiptImageUrl    String?            // Screenshot of bank transfer
   playerSubmittedAt  DateTime?
+  
+  // Selected Slots (chosen during checkout)
+  selectedSlotIds    String[]           @default([]) // Array of slot IDs player selected
   
   // Approval / Rejection details
   ownerConfirmedAt   DateTime?

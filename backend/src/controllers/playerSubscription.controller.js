@@ -44,7 +44,7 @@ const checkAndExpireSubscription = async (sub) => {
 // POST /api/player-subscriptions/subscribe — Player submits membership application with payment receipt
 export const subscribeToPlan = async (req, res) => {
   try {
-    const { subscriptionPlanId, pricePaid, receiptImageUrl } = req.body;
+    const { subscriptionPlanId, pricePaid, receiptImageUrl, selectedSlotIds } = req.body;
 
     if (!subscriptionPlanId || pricePaid === undefined || !receiptImageUrl) {
       return res.status(400).json({ message: 'Missing required checkout details.' });
@@ -96,7 +96,8 @@ export const subscribeToPlan = async (req, res) => {
         pricePaid: parseFloat(pricePaid),
         receiptImageUrl,
         status: 'RECEIPT_SUBMITTED',
-        playerSubmittedAt: new Date()
+        playerSubmittedAt: new Date(),
+        selectedSlotIds: selectedSlotIds || [] // Store selected slot IDs
       },
       include: {
         subscriptionPlan: {
@@ -209,26 +210,66 @@ export const confirmSubscription = async (req, res) => {
     const endDate = new Date();
     endDate.setDate(startDate.getDate() + sub.subscriptionPlan.duration);
 
-    const updated = await prisma.playerSubscription.update({
-      where: { id },
-      data: {
-        status: 'ACTIVE',
-        ownerConfirmedAt: new Date(),
-        startDate,
-        endDate
-      },
-      include: {
-        player: {
-          select: { id: true, name: true, email: true, phoneNumber: true }
+    // Use transaction to activate subscription and book selected slots
+    const result = await prisma.$transaction(async (tx) => {
+      // Update subscription status
+      const updated = await tx.playerSubscription.update({
+        where: { id },
+        data: {
+          status: 'ACTIVE',
+          ownerConfirmedAt: new Date(),
+          startDate,
+          endDate
         },
-        subscriptionPlan: true
+        include: {
+          player: {
+            select: { id: true, name: true, email: true, phoneNumber: true }
+          },
+          subscriptionPlan: {
+            include: { stadium: true }
+          }
+        }
+      });
+
+      // Automatically book the selected slots
+      if (sub.selectedSlotIds && sub.selectedSlotIds.length > 0) {
+        for (const slotId of sub.selectedSlotIds) {
+          const slot = await tx.slot.findUnique({ where: { id: slotId } });
+          
+          if (slot && !slot.isBooked) {
+            // Mark slot as booked
+            await tx.slot.update({
+              where: { id: slotId },
+              data: { isBooked: true }
+            });
+
+            // Create booking
+            const booking = await tx.booking.create({
+              data: {
+                playerId: sub.playerId,
+                stadiumId: slot.stadiumId,
+                slotId: slotId,
+                status: 'CONFIRMED'
+              }
+            });
+
+            // Create payment record
+            await tx.payment.create({
+              data: {
+                bookingId: booking.id,
+                amount: slot.price,
+                method: 'SUBSCRIPTION',
+                status: 'PAID'
+              }
+            });
+          }
+        }
       }
+
+      return updated;
     });
 
-    res.json({
-      message: 'Subscription successfully confirmed and activated.',
-      subscription: updated
-    });
+    res.json(result);
   } catch (error) {
     console.error('Confirm subscription error:', error);
     res.status(500).json({ message: 'Failed to confirm subscription.' });
@@ -336,5 +377,55 @@ export const verifySubscriptionCode = async (req, res) => {
   } catch (error) {
     console.error('Verify subscription code error:', error);
     res.status(500).json({ message: 'Failed to verify membership code.' });
+  }
+};
+
+// GET /api/player-subscriptions/owner/members — Owner views all members (active subscriptions)
+export const getOwnerMembers = async (req, res) => {
+  try {
+    const { status, search, planId } = req.query;
+
+    // Get owner's stadium
+    const stadium = await prisma.stadium.findUnique({
+      where: { ownerId: req.user.id }
+    });
+
+    if (!stadium) {
+      return res.json([]);
+    }
+
+    const members = await prisma.playerSubscription.findMany({
+      where: {
+        subscriptionPlan: { 
+          stadiumId: stadium.id,
+          ...(planId && planId !== 'all' ? { id: planId } : {})
+        },
+        ...(status && status !== 'all' ? { status: status.toUpperCase() } : {}),
+        ...(search ? {
+          OR: [
+            { player: { name: { contains: search, mode: 'insensitive' } } },
+            { player: { email: { contains: search, mode: 'insensitive' } } },
+            { subscriptionCode: { contains: search, mode: 'insensitive' } }
+          ]
+        } : {}),
+      },
+      include: {
+        player: {
+          select: { id: true, name: true, email: true, phoneNumber: true }
+        },
+        subscriptionPlan: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Check and update expiry on all returned subscriptions
+    const processed = await Promise.all(
+      members.map(sub => checkAndExpireSubscription(sub))
+    );
+
+    res.json(processed);
+  } catch (error) {
+    console.error('Get owner members error:', error);
+    res.status(500).json({ message: 'Failed to fetch members.' });
   }
 };

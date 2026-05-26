@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ChangePasswordModal from '../components/ChangePasswordModal';
-import logoDark from '../assets/logo/koas_logo_dark.png';
+import officialLogo from '../assets/logo/koas_official_logo.png';
 
 // Navigation structure with proper icons and grouping
 const navSections = [
@@ -325,7 +325,7 @@ export default function DashboardLayout() {
 function LogoMark() {
   return (
     <img 
-      src={logoDark} 
+      src={officialLogo} 
       alt="KOAS Logo" 
       className="w-10 h-10 object-contain flex-shrink-0" 
     />

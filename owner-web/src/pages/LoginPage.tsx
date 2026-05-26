@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
-import logoDark from '../assets/logo/koas_logo_dark.png';
 
 export default function LoginPage() {
   const { login } = useAuth();

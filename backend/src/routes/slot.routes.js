@@ -2,6 +2,7 @@ import express from 'express';
 import {
   createSlot,
   bulkCreateSlots,
+  generateSlotsFromPlan,
   getSlotsByStadium,
   deleteSlot,
 } from '../controllers/slot.controller.js';
@@ -17,6 +18,7 @@ router.get('/:stadiumId', authenticate, getSlotsByStadium);
 // Only owners can create/delete slots
 router.post('/', authenticate, authorizeRoles('OWNER'), validate(createSlotSchema), createSlot);
 router.post('/bulk', authenticate, authorizeRoles('OWNER'), validate(bulkSlotSchema), bulkCreateSlots);
+router.post('/generate-from-plan', authenticate, authorizeRoles('OWNER'), generateSlotsFromPlan);
 router.delete('/:id', authenticate, authorizeRoles('OWNER'), deleteSlot);
 
 export default router;

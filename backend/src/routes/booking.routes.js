@@ -10,6 +10,7 @@ import {
   cancelBooking,
   confirmBooking,
   ownerCancelBooking,
+  verifyBookingCode,
 } from '../controllers/booking.controller.js';
 import { authenticate, authorizeRoles } from '../middlewares/auth.middleware.js';
 import { validate } from '../middlewares/validate.js';
@@ -20,6 +21,7 @@ const router = express.Router();
 router.post('/',                     authenticate, authorizeRoles('PLAYER'), validate(createBookingSchema), createBooking);
 router.get('/my',                    authenticate, authorizeRoles('PLAYER'), getMyBookings);
 router.get('/stadium/:id',           authenticate, authorizeRoles('OWNER'),  getStadiumBookings);
+router.get('/verify/:code',          authenticate, authorizeRoles('OWNER'),  verifyBookingCode);
 
 // Owner dashboard routes
 router.get('/owner/all',             authenticate, authorizeRoles('OWNER'),  getOwnerBookings);

@@ -8,6 +8,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
 import SlotsPage from './pages/SlotsPage';
 import BookingsPage from './pages/BookingsPage';
+import MembersPage from './pages/MembersPage';
 import ReviewsPage from './pages/ReviewsPage';
 import BankDetailsPage from './pages/BankDetailsPage';
 import SubscriptionPage from './pages/SubscriptionPage';
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="slots" element={<SlotsPage />} />
         <Route path="bookings" element={<BookingsPage />} />
+        <Route path="members" element={<MembersPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
         <Route path="bank-details" element={<BankDetailsPage />} />
         <Route path="subscription" element={<SubscriptionPage />} />

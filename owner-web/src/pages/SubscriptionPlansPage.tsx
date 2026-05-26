@@ -21,12 +21,29 @@ export default function SubscriptionPlansPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [hasBankDetails, setHasBankDetails] = useState(false);
+  const [checkingBankDetails, setCheckingBankDetails] = useState(true);
 
   const isLimitReached = plans.length >= maxPlans;
 
   useEffect(() => {
     fetchPlans();
+    checkBankDetails();
   }, []);
+
+  const checkBankDetails = async () => {
+    try {
+      const res = await api.get('/stadiums/my');
+      const stadium = res.data[0];
+      const hasBank = stadium?.bankAccounts && stadium.bankAccounts.length > 0;
+      setHasBankDetails(hasBank);
+    } catch (err) {
+      console.error('Failed to check bank details:', err);
+      setHasBankDetails(false);
+    } finally {
+      setCheckingBankDetails(false);
+    }
+  };
 
   const fetchPlans = async () => {
     try {
@@ -40,6 +57,10 @@ export default function SubscriptionPlansPage() {
   };
 
   const handleAdd = () => {
+    if (!hasBankDetails) {
+      setError('You must add bank account details before creating a subscription plan. Players need bank details to make payments.');
+      return;
+    }
     if (isLimitReached) {
       setError(`Your ${activeTier} plan allows a maximum of ${maxPlans} player subscription plan${maxPlans > 1 ? 's' : ''}.`);
       return;
@@ -86,7 +107,7 @@ export default function SubscriptionPlansPage() {
     fetchPlans();
   };
 
-  if (loading) {
+  if (loading || checkingBankDetails) {
     return (
       <div className="flex items-center justify-center gap-3 py-16">
         <div className="inline-block w-6 h-6 border-2 border-[var(--color-border)] border-t-[var(--color-primary)] rounded-full animate-spin" />
@@ -109,7 +130,7 @@ export default function SubscriptionPlansPage() {
         </div>
         <button
           onClick={handleAdd}
-          disabled={isLimitReached}
+          disabled={isLimitReached || !hasBankDetails}
           className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -134,6 +155,28 @@ export default function SubscriptionPlansPage() {
           </p>
         </div>
       </div>
+
+      {/* Bank Details Required Warning */}
+      {!hasBankDetails && (
+        <div className="mb-6 p-4 rounded-[12px] bg-gradient-to-r from-[rgba(239,68,68,0.06)] to-[rgba(239,68,68,0.02)] border border-[rgba(239,68,68,0.25)] shadow-[0_4px_20px_rgba(239,68,68,0.05)] flex items-start gap-3">
+          <span className="text-xl select-none">🏦</span>
+          <div className="flex-1">
+            <h4 className="text-[0.875rem] font-black text-[var(--color-text-base)] tracking-tight">
+              Bank Account Required
+            </h4>
+            <p className="text-[0.8125rem] text-[var(--color-text-muted)] mt-0.5 leading-relaxed">
+              You must add your bank account details before creating subscription plans. Players need this information to make payments for their subscriptions.
+            </p>
+            <button
+              onClick={() => navigate('/bank-details')}
+              className="mt-2.5 px-3 py-1.5 rounded-[6px] text-[0.75rem] font-bold text-white bg-[var(--color-danger)] hover:bg-[#dc2626] inline-flex items-center gap-1 transition-all group"
+            >
+              Add Bank Details
+              <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Tier limit warning banner */}
       {isLimitReached && (
@@ -241,6 +284,32 @@ export default function SubscriptionPlansPage() {
                 <span className="text-[var(--color-text-muted)] text-[0.8125rem] font-semibold">
                   ETB / {plan.duration} Days
                 </span>
+              </div>
+
+              {/* Allowed schedule details */}
+              <div className="flex flex-col gap-1.5 mb-2.5 bg-[var(--color-surface-hover)] border border-[var(--color-border)] rounded-lg p-2.5">
+                {plan.location && (
+                  <div className="flex items-center gap-2 text-[0.8125rem] font-medium text-[var(--color-text-secondary)]">
+                    <span className="text-sm select-none">📍</span>
+                    <span>{plan.location}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2 text-[0.8125rem] font-medium text-[var(--color-text-secondary)]">
+                  <span className="text-sm select-none">📅</span>
+                  <span>{plan.openingDay} - {plan.closingDay}</span>
+                </div>
+                <div className="flex items-center gap-2 text-[0.8125rem] font-medium text-[var(--color-text-secondary)]">
+                  <span className="text-sm select-none">🕒</span>
+                  <span>{plan.openingTime} - {plan.closingTime}</span>
+                </div>
+                <div className="flex items-center gap-2 text-[0.8125rem] font-medium text-[var(--color-text-secondary)]">
+                  <span className="text-sm select-none">⏱️</span>
+                  <span>{plan.hoursPerDay || 1} {(plan.hoursPerDay || 1) === 1 ? 'hour' : 'hours'} per day</span>
+                </div>
+                <div className="flex items-center gap-2 text-[0.8125rem] font-semibold text-[var(--color-primary)]">
+                  <span className="text-sm select-none">🏆</span>
+                  <span>Max {(plan.weeklyAllowedDays || 1) * Math.floor(plan.duration / 7)} play days ({plan.weeklyAllowedDays || 1} { (plan.weeklyAllowedDays || 1) === 1 ? 'day' : 'days' }/week)</span>
+                </div>
               </div>
 
               {/* Divider */}

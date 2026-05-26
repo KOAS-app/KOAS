@@ -141,6 +141,142 @@ export const getSlotsByStadium = async (req, res) => {
   }
 };
 
+// POST /api/slots/generate-from-plan — Auto-generate slots based on subscription plan
+export const generateSlotsFromPlan = async (req, res) => {
+  try {
+    const { subscriptionPlanId, location, startDate, endDate, slotDuration, price } = req.body;
+
+    // Fetch the subscription plan
+    const plan = await prisma.subscriptionPlan.findUnique({
+      where: { id: subscriptionPlanId },
+      include: { stadium: true }
+    });
+
+    if (!plan) {
+      return res.status(404).json({ message: 'Subscription plan not found' });
+    }
+
+    // Verify owner owns this stadium
+    if (plan.stadium.ownerId !== req.user.id) {
+      return res.status(403).json({ message: 'Not your stadium' });
+    }
+
+    // Verify location exists in stadium locations
+    if (!plan.stadium.locations.includes(location)) {
+      return res.status(400).json({ message: 'Invalid location for this stadium' });
+    }
+
+    // Check tier
+    const activeTier = await getActiveTier(req.user.id);
+    if (activeTier === 'STARTER') {
+      return res.status(403).json({ 
+        message: 'Feature locked: Starter plan does not support the Automatic Slot Generator flow. Upgrade your plan to auto-generate slot templates.' 
+      });
+    }
+
+    // Parse plan constraints
+    const dayMap = { 'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6 };
+    const openDayIndex = dayMap[plan.openingDay] || 1;
+    const closeDayIndex = dayMap[plan.closingDay] || 0;
+
+    // Parse time strings to hours (e.g., "08:00 AM" -> 8, "10:30 PM" -> 22.5)
+    const parseTimeToHours = (timeStr) => {
+      const match = timeStr.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
+      if (!match) return 0;
+      let hours = parseInt(match[1], 10);
+      const minutes = parseInt(match[2], 10);
+      const period = match[3].toUpperCase();
+      if (period === 'PM' && hours !== 12) hours += 12;
+      if (period === 'AM' && hours === 12) hours = 0;
+      return hours + (minutes / 60);
+    };
+
+    const openHour = parseTimeToHours(plan.openingTime);
+    const closeHour = parseTimeToHours(plan.closingTime);
+    const duration = parseFloat(slotDuration);
+
+    if (duration <= 0 || duration > 24) {
+      return res.status(400).json({ message: 'Slot duration must be between 0 and 24 hours' });
+    }
+
+    // Generate slots for each day in the date range
+    const slots = [];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dayOfWeek = d.getDay();
+      
+      // Check if this day is within the plan's allowed days
+      let isDayAllowed = false;
+      if (openDayIndex <= closeDayIndex) {
+        isDayAllowed = dayOfWeek >= openDayIndex && dayOfWeek <= closeDayIndex;
+      } else {
+        // Wraps around week (e.g., Saturday to Monday)
+        isDayAllowed = dayOfWeek >= openDayIndex || dayOfWeek <= closeDayIndex;
+      }
+
+      if (!isDayAllowed) continue;
+
+      // Generate slots for this day
+      let currentHour = openHour;
+      const dateStr = d.toISOString().split('T')[0];
+
+      while (currentHour < closeHour) {
+        const endHour = Math.min(currentHour + duration, closeHour);
+        
+        const startHourInt = Math.floor(currentHour);
+        const startMinutes = Math.round((currentHour - startHourInt) * 60);
+        const endHourInt = Math.floor(endHour);
+        const endMinutes = Math.round((endHour - endHourInt) * 60);
+        
+        const slotStart = new Date(`${dateStr}T${String(startHourInt).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00`);
+        const slotEnd = new Date(`${dateStr}T${String(endHourInt).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00`);
+
+        // Skip if in the past
+        if (slotStart < new Date()) {
+          currentHour = endHour;
+          continue;
+        }
+
+        // Check for overlaps
+        const overlap = await prisma.slot.findFirst({
+          where: {
+            stadiumId: plan.stadiumId,
+            location,
+            OR: [{ startTime: { lt: slotEnd }, endTime: { gt: slotStart } }],
+          },
+        });
+
+        if (!overlap) {
+          slots.push({
+            stadiumId: plan.stadiumId,
+            location,
+            startTime: slotStart,
+            endTime: slotEnd,
+            price: parseFloat(price)
+          });
+        }
+
+        currentHour = endHour;
+      }
+    }
+
+    if (slots.length === 0) {
+      return res.status(400).json({ message: 'No slots generated. Check date range and plan constraints.' });
+    }
+
+    const created = await prisma.slot.createMany({ data: slots });
+    res.status(201).json({ 
+      created: created.count,
+      message: `Successfully generated ${created.count} slots based on plan constraints`
+    });
+  } catch (err) {
+    console.error('Generate slots from plan error:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // DELETE /api/slots/:id — owner deletes a slot (cascades to booking and payment)
 export const deleteSlot = async (req, res) => {
   try {
