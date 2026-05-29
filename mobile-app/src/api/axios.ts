@@ -4,10 +4,15 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 // Determine the correct base URL:
+// - Production/EAS build: use the configured API URL from app.config.js
 // - Physical device (Expo Go): use the dev server host (your machine's LAN IP)
 // - Android emulator: 10.0.2.2 maps to host machine localhost
 // - iOS simulator: localhost works directly
 const getBaseUrl = (): string => {
+  // Use production API URL if configured (set in app.config.js extra.apiUrl)
+  const prodUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (prodUrl) return `${prodUrl}/api`;
+
   const debuggerHost = Constants.expoConfig?.hostUri ?? Constants.manifest2?.extra?.expoGo?.debuggerHost;
 
   if (debuggerHost) {
