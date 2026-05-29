@@ -55,7 +55,7 @@ export default function UsersPage() {
     }
   };
 
-  const handleRejectUser = async (id: string, name: string) => {
+  const handleRejectUser = async (id: string, _name: string) => {
     if (!rejectReason.trim()) {
       alert('Please provide a reason for rejecting this owner.');
       return;
