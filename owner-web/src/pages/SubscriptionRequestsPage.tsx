@@ -157,110 +157,108 @@ export default function SubscriptionRequestsPage() {
         </div>
       )}
 
-      {/* Requests Grid/Table */}
+      {/* Requests Grid */}
       {!loading && requests.length > 0 && (
-        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[var(--color-border)] bg-slate-50/[0.3] text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
-                  <th className="px-6 py-4.5">Player Info</th>
-                  <th className="px-6 py-4.5">Plan Applied</th>
-                  <th className="px-6 py-4.5">Reference Code</th>
-                  <th className="px-6 py-4.5">Price Paid</th>
-                  <th className="px-6 py-4.5">Submitted At</th>
-                  <th className="px-6 py-4.5 text-center">Transfer Receipt</th>
-                  <th className="px-6 py-4.5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--color-border)]">
-                {requests.map((req) => (
-                  <tr key={req.id} className="text-sm hover:bg-slate-50/[0.1] transition-colors">
-                    {/* Player Info */}
-                    <td className="px-6 py-4.5">
-                      <div>
-                        <p className="font-bold text-[var(--color-text-base)]">{req.player.name}</p>
-                        <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{req.player.email}</p>
-                        {req.player.phoneNumber && (
-                          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">📞 {req.player.phoneNumber}</p>
-                        )}
+        <div className="grid grid-cols-1 gap-4">
+          {requests.map((req) => (
+            <div
+              key={req.id}
+              className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] shadow-sm p-5 hover:shadow-md transition-all"
+            >
+              {/* Horizontal Layout */}
+              <div className="flex items-center gap-6">
+                {/* Receipt Image */}
+                <div className="flex-shrink-0">
+                  {req.receiptImageUrl ? (
+                    <button
+                      onClick={() => setPreviewImage(req.receiptImageUrl)}
+                      className="group relative block rounded-lg overflow-hidden border-2 border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all bg-slate-100"
+                    >
+                      <img
+                        src={`${API_BASE_URL}${req.receiptImageUrl}`}
+                        alt="Receipt preview"
+                        className="w-20 h-20 object-cover transition-transform group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <span className="text-xs text-white font-bold">View</span>
                       </div>
-                    </td>
+                    </button>
+                  ) : (
+                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-[var(--color-border)] flex items-center justify-center bg-slate-50">
+                      <span className="text-xs text-[var(--color-text-muted)]">No image</span>
+                    </div>
+                  )}
+                </div>
 
-                    {/* Plan Applied */}
-                    <td className="px-6 py-4.5">
-                      <div>
-                        <p className="font-semibold text-[var(--color-text-base)]">{req.subscriptionPlan.name}</p>
-                        <p className="text-xs text-[var(--color-text-muted)] mt-0.5">Duration: {req.subscriptionPlan.duration} Days</p>
-                      </div>
-                    </td>
+                {/* Player Info */}
+                <div className="flex-shrink-0 min-w-[200px]">
+                  <p className="text-[0.6875rem] font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Player</p>
+                  <p className="font-bold text-sm text-[var(--color-text-base)] truncate">{req.player.name}</p>
+                  <p className="text-xs text-[var(--color-text-muted)] truncate">{req.player.email}</p>
+                  {req.player.phoneNumber && (
+                    <p className="text-xs text-[var(--color-text-muted)]">📞 {req.player.phoneNumber}</p>
+                  )}
+                </div>
 
-                    {/* Code */}
-                    <td className="px-6 py-4.5">
-                      <span className="font-mono font-bold text-xs bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-slate-700">
-                        {req.subscriptionCode}
-                      </span>
-                    </td>
+                {/* Plan Info */}
+                <div className="flex-shrink-0 min-w-[140px]">
+                  <p className="text-[0.6875rem] font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Plan</p>
+                  <p className="font-bold text-sm text-[var(--color-text-base)]">{req.subscriptionPlan.name}</p>
+                  <p className="text-xs text-[var(--color-text-muted)]">{req.subscriptionPlan.duration} Days</p>
+                </div>
 
-                    {/* Price Paid */}
-                    <td className="px-6 py-4.5 font-bold text-[var(--color-text-base)]">
-                      {req.pricePaid.toLocaleString()} ETB
-                    </td>
+                {/* Reference Code */}
+                <div className="flex-shrink-0">
+                  <p className="text-[0.6875rem] font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Code</p>
+                  <span className="inline-block font-mono font-bold text-xs bg-slate-100 border border-slate-200 px-2.5 py-1 rounded text-slate-700">
+                    {req.subscriptionCode}
+                  </span>
+                </div>
 
-                    {/* Submitted At */}
-                    <td className="px-6 py-4.5 text-xs text-[var(--color-text-muted)] font-semibold">
-                      {req.playerSubmittedAt ? new Date(req.playerSubmittedAt).toLocaleString([], {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      }) : 'N/A'}
-                    </td>
+                {/* Price */}
+                <div className="flex-shrink-0">
+                  <p className="text-[0.6875rem] font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Amount</p>
+                  <p className="font-black text-sm text-[var(--color-primary)]">
+                    {req.pricePaid.toLocaleString()} ETB
+                  </p>
+                </div>
 
-                    {/* Transfer Receipt Preview */}
-                    <td className="px-6 py-4.5 text-center">
-                      {req.receiptImageUrl ? (
-                        <button
-                          onClick={() => setPreviewImage(req.receiptImageUrl)}
-                          className="group relative inline-block rounded-lg overflow-hidden border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all bg-slate-100"
-                        >
-                          <img
-                            src={`${API_BASE_URL}${req.receiptImageUrl}`}
-                            alt="Receipt preview"
-                            className="w-12 h-12 object-cover transition-transform group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                            <span className="text-[10px] text-white font-bold tracking-tight">View</span>
-                          </div>
-                        </button>
-                      ) : (
-                        <span className="text-xs text-[var(--color-text-muted)]">No image</span>
-                      )}
-                    </td>
+                {/* Submitted Date */}
+                <div className="flex-shrink-0 min-w-[140px]">
+                  <p className="text-[0.6875rem] font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Submitted</p>
+                  <p className="text-xs text-[var(--color-text-secondary)] font-semibold">
+                    {req.playerSubmittedAt ? new Date(req.playerSubmittedAt).toLocaleString([], {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    }) : 'N/A'}
+                  </p>
+                  <p className="text-xs text-[var(--color-text-muted)]">
+                    {req.playerSubmittedAt ? new Date(req.playerSubmittedAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }) : ''}
+                  </p>
+                </div>
 
-                    {/* Actions */}
-                    <td className="px-6 py-4.5 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleRejectClick(req.id)}
-                          className="px-3 py-1.5 text-xs font-bold text-[var(--color-danger)] bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
-                        >
-                          Reject
-                        </button>
-                        <button
-                          onClick={() => handleApprove(req.id)}
-                          className="px-3 py-1.5 text-xs font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] border border-[var(--color-primary)] shadow-sm rounded-lg transition-colors"
-                        >
-                          Approve
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                {/* Actions - Right Side */}
+                <div className="flex-shrink-0 ml-auto flex gap-2">
+                  <button
+                    onClick={() => handleApprove(req.id)}
+                    className="px-4 py-2 text-xs font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] border border-[var(--color-primary)] shadow-sm rounded-lg transition-all whitespace-nowrap"
+                  >
+                    ✓ Approve
+                  </button>
+                  <button
+                    onClick={() => handleRejectClick(req.id)}
+                    className="px-4 py-2 text-xs font-bold text-[var(--color-danger)] bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors whitespace-nowrap"
+                  >
+                    ✕ Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

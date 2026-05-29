@@ -11,6 +11,10 @@ export default function UsersPage() {
   const [filter, setFilter] = useState<RoleFilter>('ALL');
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [approvingUser, setApprovingUser] = useState<string | null>(null);
+  const [rejectingUser, setRejectingUser] = useState<string | null>(null);
+  const [rejectModalUser, setRejectModalUser] = useState<User | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
   
   // Plan Change States
   const [selectedOwnerForPlan, setSelectedOwnerForPlan] = useState<User | null>(null);
@@ -33,6 +37,42 @@ export default function UsersPage() {
       alert(getApiError(err, 'Failed to delete user.'));
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const handleApproveUser = async (id: string, name: string) => {
+    if (!confirm(`Approve owner "${name}"? This will allow them to access the platform.`)) return;
+    setApprovingUser(id);
+    try {
+      await api.patch(`/admin/users/${id}/approve`);
+      setUsers((prev) =>
+        prev.map((u) => (u.id === id ? { ...u, isApproved: true } : u))
+      );
+    } catch (err) {
+      alert(getApiError(err, 'Failed to approve user.'));
+    } finally {
+      setApprovingUser(null);
+    }
+  };
+
+  const handleRejectUser = async (id: string, name: string) => {
+    if (!rejectReason.trim()) {
+      alert('Please provide a reason for rejecting this owner.');
+      return;
+    }
+    
+    setRejectingUser(id);
+    try {
+      await api.patch(`/admin/users/${id}/reject`, { reason: rejectReason.trim() });
+      setUsers((prev) =>
+        prev.map((u) => (u.id === id ? { ...u, isApproved: false, rejectionReason: rejectReason.trim() } : u))
+      );
+      setRejectModalUser(null);
+      setRejectReason('');
+    } catch (err) {
+      alert(getApiError(err, 'Failed to reject user.'));
+    } finally {
+      setRejectingUser(null);
     }
   };
 
@@ -145,17 +185,18 @@ export default function UsersPage() {
       {!loading && filtered.length > 0 && (
         <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden">
           {/* Table header */}
-          <div className="hidden sm:grid grid-cols-[1.2fr_1.4fr_100px_160px_40px] gap-4 px-5 py-3 text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] bg-[var(--color-surface-muted)] border-b border-[var(--color-border)] text-[var(--color-text-muted)]">
+          <div className="hidden sm:grid grid-cols-[1.2fr_1.4fr_100px_120px_160px_120px] gap-4 px-5 py-3 text-[0.6875rem] font-extrabold uppercase tracking-[0.06em] bg-[var(--color-surface-muted)] border-b border-[var(--color-border)] text-[var(--color-text-muted)]">
             <span>Name</span>
             <span>Email</span>
             <span>Role</span>
+            <span>Status</span>
             <span>Subscription Tier</span>
-            <span></span>
+            <span className="text-right">Actions</span>
           </div>
 
           {filtered.map((user, i) => (
             <div key={user.id}
-              className="flex flex-col sm:grid sm:grid-cols-[1.2fr_1.4fr_100px_160px_40px] items-stretch sm:items-center px-5 py-4 sm:py-3.5 gap-3.5 sm:gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
+              className="flex flex-col sm:grid sm:grid-cols-[1.2fr_1.4fr_100px_120px_160px_120px] items-stretch sm:items-center px-5 py-4 sm:py-3.5 gap-3.5 sm:gap-4 transition-all hover:bg-[var(--color-surface-muted)]"
               style={{
                 borderBottom: i < filtered.length - 1 ? '1px solid var(--color-border)' : 'none',
               }}>
@@ -210,6 +251,21 @@ export default function UsersPage() {
                 {user.role}
               </span>
 
+              {/* Approval Status (Desktop only) */}
+              <div className="hidden sm:block">
+                {user.role === 'OWNER' ? (
+                  <span className={`inline-flex items-center w-fit px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border ${
+                    user.isApproved
+                      ? 'bg-[#dcfce7] text-[#166534] border-[#bbf7d0]'
+                      : 'bg-[#fef2f2] text-[#dc2626] border-[#fecaca]'
+                  }`}>
+                    {user.isApproved ? '✓ Approved' : '⏳ Pending'}
+                  </span>
+                ) : (
+                  <span className="text-xs text-[var(--color-text-muted)] font-medium">—</span>
+                )}
+              </div>
+
               {/* Subscription Plan (Desktop only) */}
               <div className="hidden sm:block">
                 {user.role === 'OWNER' ? (
@@ -233,7 +289,40 @@ export default function UsersPage() {
               </div>
 
               {/* Delete action (Self aligned or right aligned) */}
-              <div className="flex justify-end sm:block">
+              <div className="flex justify-end sm:justify-end gap-2">
+                {user.role === 'OWNER' && !user.isApproved && (
+                  <>
+                    <button
+                      className="px-3 py-1.5 text-xs font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] border border-[var(--color-primary)] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      disabled={approvingUser === user.id}
+                      onClick={() => handleApproveUser(user.id, user.name)}
+                      title="Approve owner">
+                      {approvingUser === user.id ? (
+                        <div className="inline-block w-3 h-3 border-[1.5px] border-white border-t-transparent rounded-full animate-spin" />
+                      ) : '✓ Approve'}
+                    </button>
+                    <button
+                      className="px-3 py-1.5 text-xs font-bold text-[var(--color-danger)] bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      onClick={() => {
+                        setRejectModalUser(user);
+                        setRejectReason('');
+                      }}
+                      title="Reject owner">
+                      ✕ Deny
+                    </button>
+                  </>
+                )}
+                {user.role === 'OWNER' && user.isApproved && (
+                  <button
+                    className="px-3 py-1.5 text-xs font-bold text-[var(--color-danger)] bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    onClick={() => {
+                      setRejectModalUser(user);
+                      setRejectReason('');
+                    }}
+                    title="Revoke approval">
+                    ✕ Revoke
+                  </button>
+                )}
                 <button
                   className="w-8 h-8 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-transparent text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={deleting === user.id}
@@ -390,6 +479,80 @@ export default function UsersPage() {
                 {updatingPlan ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : 'Save Plan Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rejection Reason Modal */}
+      {rejectModalUser && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.5)] backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) setRejectModalUser(null); }}
+        >
+          <div className="w-full max-w-md bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] shadow-xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
+              <div>
+                <h2 className="text-base font-bold text-[var(--color-text-base)]">
+                  {rejectModalUser.isApproved ? 'Revoke Owner Approval' : 'Reject Owner Registration'}
+                </h2>
+                <p className="text-[0.8125rem] text-[var(--color-text-muted)] mt-0.5">
+                  Provide a reason for {rejectModalUser.name}
+                </p>
+              </div>
+              <button
+                onClick={() => setRejectModalUser(null)}
+                className="w-8 h-8 rounded-lg border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] transition-all"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6">
+              <label className="block text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-muted)] mb-2.5">
+                Rejection Reason
+              </label>
+              <textarea
+                className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.875rem] outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-danger)] focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)] focus:bg-white resize-y min-h-[100px]"
+                placeholder="e.g., Incomplete documentation, Invalid business license, etc."
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                maxLength={500}
+                autoFocus
+              />
+              <p className="text-xs text-[var(--color-text-muted)] mt-1.5">
+                This message will be visible to the owner when they try to log in.
+              </p>
+            </div>
+
+            <div className="flex gap-2.5 px-6 pb-6 pt-2 border-t border-[var(--color-border)] bg-[var(--color-surface-muted)]">
+              <button
+                type="button"
+                onClick={() => setRejectModalUser(null)}
+                className="w-full py-2.5 rounded-[10px] text-sm font-bold text-[var(--color-text-secondary)] bg-white border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] transition-all"
+                disabled={rejectingUser === rejectModalUser.id}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRejectUser(rejectModalUser.id, rejectModalUser.name)}
+                disabled={rejectingUser === rejectModalUser.id || !rejectReason.trim()}
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-sm font-bold text-white bg-[var(--color-danger)] border border-[var(--color-danger)] transition-all hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {rejectingUser === rejectModalUser.id ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Rejecting...
+                  </>
+                ) : (
+                  <>
+                    ✕ {rejectModalUser.isApproved ? 'Revoke Approval' : 'Reject Owner'}
+                  </>
+                )}
               </button>
             </div>
           </div>

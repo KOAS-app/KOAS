@@ -31,7 +31,10 @@ export const approveUser = async (req, res) => {
     const user = await prisma.$transaction(async (tx) => {
       const u = await tx.user.update({
         where: { id: req.params.id },
-        data: { isApproved: true },
+        data: { 
+          isApproved: true,
+          rejectionReason: null, // Clear rejection reason on approval
+        },
       });
       // Cascade to their stadiums
       if (u.role === 'OWNER') {
@@ -51,10 +54,15 @@ export const approveUser = async (req, res) => {
 // PATCH /api/admin/users/:id/reject — reject (unapprove) a user (owner)
 export const rejectUser = async (req, res) => {
   try {
+    const { reason } = req.body;
+    
     const user = await prisma.$transaction(async (tx) => {
       const u = await tx.user.update({
         where: { id: req.params.id },
-        data: { isApproved: false },
+        data: { 
+          isApproved: false,
+          rejectionReason: reason || null,
+        },
       });
       // Cascade to their stadiums
       if (u.role === 'OWNER') {
