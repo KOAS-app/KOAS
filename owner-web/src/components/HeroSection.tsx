@@ -5,31 +5,31 @@ export default function HeroSection() {
   const { user } = useAuth();
 
   return (
-    <section className="relative z-10 py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+    <section className="relative z-10 py-8 sm:py-12 lg:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         
         {/* Left Side: Branded Copy & CTAs */}
-        <div className="lg:col-span-5 flex flex-col justify-center text-left">
-          <h1 className="text-5xl sm:text-6xl font-black text-white leading-[1.08] tracking-tight mb-8">
+        <div className="lg:col-span-5 flex flex-col justify-center text-left lg:text-left text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.08] tracking-tight mb-6 sm:mb-8">
             <span className="block">More Bookings.</span>
             <span className="block mt-1">More Revenue.</span>
-            <span className="relative inline-block text-[#4ade80] mt-3">
+            <span className="relative inline-block text-[#4ade80] mt-2 sm:mt-3">
               Zero Hassle.
-              <svg className="absolute left-0 -bottom-3 w-full h-4 text-[#16a34a]" viewBox="0 0 300 12" fill="none" preserveAspectRatio="none">
+              <svg className="absolute left-0 -bottom-2 sm:-bottom-3 w-full h-3 sm:h-4 text-[#16a34a]" viewBox="0 0 300 12" fill="none" preserveAspectRatio="none">
                 <path d="M3 9C85 3 170 3 297 9" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
               </svg>
             </span>
           </h1>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-6">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mt-4 sm:mt-6">
             {user ? (
               <Link
                 to="/dashboard"
-                className="flex items-center gap-3 px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-bold rounded-xl transition-all duration-200 shadow-lg shadow-[#16a34a]/30 hover:shadow-xl hover:shadow-[#16a34a]/40 group no-underline"
+                className="flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white text-sm sm:text-base font-bold rounded-xl transition-all duration-200 shadow-lg shadow-[#16a34a]/30 hover:shadow-xl hover:shadow-[#16a34a]/40 group no-underline"
               >
                 {/* Stadium Icon */}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform sm:w-[20px] sm:h-[20px]">
                   <path d="M22 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4" />
                   <path d="M2 14v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4" />
                   <path d="M12 2v20" />
@@ -38,7 +38,7 @@ export default function HeroSection() {
                 </svg>
                 <span>Go to Dashboard</span>
                 {/* Arrow Icon */}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform sm:w-[18px] sm:h-[18px]">
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
@@ -46,10 +46,10 @@ export default function HeroSection() {
             ) : (
               <Link
                 to="/register"
-                className="flex items-center gap-3 px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-bold rounded-xl transition-all duration-200 shadow-lg shadow-[#16a34a]/30 hover:shadow-xl hover:shadow-[#16a34a]/40 group no-underline"
+                className="flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white text-sm sm:text-base font-bold rounded-xl transition-all duration-200 shadow-lg shadow-[#16a34a]/30 hover:shadow-xl hover:shadow-[#16a34a]/40 group no-underline"
               >
                 {/* Stadium Icon */}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform sm:w-[20px] sm:h-[20px]">
                   <path d="M22 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4" />
                   <path d="M2 14v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4" />
                   <path d="M12 2v20" />
@@ -58,7 +58,7 @@ export default function HeroSection() {
                 </svg>
                 <span>List Your Stadium</span>
                 {/* Arrow Icon */}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform sm:w-[18px] sm:h-[18px]">
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
@@ -67,19 +67,20 @@ export default function HeroSection() {
 
             <a
               href="#"
-              className="flex items-center gap-2.5 px-7 py-4 bg-transparent border border-[#1f2d2a] hover:border-[#2d3d37] hover:bg-[#111819]/40 text-[#d1d5db] hover:text-white font-bold rounded-xl transition-all duration-200 group no-underline"
+              className="flex items-center justify-center gap-2 sm:gap-2.5 px-5 sm:px-7 py-3 sm:py-4 bg-transparent border border-[#1f2d2a] hover:border-[#2d3d37] hover:bg-[#111819]/40 text-[#d1d5db] hover:text-white text-sm sm:text-base font-bold rounded-xl transition-all duration-200 group no-underline"
             >
               {/* Play Video Icon */}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="fill-transparent group-hover:scale-110 transition-transform text-[#4ade80]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="fill-transparent group-hover:scale-110 transition-transform text-[#4ade80] sm:w-[18px] sm:h-[18px]">
                 <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
-              <span>See How KOAS Works</span>
+              <span className="hidden sm:inline">See How KOAS Works</span>
+              <span className="sm:hidden">How It Works</span>
             </a>
           </div>
         </div>
 
-        {/* Right Side: High-Fidelity Stadium Visual with 3D Overlapping dashboard layout */}
-        <div className="lg:col-span-7 relative w-full aspect-[4/3] sm:aspect-[1.5] mt-8 lg:mt-0 overflow-visible">
+        {/* Right Side: High-Fidelity Stadium Visual with 3D Overlapping dashboard layout - Hidden on mobile */}
+        <div className="hidden lg:block lg:col-span-7 relative w-full aspect-[1.5] overflow-visible">
 
           {/* Ambient Green Aura / Glow behind the stadium */}
           <div className="absolute -inset-6 bg-gradient-to-tr from-[#16a34a]/25 via-transparent to-[#10b981]/15 rounded-[3rem] blur-3xl opacity-70 pointer-events-none z-0" />

@@ -23,27 +23,27 @@ export default function PublicLayout() {
       <PublicNavbar />
 
       {/* Main Slot with fixed navbar offset */}
-      <main className="flex-grow flex flex-col justify-center relative z-10 pt-20">
+      <main className="flex-grow flex flex-col justify-center relative z-10 pt-16 md:pt-20">
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-[#040807] border-t border-[#1f2d2a]/80 py-12 text-sm text-[#6b7280]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <img src={logoOfficial} alt="KOAS Logo" className="w-20 h-20 object-contain" />
+      <footer className="relative z-10 bg-[#040807] border-t border-[#1f2d2a]/80 py-8 sm:py-12 text-xs sm:text-sm text-[#6b7280]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <img src={logoOfficial} alt="KOAS Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
             <div className="text-left">
-              <span className="block text-white font-extrabold tracking-wide">KOAS Stadium Portal</span>
+              <span className="block text-white text-sm sm:text-base font-extrabold tracking-wide">KOAS Stadium Portal</span>
               <span className="block text-xs text-[#4b5563]">© 2026 KOAS Inc. All rights reserved.</span>
             </div>
           </div>
 
           {/* Links */}
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-10">
-            <a href="#" className="hover:text-white transition-colors no-underline">Terms of Service</a>
-            <a href="#" className="hover:text-white transition-colors no-underline">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors no-underline">Cookie Settings</a>
-            <a href="#" className="hover:text-white transition-colors no-underline">Turf Owner Guidelines</a>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-10 text-xs sm:text-sm">
+            <a href="#" className="hover:text-white transition-colors no-underline whitespace-nowrap">Terms of Service</a>
+            <a href="#" className="hover:text-white transition-colors no-underline whitespace-nowrap">Privacy Policy</a>
+            <a href="#" className="hover:text-white transition-colors no-underline whitespace-nowrap">Cookie Settings</a>
+            <a href="#" className="hover:text-white transition-colors no-underline whitespace-nowrap">Turf Owner Guidelines</a>
           </div>
         </div>
       </footer>

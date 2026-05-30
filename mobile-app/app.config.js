@@ -30,10 +30,11 @@ export default {
       // Set this to your deployed backend URL for production/EAS builds
       // Leave undefined for local Expo Go development (auto-detects LAN IP)
       // Example: apiUrl: "https://your-backend.up.railway.app"
-      apiUrl: process.env.API_URL || undefined,
+      apiUrl: "https://koas-production.up.railway.app" || undefined,
       eas: {
-        projectId: "your-eas-project-id"
+        projectId: "33957a49-59c5-49ae-a629-342fb905dad1"
       }
+
     }
   }
 };

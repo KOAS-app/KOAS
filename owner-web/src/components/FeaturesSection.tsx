@@ -64,38 +64,66 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-[#1f2d2a]/30">
+    <section id="features" className="relative z-10 py-12 sm:py-20 border-t border-[#1f2d2a]/30">
       
       {/* Dynamic Centered Heading */}
-      <div className="text-center mb-16">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+      <div className="text-center mb-10 sm:mb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
           Everything you need to run your stadium <span className="text-[#4ade80] font-black">smarter</span>
         </h2>
       </div>
 
-      {/* 6-Column Responsive Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-        {features.map((feature, idx) => (
-          <div 
-            key={idx} 
-            className="bg-[#080d0c]/60 border border-[#1f2d2a]/80 p-6 rounded-2xl shadow-xl hover:border-[#16a34a]/40 hover:shadow-[#16a34a]/5 hover:bg-[#0b1210]/80 transition-all duration-300 group flex flex-col justify-start text-left"
-          >
-            {/* Outlined Icon Wrapper */}
-            <div className="w-12 h-12 rounded-xl bg-[#16a34a]/10 border border-[#16a34a]/20 flex items-center justify-center text-[#4ade80] group-hover:scale-105 group-hover:bg-[#16a34a]/15 transition-all">
-              {feature.icon}
+      {/* Mobile: Horizontal Scroll, Desktop: Grid */}
+      <div className="lg:max-w-7xl lg:mx-auto lg:px-4 sm:lg:px-6 lg:px-8">
+        {/* Mobile Horizontal Scroll */}
+        <div className="flex lg:hidden overflow-x-auto gap-4 px-4 pb-4 snap-x snap-mandatory scrollbar-hide">
+          {features.map((feature, idx) => (
+            <div 
+              key={idx} 
+              className="flex-shrink-0 w-[280px] bg-[#080d0c]/60 border border-[#1f2d2a]/80 p-5 rounded-2xl shadow-xl snap-start"
+            >
+              {/* Outlined Icon Wrapper */}
+              <div className="w-10 h-10 rounded-xl bg-[#16a34a]/10 border border-[#16a34a]/20 flex items-center justify-center text-[#4ade80]">
+                {feature.icon}
+              </div>
+
+              {/* Title */}
+              <h3 className="text-sm font-bold text-white mt-4 leading-snug">
+                {feature.title}
+              </h3>
+
+              {/* Description */}
+              <p className="text-xs text-[#9ca3af] mt-2 leading-relaxed font-medium">
+                {feature.description}
+              </p>
             </div>
+          ))}
+        </div>
 
-            {/* Title */}
-            <h3 className="text-base font-bold text-white mt-5 leading-snug">
-              {feature.title}
-            </h3>
+        {/* Desktop Grid */}
+        <div className="hidden lg:grid grid-cols-3 xl:grid-cols-6 gap-6">
+          {features.map((feature, idx) => (
+            <div 
+              key={idx} 
+              className="bg-[#080d0c]/60 border border-[#1f2d2a]/80 p-6 rounded-2xl shadow-xl hover:border-[#16a34a]/40 hover:shadow-[#16a34a]/5 hover:bg-[#0b1210]/80 transition-all duration-300 group flex flex-col justify-start text-left"
+            >
+              {/* Outlined Icon Wrapper */}
+              <div className="w-12 h-12 rounded-xl bg-[#16a34a]/10 border border-[#16a34a]/20 flex items-center justify-center text-[#4ade80] group-hover:scale-105 group-hover:bg-[#16a34a]/15 transition-all">
+                {feature.icon}
+              </div>
 
-            {/* Description */}
-            <p className="text-xs text-[#9ca3af] mt-2 leading-relaxed font-medium">
-              {feature.description}
-            </p>
-          </div>
-        ))}
+              {/* Title */}
+              <h3 className="text-base font-bold text-white mt-5 leading-snug">
+                {feature.title}
+              </h3>
+
+              {/* Description */}
+              <p className="text-xs text-[#9ca3af] mt-2 leading-relaxed font-medium">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
       
     </section>

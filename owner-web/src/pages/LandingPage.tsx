@@ -135,122 +135,209 @@ export default function LandingPage() {
       <FeaturesSection />
 
       {/* Pricing Section */}
-      <section id="pricing" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <section id="pricing" className="relative z-10 py-12 sm:py-24">
         
         {/* Header & Toggle */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tight">
             Transparent Pricing. No Hidden Cuts.
           </h2>
-          <p className="mt-4 text-base text-[#9ca3af] leading-relaxed">
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base text-[#9ca3af] leading-relaxed px-4">
             Keep 100% of your turf bookings income. Pay only a simple flat subscription to maintain your listing and access advanced stadium dashboard tools.
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#16a34a]/10 border border-[#16a34a]/30 text-xs font-bold text-[#4ade80]">
-            <span>🎁</span> All plans start with a 14-day free trial unlocking ALL features (Elite Tier) with zero risk
+          <div className="mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-[#16a34a]/10 border border-[#16a34a]/30 text-xs font-bold text-[#4ade80]">
+            <span>🎁</span> 
+            <span className="hidden sm:inline">All plans start with a 14-day free trial unlocking ALL features (Elite Tier) with zero risk</span>
+            <span className="sm:hidden">14-day free trial - All Elite features</span>
           </div>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          {plans.map((plan) => (
-            <div
-              key={plan.id}
-              className={`relative bg-gradient-to-b from-[#111819] to-[#0d0f11] border rounded-2xl p-8 sm:p-10 shadow-2xl flex flex-col justify-between transition-all duration-300 hover:scale-[1.02] ${
-                plan.popular
-                  ? 'border-[#16a34a] shadow-[#16a34a]/10 ring-1 ring-[#16a34a]/30'
-                  : 'border-[#1f2d2a] hover:border-[#1f2d2a]/80'
-              }`}
-            >
-              {/* Popular Badge */}
-              {plan.popular && (
-                <span className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#16a34a] to-[#10b981] text-xs font-bold text-white uppercase tracking-wider shadow-md">
-                  {plan.badge}
-                </span>
-              )}
-
-              {/* Top Section */}
-              <div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white">{plan.name}</h3>
-                <p className="text-xs text-[#9ca3af] mt-2 leading-relaxed min-h-[36px]">{plan.description}</p>
-
-                {/* Price Display */}
-                <div className="mt-6 flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-white">
-                    {plan.priceETB.toLocaleString()} ETB
-                  </span>
-                  <span className="text-xs text-[#9ca3af]">/month</span>
-                </div>
-                <div className="text-xs text-[#4ade80] font-semibold mt-1">
-                  ~ ${plan.priceUSD}/mo (billed monthly)
-                </div>
-
-                {/* Divider */}
-                <div className="my-6 border-t border-[#1f2d2a]/80" />
-
-                {/* Features List */}
-                <ul className="space-y-3.5 text-sm">
-                  {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-2.5">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      <span className="text-[#d1d5db]">{feature}</span>
-                    </li>
-                  ))}
-                  
-                  {/* Exclusions */}
-                  {plan.notIncluded.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-2.5 opacity-40">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
-                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                      <span className="text-[#9ca3af] line-through">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Action Button */}
-              <button
-                onClick={() => handleSelectPlan(plan.id)}
-                className={`w-full mt-8 py-3.5 px-4 rounded-lg text-sm font-bold tracking-wide transition-all shadow-md ${
-                  user && activeTier === plan.id.toUpperCase()
-                    ? 'bg-[#1f2d2a]/30 text-slate-500 border border-[#1f2d2a]/40 cursor-default'
-                    : plan.popular
-                      ? 'bg-[#16a34a] hover:bg-[#15803d] text-white hover:shadow-lg hover:shadow-[#16a34a]/30'
-                      : 'bg-[#1f2d2a] hover:bg-[#2d3d37] text-white border border-[#2d3d37] hover:text-[#4ade80]'
+        {/* Mobile: Horizontal Scroll, Desktop: Grid */}
+        <div className="lg:max-w-7xl lg:mx-auto lg:px-4 sm:lg:px-6 lg:px-8">
+          {/* Mobile Horizontal Scroll */}
+          <div className="flex lg:hidden overflow-x-auto gap-6 px-4 pb-4 snap-x snap-mandatory scrollbar-hide">
+            {plans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`flex-shrink-0 w-[320px] relative bg-gradient-to-b from-[#111819] to-[#0d0f11] border rounded-2xl p-6 shadow-2xl flex flex-col justify-between snap-start ${
+                  plan.popular
+                    ? 'border-[#16a34a] shadow-[#16a34a]/10 ring-1 ring-[#16a34a]/30'
+                    : 'border-[#1f2d2a]'
                 }`}
               >
-                {user
-                  ? activeTier === plan.id.toUpperCase()
-                    ? 'Current Plan'
-                    : 'Manage Plan'
-                  : plan.ctaText
-                }
-              </button>
-            </div>
-          ))}
+                {/* Popular Badge */}
+                {plan.popular && (
+                  <span className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-[#16a34a] to-[#10b981] text-xs font-bold text-white uppercase tracking-wider shadow-md">
+                    {plan.badge}
+                  </span>
+                )}
+
+                {/* Top Section */}
+                <div>
+                  <h3 className="text-lg font-bold text-white">{plan.name}</h3>
+                  <p className="text-xs text-[#9ca3af] mt-2 leading-relaxed min-h-[36px]">{plan.description}</p>
+
+                  {/* Price Display */}
+                  <div className="mt-4 flex items-baseline gap-2">
+                    <span className="text-2xl font-extrabold text-white">
+                      {plan.priceETB.toLocaleString()} ETB
+                    </span>
+                    <span className="text-xs text-[#9ca3af]">/month</span>
+                  </div>
+                  <div className="text-xs text-[#4ade80] font-semibold mt-1">
+                    ~ ${plan.priceUSD}/mo (billed monthly)
+                  </div>
+
+                  {/* Divider */}
+                  <div className="my-4 border-t border-[#1f2d2a]/80" />
+
+                  {/* Features List */}
+                  <ul className="space-y-2.5 text-xs">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span className="text-[#d1d5db]">{feature}</span>
+                      </li>
+                    ))}
+                    
+                    {/* Exclusions */}
+                    {plan.notIncluded.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2 opacity-40">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
+                          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                        <span className="text-[#9ca3af] line-through">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Action Button */}
+                <button
+                  onClick={() => handleSelectPlan(plan.id)}
+                  className={`w-full mt-6 py-3 px-4 rounded-lg text-xs font-bold tracking-wide transition-all shadow-md ${
+                    user && activeTier === plan.id.toUpperCase()
+                      ? 'bg-[#1f2d2a]/30 text-slate-500 border border-[#1f2d2a]/40 cursor-default'
+                      : plan.popular
+                        ? 'bg-[#16a34a] hover:bg-[#15803d] text-white hover:shadow-lg hover:shadow-[#16a34a]/30'
+                        : 'bg-[#1f2d2a] hover:bg-[#2d3d37] text-white border border-[#2d3d37] hover:text-[#4ade80]'
+                  }`}
+                >
+                  {user
+                    ? activeTier === plan.id.toUpperCase()
+                      ? 'Current Plan'
+                      : 'Manage Plan'
+                    : plan.ctaText
+                  }
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Grid */}
+          <div className="hidden lg:grid grid-cols-3 gap-8 items-stretch">
+            {plans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`relative bg-gradient-to-b from-[#111819] to-[#0d0f11] border rounded-2xl p-8 lg:p-10 shadow-2xl flex flex-col justify-between transition-all duration-300 hover:scale-[1.02] ${
+                  plan.popular
+                    ? 'border-[#16a34a] shadow-[#16a34a]/10 ring-1 ring-[#16a34a]/30'
+                    : 'border-[#1f2d2a] hover:border-[#1f2d2a]/80'
+                }`}
+              >
+                {/* Popular Badge */}
+                {plan.popular && (
+                  <span className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#16a34a] to-[#10b981] text-xs font-bold text-white uppercase tracking-wider shadow-md">
+                    {plan.badge}
+                  </span>
+                )}
+
+                {/* Top Section */}
+                <div>
+                  <h3 className="text-xl lg:text-2xl font-bold text-white">{plan.name}</h3>
+                  <p className="text-xs text-[#9ca3af] mt-2 leading-relaxed min-h-[36px]">{plan.description}</p>
+
+                  {/* Price Display */}
+                  <div className="mt-6 flex items-baseline gap-2">
+                    <span className="text-3xl lg:text-4xl font-extrabold text-white">
+                      {plan.priceETB.toLocaleString()} ETB
+                    </span>
+                    <span className="text-xs text-[#9ca3af]">/month</span>
+                  </div>
+                  <div className="text-xs text-[#4ade80] font-semibold mt-1">
+                    ~ ${plan.priceUSD}/mo (billed monthly)
+                  </div>
+
+                  {/* Divider */}
+                  <div className="my-6 border-t border-[#1f2d2a]/80" />
+
+                  {/* Features List */}
+                  <ul className="space-y-3.5 text-sm">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span className="text-[#d1d5db]">{feature}</span>
+                      </li>
+                    ))}
+                    
+                    {/* Exclusions */}
+                    {plan.notIncluded.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 opacity-40">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
+                          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                        <span className="text-[#9ca3af] line-through">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Action Button */}
+                <button
+                  onClick={() => handleSelectPlan(plan.id)}
+                  className={`w-full mt-8 py-3.5 px-4 rounded-lg text-sm font-bold tracking-wide transition-all shadow-md ${
+                    user && activeTier === plan.id.toUpperCase()
+                      ? 'bg-[#1f2d2a]/30 text-slate-500 border border-[#1f2d2a]/40 cursor-default'
+                      : plan.popular
+                        ? 'bg-[#16a34a] hover:bg-[#15803d] text-white hover:shadow-lg hover:shadow-[#16a34a]/30'
+                        : 'bg-[#1f2d2a] hover:bg-[#2d3d37] text-white border border-[#2d3d37] hover:text-[#4ade80]'
+                  }`}
+                >
+                  {user
+                    ? activeTier === plan.id.toUpperCase()
+                      ? 'Current Plan'
+                      : 'Manage Plan'
+                    : plan.ctaText
+                  }
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Feature Comparison Matrix */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-[#1f2d2a]/30 hidden md:block">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-white">Compare Plan Specifications</h3>
-          <p className="text-sm text-[#9ca3af] mt-2">Find the exact operational features right for your turf complexity.</p>
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 border-t border-[#1f2d2a]/30 hidden md:block">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white">Compare Plan Specifications</h3>
+          <p className="text-xs sm:text-sm text-[#9ca3af] mt-2">Find the exact operational features right for your turf complexity.</p>
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-[#1f2d2a] bg-[#0c1210]/60 backdrop-blur-md">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#1f2d2a] bg-[#111819]/50 text-xs font-bold text-[#4ade80] tracking-widest uppercase">
-                <th className="p-6">Feature Details</th>
-                <th className="p-6">Kickoff Starter</th>
-                <th className="p-6">Pro Turf Master</th>
-                <th className="p-6">Elite Arena Complex</th>
+                <th className="p-4 sm:p-6">Feature Details</th>
+                <th className="p-4 sm:p-6">Kickoff Starter</th>
+                <th className="p-4 sm:p-6">Pro Turf Master</th>
+                <th className="p-4 sm:p-6">Elite Arena Complex</th>
               </tr>
             </thead>
-            <tbody className="text-sm divide-y divide-[#1f2d2a]/55">
+            <tbody className="text-xs sm:text-sm divide-y divide-[#1f2d2a]/55">
               {[
                 { name: 'Turf Branch Locations', star: '1 Branch', pro: 'Up to 3 Branches', elite: 'Unlimited' },
                 { name: 'Slot Schedule Engine', star: 'Manual entries', pro: 'Auto Generator', elite: 'Auto Generator + Rules' },
@@ -262,10 +349,10 @@ export default function LandingPage() {
                 { name: 'Admin Account Gate', star: 'Standard Approval', pro: 'Standard Approval', elite: 'Instant Priority Approval' }
               ].map((row, idx) => (
                 <tr key={idx} className="hover:bg-[#111819]/35 text-[#d1d5db]">
-                  <td className="p-5 font-medium text-white">{row.name}</td>
-                  <td className="p-5">{row.star}</td>
-                  <td className="p-5 font-semibold text-[#4ade80]">{row.pro}</td>
-                  <td className="p-5 font-semibold text-[#4ade80]">{row.elite}</td>
+                  <td className="p-3 sm:p-5 font-medium text-white">{row.name}</td>
+                  <td className="p-3 sm:p-5">{row.star}</td>
+                  <td className="p-3 sm:p-5 font-semibold text-[#4ade80]">{row.pro}</td>
+                  <td className="p-3 sm:p-5 font-semibold text-[#4ade80]">{row.elite}</td>
                 </tr>
               ))}
             </tbody>
@@ -274,13 +361,13 @@ export default function LandingPage() {
       </section>
 
       {/* Frequently Asked Questions */}
-      <section id="faq" className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-20 border-t border-[#1f2d2a]/30">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Frequently Asked Questions</h2>
-          <p className="mt-3 text-sm text-[#9ca3af]">Everything you need to know about setting up your turf with KOAS.</p>
+      <section id="faq" className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20 border-t border-[#1f2d2a]/30">
+        <div className="text-center mb-10 sm:mb-14">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Frequently Asked Questions</h2>
+          <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-[#9ca3af]">Everything you need to know about setting up your turf with KOAS.</p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {faqs.map((faq, idx) => {
             const isOpen = activeFaq === idx;
             return (
@@ -290,9 +377,9 @@ export default function LandingPage() {
               >
                 <button
                   onClick={() => toggleFaq(idx)}
-                  className="w-full flex items-center justify-between p-6 text-left font-bold text-white hover:text-[#4ade80] transition-colors focus:outline-none"
+                  className="w-full flex items-center justify-between p-4 sm:p-6 text-left text-sm sm:text-base font-bold text-white hover:text-[#4ade80] transition-colors focus:outline-none"
                 >
-                  <span>{faq.question}</span>
+                  <span className="pr-4">{faq.question}</span>
                   <svg
                     width="18"
                     height="18"
@@ -302,7 +389,7 @@ export default function LandingPage() {
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#4ade80]' : ''}`}
+                    className={`flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#4ade80]' : ''}`}
                   >
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
@@ -312,7 +399,7 @@ export default function LandingPage() {
                     isOpen ? 'max-h-[300px] border-t border-[#1f2d2a]/60' : 'max-h-0'
                   }`}
                 >
-                  <p className="p-6 text-sm text-[#9ca3af] leading-relaxed bg-[#0c1210]/40">
+                  <p className="p-4 sm:p-6 text-xs sm:text-sm text-[#9ca3af] leading-relaxed bg-[#0c1210]/40">
                     {faq.answer}
                   </p>
                 </div>
@@ -323,38 +410,38 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Bottom Section */}
-      <section id="contact" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <div className="bg-gradient-to-r from-[#111819] via-[#0d1512] to-[#111819] border border-[#1f2d2a] p-10 sm:p-16 rounded-3xl relative overflow-hidden shadow-2xl">
+      <section id="contact" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 text-center">
+        <div className="bg-gradient-to-r from-[#111819] via-[#0d1512] to-[#111819] border border-[#1f2d2a] p-6 sm:p-10 lg:p-16 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-2xl">
           {/* Subtle glow */}
           <div className="absolute inset-0 opacity-[0.03] bg-gradient-to-r from-[#16a34a] via-transparent to-transparent pointer-events-none" />
 
-          <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white leading-tight">
             Ready to Streamline Your Stadium Business?
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-[#9ca3af] max-w-xl mx-auto leading-relaxed">
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg text-[#9ca3af] max-w-xl mx-auto leading-relaxed">
             Start your 14-day free trial today with instant access to all Elite features. Set up your turf under 5 minutes, cancel anytime.
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             {user ? (
-              <Link to="/dashboard" className="w-full sm:w-auto px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold rounded-lg shadow-lg shadow-[#16a34a]/30 hover:shadow-xl transition-all no-underline text-center">
+              <Link to="/dashboard" className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm sm:text-base font-bold rounded-lg shadow-lg shadow-[#16a34a]/30 hover:shadow-xl transition-all no-underline text-center">
                 Go to Dashboard
               </Link>
             ) : (
-              <Link to="/register" className="w-full sm:w-auto px-8 py-4 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold rounded-lg shadow-lg shadow-[#16a34a]/30 hover:shadow-xl transition-all no-underline text-center">
+              <Link to="/register" className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm sm:text-base font-bold rounded-lg shadow-lg shadow-[#16a34a]/30 hover:shadow-xl transition-all no-underline text-center">
                 Claim 14-Day Free Trial
               </Link>
             )}
-            <a href="#" className="w-full sm:w-auto px-8 py-4 bg-[#1f2d2a] hover:bg-[#2d3d37] text-white font-bold rounded-lg transition-all border border-[#2d3d37] no-underline text-center">
+            <a href="#" className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-[#1f2d2a] hover:bg-[#2d3d37] text-white text-sm sm:text-base font-bold rounded-lg transition-all border border-[#2d3d37] no-underline text-center">
               Contact Sales Support
             </a>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-1.5 text-xs text-[#4ade80] font-semibold">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <div className="mt-6 sm:mt-8 flex items-center justify-center gap-1.5 text-xs text-[#4ade80] font-semibold">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
               <rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
-            <span>Cancel at any time. Fully encrypted 256-bit transactions.</span>
+            <span className="text-center">Cancel at any time. Fully encrypted 256-bit transactions.</span>
           </div>
         </div>
       </section>
