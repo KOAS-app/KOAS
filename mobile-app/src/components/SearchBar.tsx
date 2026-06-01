@@ -12,12 +12,12 @@ export default function SearchBar({ value, onChangeText }: Props) {
     <View style={styles.searchContainer}>
       <View style={styles.searchInputWrapper}>
         <View style={styles.searchIconCircle}>
-          <Feather name="search" size={16} color={colors.primary} />
+          <Feather name="search" size={16} color={colors.secondary} />
         </View>
         <TextInput
           style={styles.searchInput}
           placeholder="Search turfs, locations..."
-          placeholderTextColor="#8B9A94"
+          placeholderTextColor={colors.text.muted}
           value={value}
           onChangeText={onChangeText}
           autoCorrect={false}
@@ -40,10 +40,10 @@ const styles = StyleSheet.create({
   searchInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     paddingHorizontal: spacing.md,
     height: 48,
   },
@@ -51,16 +51,16 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(22, 163, 74, 0.15)',
+    backgroundColor: colors.successBg,
     borderWidth: 1,
-    borderColor: 'rgba(22, 163, 74, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     fontSize: typography.sizes.base,
     fontWeight: typography.weights.medium,
     height: '100%',
@@ -68,7 +68,8 @@ const styles = StyleSheet.create({
   },
   clearIcon: {
     fontSize: 14,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     paddingHorizontal: spacing.xs,
   },
 });
+

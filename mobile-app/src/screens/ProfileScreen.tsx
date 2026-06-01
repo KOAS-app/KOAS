@@ -109,37 +109,37 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E0D' },
+  container: { flex: 1, backgroundColor: colors.dark.bg },
   header: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 },
-  headerTitle: { fontSize: 28, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 },
+  headerTitle: { fontSize: 28, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.5 },
   scrollContainer: { flex: 1 },
   scrollContent: { padding: 20, gap: 24, paddingBottom: 60 },
   
   profileCard: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
   },
   avatar: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#22C55E',
+    backgroundColor: colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
-    shadowColor: '#22C55E',
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 16,
     elevation: 8,
   },
-  avatarText: { fontSize: 28, fontWeight: '900', color: '#0A0E0D' },
-  name: { fontSize: 20, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.3, marginBottom: 4 },
-  email: { fontSize: 13, color: '#8B9A94', fontWeight: '500' },
+  avatarText: { fontSize: 28, fontWeight: '900', color: colors.text.inverse },
+  name: { fontSize: 20, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.3, marginBottom: 4 },
+  email: { fontSize: 13, color: colors.text.secondary, fontWeight: '500' },
 
   // Actions Container
   actionsContainer: { gap: 12 },
@@ -147,15 +147,15 @@ const styles = StyleSheet.create({
   actionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
   },
   dangerCard: {
-    borderColor: 'rgba(239, 68, 68, 0.2)',
-    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+    borderColor: colors.danger,
+    backgroundColor: colors.dangerBg,
   },
   iconBox: {
     width: 44,
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   dangerIconBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: colors.dangerBg,
   },
   actionTextContainer: {
     flex: 1,
@@ -174,12 +174,12 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     marginBottom: 4,
   },
   actionSubtitle: {
     fontSize: 13,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: '500',
   },
 });

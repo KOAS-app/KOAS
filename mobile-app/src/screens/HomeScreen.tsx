@@ -51,7 +51,7 @@ export default function HomeScreen({ navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.secondary} />
       </View>
     );
   }
@@ -89,7 +89,7 @@ export default function HomeScreen({ navigation }: Props) {
         data={filteredStadiums}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.secondary} />}
         ListHeaderComponent={
           <View style={styles.listHeader}>
             <GreetingHeader userName={user?.name} />
@@ -118,13 +118,13 @@ export default function HomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0E0D',
+    backgroundColor: colors.dark.bg,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0A0E0D',
+    backgroundColor: colors.dark.bg,
   },
   list: {
     paddingHorizontal: spacing.xl,
@@ -137,14 +137,15 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.xl,
     marginTop: spacing.lg,
     padding: spacing.lg,
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: colors.dangerBg,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: colors.danger,
   },
   error: {
-    color: '#EF4444',
+    color: colors.danger,
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.medium,
   },
 });
+

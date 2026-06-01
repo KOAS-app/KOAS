@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { spacing, typography } from '../theme';
+import { colors, spacing, typography } from '../theme';
 
 interface Props {
   userName?: string;
@@ -25,7 +25,7 @@ export default function GreetingHeader({ userName }: Props) {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: '#0A0E0D',
+    backgroundColor: colors.dark.bg,
     paddingTop: 48,
     paddingBottom: spacing.md,
   },
@@ -39,9 +39,9 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(22, 163, 74, 0.15)',
+    backgroundColor: colors.successBg,
     borderWidth: 1,
-    borderColor: 'rgba(22, 163, 74, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -51,13 +51,13 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 32,
     fontWeight: typography.weights.extrabold,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     letterSpacing: -0.5,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: typography.sizes.base,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: typography.weights.medium,
   },
 });

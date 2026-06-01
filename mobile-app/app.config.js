@@ -4,13 +4,13 @@ export default {
     slug: "koas",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/icon.png",
+    icon: "./assets/logo/koas_official_icon.png",
     userInterfaceStyle: "light",
     newArchEnabled: true,
     splash: {
-      image: "./assets/splash-icon.png",
+      image: "./assets/logo/koas_official_icon.png",
       resizeMode: "contain",
-      backgroundColor: "#0D4A1F"
+      backgroundColor: "#0a0f0d"
     },
     ios: {
       supportsTablet: false,
@@ -18,8 +18,8 @@ export default {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
-        backgroundColor: "#0D4A1F"
+        foregroundImage: "./assets/logo/koas_official_icon.png",
+        backgroundColor: "#0a0f0d"  
       },
       package: "com.koas.app"
     },

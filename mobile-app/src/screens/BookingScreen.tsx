@@ -188,7 +188,7 @@ export default function BookingScreen({ route, navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.secondary} />
       </View>
     );
   }
@@ -241,11 +241,11 @@ export default function BookingScreen({ route, navigation }: Props) {
           {/* Month Navigation */}
           <View style={styles.monthHeader}>
             <TouchableOpacity onPress={() => changeMonth('prev')} style={styles.monthButton}>
-              <Feather name="chevron-left" size={24} color={colors.primary} />
+              <Feather name="chevron-left" size={24} color={colors.secondary} />
             </TouchableOpacity>
             <Text style={styles.monthTitle}>{getMonthName(currentMonth)}</Text>
             <TouchableOpacity onPress={() => changeMonth('next')} style={styles.monthButton}>
-              <Feather name="chevron-right" size={24} color={colors.primary} />
+              <Feather name="chevron-right" size={24} color={colors.secondary} />
             </TouchableOpacity>
           </View>
 
@@ -478,11 +478,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dayContentSelected: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
   },
   dayContentToday: {
     borderWidth: 2,
-    borderColor: colors.primary,
+    borderColor: colors.secondary,
   },
   dayText: {
     fontSize: 16,
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   dayTextToday: {
-    color: colors.primary,
+    color: colors.secondary,
     fontWeight: '700',
   },
   dayTextPast: {
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
   },
   locationChipSelected: {
     backgroundColor: '#dcfce7',
-    borderColor: colors.primary,
+    borderColor: colors.secondary,
   },
   locationChipText: {
     fontSize: 14,
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   locationChipTextSelected: {
-    color: colors.primary,
+    color: colors.secondary,
   },
   legend: {
     flexDirection: 'row',
@@ -573,7 +573,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   legendDotAvailable: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
   },
   legendDotBooked: {
     backgroundColor: '#ef4444',
@@ -603,8 +603,8 @@ const styles = StyleSheet.create({
     borderColor: '#fca5a5',
   },
   slotButtonSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
   },
   slotButtonText: {
     fontSize: 12,
@@ -656,7 +656,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#e5e5e5',
   },
   continueButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     paddingVertical: spacing.lg,
     borderRadius: radius.lg,
     alignItems: 'center',
@@ -672,3 +672,4 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 });
+

@@ -380,6 +380,8 @@ export const verifySubscriptionCode = async (req, res) => {
   }
 };
 
+const VALID_SUBSCRIPTION_STATUSES = new Set(['PENDING', 'RECEIPT_SUBMITTED', 'ACTIVE', 'REJECTED', 'EXPIRED']);
+
 // GET /api/player-subscriptions/owner/members — Owner views all members (active subscriptions)
 export const getOwnerMembers = async (req, res) => {
   try {
@@ -394,21 +396,31 @@ export const getOwnerMembers = async (req, res) => {
       return res.json([]);
     }
 
+    const where = {
+      subscriptionPlan: {
+        stadiumId: stadium.id,
+        ...(planId && planId !== 'all' ? { id: planId } : {})
+      }
+    };
+
+    if (status && status !== 'all') {
+      const normalizedStatus = String(status).toUpperCase();
+      if (!VALID_SUBSCRIPTION_STATUSES.has(normalizedStatus)) {
+        return res.status(400).json({ message: 'Invalid status filter value.' });
+      }
+      where.status = normalizedStatus;
+    }
+
+    if (search) {
+      where.OR = [
+        { player: { name: { contains: search, mode: 'insensitive' } } },
+        { player: { email: { contains: search, mode: 'insensitive' } } },
+        { subscriptionCode: { contains: search, mode: 'insensitive' } }
+      ];
+    }
+
     const members = await prisma.playerSubscription.findMany({
-      where: {
-        subscriptionPlan: { 
-          stadiumId: stadium.id,
-          ...(planId && planId !== 'all' ? { id: planId } : {})
-        },
-        ...(status && status !== 'all' ? { status: status.toUpperCase() } : {}),
-        ...(search ? {
-          OR: [
-            { player: { name: { contains: search, mode: 'insensitive' } } },
-            { player: { email: { contains: search, mode: 'insensitive' } } },
-            { subscriptionCode: { contains: search, mode: 'insensitive' } }
-          ]
-        } : {}),
-      },
+      where,
       include: {
         player: {
           select: { id: true, name: true, email: true, phoneNumber: true }
@@ -420,7 +432,14 @@ export const getOwnerMembers = async (req, res) => {
 
     // Check and update expiry on all returned subscriptions
     const processed = await Promise.all(
-      members.map(sub => checkAndExpireSubscription(sub))
+      members.map(async (sub) => {
+        try {
+          return await checkAndExpireSubscription(sub);
+        } catch (err) {
+          console.error('Failed to refresh subscription expiry for', sub.id, err);
+          return sub;
+        }
+      })
     );
 
     res.json(processed);

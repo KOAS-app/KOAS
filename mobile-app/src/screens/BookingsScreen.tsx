@@ -18,16 +18,16 @@ type Props = BottomTabScreenProps<TabParamList, 'Bookings'>;
 type FilterStatus = 'all' | 'PENDING' | 'CONFIRMED' | 'CANCELLED';
 
 const statusStyle: Record<string, { bg: string; text: string; border: string }> = {
-  PENDING:   { bg: 'rgba(234, 179, 8, 0.15)', text: '#CA8A04', border: 'rgba(234, 179, 8, 0.3)' },
-  CONFIRMED: { bg: 'rgba(34, 197, 94, 0.15)', text: '#22C55E', border: 'rgba(34, 197, 94, 0.3)' },
-  CANCELLED: { bg: 'rgba(239, 68, 68, 0.15)', text: '#EF4444', border: 'rgba(239, 68, 68, 0.3)' },
+  PENDING:   { bg: colors.warningBg, text: colors.warning, border: 'rgba(245, 158, 11, 0.25)' },
+  CONFIRMED: { bg: colors.successBg, text: colors.secondary, border: 'rgba(46, 111, 64, 0.3)' },
+  CANCELLED: { bg: colors.dangerBg, text: colors.danger, border: 'rgba(239, 68, 68, 0.3)' },
 };
 
 const paymentStyle: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  PENDING:           { bg: 'rgba(234, 179, 8, 0.15)', text: '#CA8A04', border: 'rgba(234, 179, 8, 0.3)', label: 'Awaiting Payment' },
-  RECEIPT_SUBMITTED: { bg: 'rgba(59, 130, 246, 0.15)', text: '#3B82F6', border: 'rgba(59, 130, 246, 0.3)', label: 'Receipt Submitted' },
-  PAID:              { bg: '#A7F3D0', text: '#065F46', border: '#A7F3D0', label: 'Paid ✓' },
-  REJECTED:          { bg: 'rgba(239, 68, 68, 0.15)', text: '#EF4444', border: 'rgba(239, 68, 68, 0.3)', label: 'Receipt Rejected' },
+  PENDING:           { bg: colors.warningBg, text: colors.warning, border: 'rgba(245, 158, 11, 0.25)', label: 'Awaiting Payment' },
+  RECEIPT_SUBMITTED: { bg: colors.infoBg, text: colors.info, border: 'rgba(59, 130, 246, 0.35)', label: 'Receipt Submitted' },
+  PAID:              { bg: colors.successBg, text: colors.success, border: colors.successBg, label: 'Paid ✓' },
+  REJECTED:          { bg: colors.dangerBg, text: colors.danger, border: 'rgba(239, 68, 68, 0.3)', label: 'Receipt Rejected' },
   DISPUTED:          { bg: 'rgba(168, 85, 247, 0.15)', text: '#A855F7', border: 'rgba(168, 85, 247, 0.3)', label: 'Disputed' },
 };
 
@@ -160,7 +160,7 @@ export default function BookingsScreen() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.secondary} />
       </View>
     );
   }
@@ -223,10 +223,10 @@ export default function BookingsScreen() {
         data={filteredBookings}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.secondary} />}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Feather name="clipboard" size={64} color="#FFFFFF" style={{ marginBottom: 16, opacity: 0.3 }} />
+            <Feather name="clipboard" size={64} color={colors.text.secondary} style={{ marginBottom: 16, opacity: 0.5 }} />
             <Text style={styles.emptyTitle}>No bookings found</Text>
             <Text style={styles.emptyText}>
               {filterStatus === 'all' ? 'You haven\'t made any bookings yet' : `No ${filterStatus.toLowerCase()} bookings`}
@@ -248,7 +248,7 @@ export default function BookingsScreen() {
               <View style={styles.cardInner}>
                 <View style={styles.cardTop}>
                   <View style={styles.iconCircle}>
-                    <Feather name="calendar" size={20} color="#22C55E" />
+                    <Feather name="calendar" size={20} color={colors.secondary} />
                   </View>
 
                   <View style={styles.cardMain}>
@@ -261,7 +261,7 @@ export default function BookingsScreen() {
 
 
                     <View style={styles.infoRow}>
-                      <Feather name="calendar" size={14} color="#8B9A94" />
+                      <Feather name="calendar" size={14} color={colors.text.muted} />
                       <Text style={styles.infoText}>
                         {new Date(item.slot.startTime).toLocaleDateString('en-US', {
                           weekday: 'short', month: 'short', day: 'numeric',
@@ -270,7 +270,7 @@ export default function BookingsScreen() {
                     </View>
 
                     <View style={styles.infoRow}>
-                      <Feather name="clock" size={14} color="#8B9A94" />
+                      <Feather name="clock" size={14} color={colors.text.muted} />
                       <Text style={styles.infoText}>
                         {new Date(item.slot.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                         {' – '}
@@ -304,7 +304,7 @@ export default function BookingsScreen() {
                       </Text>
                       <Text style={styles.bankInfoRow}>
                         <Text style={styles.bankInfoLabel}>Amount: </Text>
-                        <Text style={[styles.bankInfoValue, { color: colors.primary, fontWeight: '800' }]}>
+                        <Text style={[styles.bankInfoValue, { color: colors.secondary, fontWeight: '800' }]}>
                           {item.slot.price.toLocaleString()} ETB
                         </Text>
                       </Text>
@@ -345,7 +345,7 @@ export default function BookingsScreen() {
                         style={styles.viewPassBtn}
                         onPress={() => setSelectedBooking(item)}
                       >
-                        <Feather name="credit-card" size={14} color={colors.primary} style={{ marginRight: 6 }} />
+                        <Feather name="credit-card" size={14} color={colors.secondary} style={{ marginRight: 6 }} />
                         <Text style={styles.viewPassBtnText}>View Booking Pass</Text>
                       </TouchableOpacity>
                     )}
@@ -446,11 +446,11 @@ export default function BookingsScreen() {
             )}
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
               <TouchableOpacity 
-                style={[styles.disputeBtn, { flex: 1, borderColor: '#8B9A94' }]} 
+                style={[styles.disputeBtn, { flex: 1, borderColor: colors.text.muted }]} 
                 onPress={() => pickReceiptImage(previewReceipt!.booking)}
                 disabled={uploading}
               >
-                <Text style={[styles.disputeBtnText, { color: '#8B9A94' }]}>Replace</Text>
+                <Text style={[styles.disputeBtnText, { color: colors.text.muted }]}>Replace</Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
@@ -520,9 +520,8 @@ export default function BookingsScreen() {
 
             {/* Close Button */}
             <TouchableOpacity style={styles.closePassBtn} onPress={() => setSelectedBooking(null)}>
-              <Feather name="x" size={20} color="#8B9A94" />
+                <Feather name="x" size={20} color={colors.text.secondary} />
             </TouchableOpacity>
-
             {/* Pass Header */}
             <Text style={styles.passModalHeading}>Digital Booking Pass</Text>
             <Text style={styles.passModalSubheading}>Present this pass at the turf to check in</Text>
@@ -570,7 +569,7 @@ export default function BookingsScreen() {
                     
                     <View style={styles.gridItem}>
                       <Text style={styles.gridLabel}>TIME</Text>
-                      <Text style={[styles.gridValue, { color: colors.primary }]}>
+                      <Text style={[styles.gridValue, { color: colors.secondary }]}>
                         {new Date(selectedBooking.slot.startTime).toLocaleTimeString('en-US', {
                           hour: '2-digit',
                           minute: '2-digit'
@@ -614,11 +613,11 @@ export default function BookingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container:  { flex: 1, backgroundColor: '#0A0E0D' },
-  center:     { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0A0E0D' },
-  header:     { backgroundColor: '#0A0E0D', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 },
-  headerTitle:{ fontSize: 28, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5, marginBottom: 4 },
-  headerSubtitle: { fontSize: 14, color: '#8B9A94', fontWeight: '500' },
+  container:  { flex: 1, backgroundColor: colors.dark.bg },
+  center:     { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.dark.bg },
+  header:     { backgroundColor: colors.dark.bg, paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 },
+  headerTitle:{ fontSize: 28, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.5, marginBottom: 4 },
+  headerSubtitle: { fontSize: 14, color: colors.text.secondary, fontWeight: '500' },
   
   filterTabsWrapper: { height: 52, marginBottom: 8 },
   filterTabs: { paddingHorizontal: 20, paddingVertical: 8, gap: 8, alignItems: 'center' },
@@ -626,7 +625,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 100,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.surface,
     borderWidth: 1,
     borderColor: 'transparent',
     alignItems: 'center',
@@ -634,25 +633,25 @@ const styles = StyleSheet.create({
     height: 36,
   },
   filterTabActive: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    borderColor: '#22C55E',
+    backgroundColor: colors.successBg,
+    borderColor: colors.secondary,
   },
   filterTabText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8B9A94',
+    color: colors.text.secondary,
   },
   filterTabTextActive: {
-    color: '#22C55E',
+    color: colors.secondary,
   },
 
   list: { padding: 20, paddingBottom: 100, gap: 16 },
 
   card: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.card,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     overflow: 'hidden',
     flexDirection: 'row',
   },
@@ -673,11 +672,10 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#13211A',
+    backgroundColor: colors.dark.elevated,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  cardMain: {
+  },  cardMain: {
     flex: 1,
     gap: 12,
   },
@@ -689,7 +687,7 @@ const styles = StyleSheet.create({
   stadiumName: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     flex: 1,
     letterSpacing: -0.3,
     marginRight: 8,
@@ -714,14 +712,14 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 13,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: '500',
   },
   bookingCodeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    backgroundColor: 'rgba(46, 111, 64, 0.1)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
@@ -729,14 +727,13 @@ const styles = StyleSheet.create({
   },
   bookingCodeText: {
     fontSize: 12,
-    color: colors.primary,
+    color: colors.secondary,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
-
   divider: {
     height: 1,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.border,
     marginBottom: 16,
   },
 
@@ -748,7 +745,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#22C55E',
+    color: colors.secondary,
     letterSpacing: -0.5,
   },
   paymentBadge: {
@@ -764,31 +761,31 @@ const styles = StyleSheet.create({
 
   // Bank info
   bankInfo: {
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
+    backgroundColor: 'rgba(46, 111, 64, 0.08)',
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.2)',
+    borderColor: 'rgba(46, 111, 64, 0.2)',
     gap: 4,
     marginBottom: 16,
   },
-  bankInfoTitle: { fontSize: 13, fontWeight: '700', color: '#22C55E', marginBottom: 4 },
-  bankInfoRow:   { fontSize: 13, color: '#D1D5DB' },
-  bankInfoLabel: { fontWeight: '600', color: '#8B9A94' },
-  bankInfoValue: { fontWeight: '600', color: '#FFFFFF' },
+  bankInfoTitle: { fontSize: 13, fontWeight: '700', color: colors.secondary, marginBottom: 4 },
+  bankInfoRow:   { fontSize: 13, color: colors.text.primary },
+  bankInfoLabel: { fontWeight: '600', color: colors.text.secondary },
+  bankInfoValue: { fontWeight: '600', color: colors.text.primary },
   bankInfoMissing: {
-    backgroundColor: 'rgba(234, 179, 8, 0.1)',
+    backgroundColor: colors.warningBg,
     borderRadius: 12,
     padding: 10,
     borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.3)',
+    borderColor: 'rgba(245, 158, 11, 0.3)',
     marginBottom: 16,
   },
-  bankInfoMissingText: { fontSize: 12, color: '#CA8A04', fontWeight: '600' },
+  bankInfoMissingText: { fontSize: 12, color: colors.warning, fontWeight: '600' },
 
   // Rejection
   rejectionBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: colors.dangerBg,
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
@@ -796,14 +793,14 @@ const styles = StyleSheet.create({
     gap: 4,
     marginBottom: 16,
   },
-  rejectionTitle:  { fontSize: 13, fontWeight: '700', color: '#EF4444' },
+  rejectionTitle:  { fontSize: 13, fontWeight: '700', color: colors.danger },
   rejectionReason: { fontSize: 13, color: '#FCA5A5' },
 
   // Actions
   actions:    { flexDirection: 'column', gap: 8, marginTop: 16 },
-  cancelBtn:  { backgroundColor: '#EF4444', borderRadius: 12, padding: 12, alignItems: 'center' },
+  cancelBtn:  { backgroundColor: colors.danger, borderRadius: 12, padding: 12, alignItems: 'center' },
   cancelBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  uploadBtn:  { backgroundColor: '#22C55E', borderRadius: 12, padding: 12, alignItems: 'center' },
+  uploadBtn:  { backgroundColor: colors.secondary, borderRadius: 12, padding: 12, alignItems: 'center' },
   uploadBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   disputeBtn: {
     backgroundColor: 'transparent',
@@ -811,35 +808,34 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#A855F7',
+    borderColor: colors.text.secondary,
   },
-  disputeBtnText: { color: '#A855F7', fontSize: 14, fontWeight: '700' },
+  disputeBtnText: { color: colors.text.secondary, fontSize: 14, fontWeight: '700' },
   viewReceiptBtn: {
     backgroundColor: 'transparent',
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
   },
-  viewReceiptBtnText: { color: '#8B9A94', fontSize: 14, fontWeight: '600' },
-  btnDisabled: { opacity: 0.5 },
+  viewReceiptBtnText: { color: colors.text.secondary, fontSize: 14, fontWeight: '600' },  btnDisabled: { opacity: 0.5 },
   viewPassBtn: {
-    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    backgroundColor: colors.successBg,
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderColor: colors.secondary,
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  viewPassBtnText: { color: colors.primary, fontSize: 14, fontWeight: '700' },
+  viewPassBtnText: { color: colors.secondary, fontSize: 14, fontWeight: '700' },
 
   // Empty
   empty:     { alignItems: 'center', marginTop: 80, paddingHorizontal: 20 },
-  emptyTitle: { fontSize: 18, color: '#FFFFFF', fontWeight: '800', marginBottom: 8 },
-  emptyText: { fontSize: 14, color: '#8B9A94', fontWeight: '500', textAlign: 'center' },
+  emptyTitle: { fontSize: 18, color: colors.text.primary, fontWeight: '800', marginBottom: 8 },
+  emptyText: { fontSize: 14, color: colors.text.secondary, fontWeight: '500', textAlign: 'center' },
 
   // Modal
   modalOverlay: {
@@ -850,32 +846,32 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContainer: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: 20,
     padding: 20,
     width: '100%',
     maxHeight: '80%',
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     gap: 12,
   },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  modalTitle:  { fontSize: 18, fontWeight: '800', color: '#FFFFFF' },
-  modalClose:  { width: 32, height: 32, borderRadius: 16, backgroundColor: '#1A2520', justifyContent: 'center', alignItems: 'center' },
-  modalCloseText: { fontSize: 16, color: '#8B9A94', fontWeight: '700' },
+  modalTitle:  { fontSize: 18, fontWeight: '800', color: colors.text.primary },
+  modalClose:  { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.dark.border, justifyContent: 'center', alignItems: 'center' },
+  modalCloseText: { fontSize: 16, color: colors.text.secondary, fontWeight: '700' },
   receiptImage: { width: '100%', height: 300, borderRadius: 12 },
-  receiptNote:  { fontSize: 13, color: '#8B9A94', textAlign: 'center', fontWeight: '500' },
+  receiptNote:  { fontSize: 13, color: colors.text.secondary, textAlign: 'center', fontWeight: '500' },
 
   // Dispute
-  disputeInfo:  { fontSize: 14, color: '#D1D5DB', lineHeight: 20 },
+  disputeInfo:  { fontSize: 14, color: colors.text.secondary, lineHeight: 20 },
   disputeInput: {
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.input.bg,
     borderRadius: 12,
     padding: 12,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     fontSize: 14,
     borderWidth: 1,
-    borderColor: '#2A3530',
+    borderColor: colors.input.border,
     minHeight: 100,
     textAlignVertical: 'top',
   },
@@ -883,18 +879,18 @@ const styles = StyleSheet.create({
   // Booking Pass Modal
   passModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
   passModalContent: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
     paddingBottom: 40,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
   },
   dragHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#2A3530',
+    backgroundColor: colors.dark.border,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
@@ -906,18 +902,18 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.border,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
   },
-  passModalHeading: { fontSize: 20, fontWeight: '900', color: '#FFFFFF', letterSpacing: -0.3, marginTop: 8 },
-  passModalSubheading: { fontSize: 13, color: '#8B9A94', marginTop: 4, fontWeight: '500', marginBottom: 20 },
+  passModalHeading: { fontSize: 20, fontWeight: '900', color: colors.text.primary, letterSpacing: -0.3, marginTop: 8 },
+  passModalSubheading: { fontSize: 13, color: colors.text.secondary, marginTop: 4, fontWeight: '500', marginBottom: 20 },
   passTicket: {
-    backgroundColor: '#070C0A',
+    backgroundColor: colors.dark.card,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     overflow: 'hidden',
     marginBottom: 20,
   },
@@ -928,17 +924,17 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 12,
   },
-  ticketTitle: { fontSize: 18, fontWeight: '800', color: '#FFFFFF', flex: 1, marginRight: 8 },
+  ticketTitle: { fontSize: 18, fontWeight: '800', color: colors.text.primary, flex: 1, marginRight: 8 },
   ticketValidBadge: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    backgroundColor: colors.successBg,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 100,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.25)',
   },
-  ticketValidText: { fontSize: 9, fontWeight: '800', color: colors.primary, letterSpacing: 1 },
-  ticketLocation: { fontSize: 13, color: '#8B9A94', paddingHorizontal: 16, marginBottom: 16, fontWeight: '600' },
+  ticketValidText: { fontSize: 9, fontWeight: '800', color: colors.secondary, letterSpacing: 1 },
+  ticketLocation: { fontSize: 13, color: colors.text.secondary, paddingHorizontal: 16, marginBottom: 16, fontWeight: '600' },
   ticketDividerWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -948,7 +944,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     marginLeft: -8,
   },
   ticketDashedLine: {
@@ -956,39 +952,40 @@ const styles = StyleSheet.create({
     height: 1,
     borderStyle: 'dashed',
     borderWidth: 1,
-    borderColor: '#2A3530',
+    borderColor: colors.dark.border,
   },
   ticketRightNotch: {
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     marginRight: -8,
   },
   ticketBody: { padding: 16, paddingTop: 8, gap: 16 },
   codeContainer: {
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
+    backgroundColor: colors.dark.surface,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.2)',
+    borderColor: colors.dark.border,
   },
-  codeLabel: { fontSize: 10, fontWeight: '800', color: '#8B9A94', letterSpacing: 1.5, marginBottom: 8 },
-  codeText: { fontSize: 24, fontWeight: '900', color: colors.primary, letterSpacing: 2 },
+  codeLabel: { fontSize: 10, fontWeight: '800', color: colors.text.secondary, letterSpacing: 1.5, marginBottom: 8 },
+  codeText: { fontSize: 24, fontWeight: '900', color: colors.secondary, letterSpacing: 2 },
   passDetailsGrid: {
     flexDirection: 'row',
     gap: 12,
   },
   gridItem: { flex: 1 },
-  gridLabel: { fontSize: 10, fontWeight: '800', color: '#8B9A94', letterSpacing: 1, marginBottom: 6 },
-  gridValue: { fontSize: 14, fontWeight: '800', color: '#FFFFFF' },
-  gridValueSub: { fontSize: 13, fontWeight: '700', color: '#D1D5DB' },
+  gridLabel: { fontSize: 10, fontWeight: '800', color: colors.text.secondary, letterSpacing: 1, marginBottom: 6 },
+  gridValue: { fontSize: 14, fontWeight: '800', color: colors.text.primary },
+  gridValueSub: { fontSize: 13, fontWeight: '700', color: colors.text.secondary },
   doneBtn: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   doneBtnText: { fontSize: 16, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.2 },
 });
+

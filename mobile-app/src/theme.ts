@@ -1,47 +1,49 @@
 // ═══════════════════════════════════════════════════════════════
 // KOAS Mobile Design System
-// Premium Sports-Tech Aesthetic · Mobile-First · Dark Mode Optimized
+// Premium Sports-Tech Aesthetic · Mobile-First · Light Mode Optimized
 // ═══════════════════════════════════════════════════════════════
 
 export const colors = {
   // ─── Brand Identity ────────────────────────────────────────
-  primary:        '#16a34a',      // Green-600 - Primary actions
-  primaryDark:    '#15803d',      // Green-700 - Hover states
-  primaryLight:   '#22c55e',      // Green-500 - Accents
-  primaryMuted:   'rgba(22, 163, 74, 0.12)',  // Subtle backgrounds
-  accent:         '#16a34a',      // Alias for primary (navigation)
+  primary:        '#ffffff',      // White primary base
+  secondary:      '#215630',      // Forest Green accents for small components
+  accent:         '#2E6F40',      // Forest Green action color
+  primaryDark:    '#2E6F40',      // Same forest green across accents
+  primaryLight:   '#2E6F40',      // Same forest green across accents
+  primaryMuted:   'rgba(46, 111, 64, 0.12)',  // Subtle forest-tinted backgrounds
+  secondaryMuted: 'rgba(46, 111, 64, 0.12)',  // Forest green muted overlay
   
-  // ─── Dark Surfaces (Premium Sports-Tech) ───────────────────
+  // ─── Light Surfaces (Clean Sports-Tech) ───────────────────
   dark: {
-    bg:           '#0a0f0d',      // Deep dark base
-    surface:      '#111816',      // Elevated surface
-    card:         '#151d1a',      // Card background
-    elevated:     '#1a2320',      // Hover/active states
-    border:       'rgba(255, 255, 255, 0.06)',  // Subtle borders
-    borderStrong: 'rgba(255, 255, 255, 0.1)',   // Emphasized borders
+    bg:           '#f9fafb',      // Light base
+    surface:      '#ffffff',      // Elevated surface
+    card:         '#f1f5f9',      // Card background
+    elevated:     '#e2e8f0',      // Hover/active surface
+    border:       'rgba(15, 23, 42, 0.08)',  // Subtle borders
+    borderStrong: 'rgba(15, 23, 42, 0.15)',  // Emphasized borders
   },
   
-  // ─── Text Hierarchy (Dark Mode Optimized) ──────────────────
+  // ─── Text Hierarchy (Light Theme) ──────────────────────────
   text: {
-    primary:      '#f8faf9',      // High emphasis
-    secondary:    '#c5ccc9',      // Medium emphasis
-    muted:        '#8a9490',      // Low emphasis
-    disabled:     '#5a6562',      // Disabled state
-    inverse:      '#0a0f0d',      // On light backgrounds
+    primary:      '#0f172a',      // High emphasis
+    secondary:    '#475569',      // Medium emphasis
+    muted:        '#64748b',      // Low emphasis
+    disabled:     '#94a3b8',      // Disabled state
+    inverse:      '#ffffff',      // On dark backgrounds
   },
   
   // ─── Input States ──────────────────────────────────────────
   input: {
-    bg:           '#1a2320',      // Input background
-    border:       'rgba(255, 255, 255, 0.08)',  // Default border
-    borderHover:  'rgba(255, 255, 255, 0.12)',  // Hover border
-    borderFocus:  '#16a34a',      // Focus border
-    placeholder:  '#6b7773',      // Placeholder text
+    bg:           '#ffffff',      // Input background
+    border:       'rgba(15, 23, 42, 0.12)',  // Default border
+    borderHover:  'rgba(15, 23, 42, 0.18)',  // Hover border
+    borderFocus:  '#2E6F40',      // Focus border
+    placeholder:  '#94a3b8',      // Placeholder text
   },
   
   // ─── Semantic Colors ───────────────────────────────────────
-  success:        '#16a34a',
-  successBg:      'rgba(22, 163, 74, 0.1)',
+  success:        '#2E6F40',
+  successBg:      'rgba(46, 111, 64, 0.1)',
   warning:        '#f59e0b',
   warningBg:      'rgba(245, 158, 11, 0.1)',
   danger:         '#ef4444',
@@ -50,13 +52,13 @@ export const colors = {
   infoBg:         'rgba(59, 130, 246, 0.1)',
   
   // ─── Legacy Support (Gradual Migration) ────────────────────
-  authBg:         '#0a0f0d',
-  authCard:       '#151d1a',
-  authInput:      '#1a2320',
-  authBorder:     'rgba(255, 255, 255, 0.08)',
-  authText:       '#f8faf9',
-  authMuted:      '#8a9490',
-  textInverse:    '#ffffff',
+  authBg:         '#f9fafb',
+  authCard:       '#ffffff',
+  authInput:      '#ffffff',
+  authBorder:     'rgba(15, 23, 42, 0.12)',
+  authText:       '#0f172a',
+  authMuted:      '#64748b',
+  textInverse:    '#000000',
 };
 
 // ─── Spacing Scale (8pt Grid System) ──────────────────────────

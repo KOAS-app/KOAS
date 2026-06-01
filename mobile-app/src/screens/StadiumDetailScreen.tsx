@@ -19,91 +19,91 @@ const { width } = Dimensions.get('window');
 // Amenity SVG Icons matching app theme
 const ParkingIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Rect x="3" y="3" width="18" height="18" rx="2" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Path d="M9 8h3a3 3 0 0 1 0 6H9V8z" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Line x1="9" y1="8" x2="9" y2="17" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Rect x="3" y="3" width="18" height="18" rx="2" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M9 8h3a3 3 0 0 1 0 6H9V8z" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Line x1="9" y1="8" x2="9" y2="17" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
   </Svg>
 );
 
 const ChangingRoomIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Circle cx="12" cy="7" r="4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Circle cx="12" cy="7" r="4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
 
 const ShowerIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path d="M12 2v10" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Circle cx="12" cy="2" r="1" fill={colors.primary} />
-    <Line x1="8" y1="16" x2="8" y2="17" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="12" y1="16" x2="12" y2="17" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="16" y1="16" x2="16" y2="17" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="8" y1="20" x2="8" y2="21" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="12" y1="20" x2="12" y2="21" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="16" y1="20" x2="16" y2="21" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Path d="M12 2v10" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Circle cx="12" cy="2" r="1" fill={colors.secondary} />
+    <Line x1="8" y1="16" x2="8" y2="17" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="12" y1="16" x2="12" y2="17" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="16" y1="16" x2="16" y2="17" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="8" y1="20" x2="8" y2="21" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="12" y1="20" x2="12" y2="21" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="16" y1="20" x2="16" y2="21" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
   </Svg>
 );
 
 const FloodlightIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Circle cx="12" cy="12" r="5" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Line x1="12" y1="1" x2="12" y2="3" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="12" y1="21" x2="12" y2="23" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="1" y1="12" x2="3" y2="12" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="21" y1="12" x2="23" y2="12" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Circle cx="12" cy="12" r="5" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Line x1="12" y1="1" x2="12" y2="3" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="12" y1="21" x2="12" y2="23" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="1" y1="12" x2="3" y2="12" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="21" y1="12" x2="23" y2="12" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
   </Svg>
 );
 
 const SeatingIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path d="M4 16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8H4v8z" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Path d="M2 8h20" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Path d="M6 4h12" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Path d="M4 16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8H4v8z" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M2 8h20" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Path d="M6 4h12" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
   </Svg>
 );
 
 const RefreshmentsIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path d="M18 8h1a4 4 0 0 1 0 8h-1" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Line x1="6" y1="1" x2="6" y2="4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="10" y1="1" x2="10" y2="4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="14" y1="1" x2="14" y2="4" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Path d="M18 8h1a4 4 0 0 1 0 8h-1" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Line x1="6" y1="1" x2="6" y2="4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="10" y1="1" x2="10" y2="4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="14" y1="1" x2="14" y2="4" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
   </Svg>
 );
 
 const FirstAidIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Rect x="3" y="3" width="18" height="18" rx="2" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Line x1="12" y1="8" x2="12" y2="16" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
-    <Line x1="8" y1="12" x2="16" y2="12" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" />
+    <Rect x="3" y="3" width="18" height="18" rx="2" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Line x1="12" y1="8" x2="12" y2="16" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="8" y1="12" x2="16" y2="12" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" />
   </Svg>
 );
 
 const EquipmentIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Circle cx="12" cy="12" r="10" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Path d="M12 2a10 10 0 0 0 0 20" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Circle cx="12" cy="12" r="10" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M12 2a10 10 0 0 0 0 20" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
 
 const WiFiIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path d="M5 12.55a11 11 0 0 1 14.08 0" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Path d="M1.42 9a16 16 0 0 1 21.16 0" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Path d="M8.53 16.11a6 6 0 0 1 6.95 0" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <Circle cx="12" cy="20" r="1" fill={colors.primary} />
+    <Path d="M5 12.55a11 11 0 0 1 14.08 0" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M1.42 9a16 16 0 0 1 21.16 0" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M8.53 16.11a6 6 0 0 1 6.95 0" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Circle cx="12" cy="20" r="1" fill={colors.secondary} />
   </Svg>
 );
 
 const SecurityIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
 
@@ -195,7 +195,7 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.secondary} />
       </View>
     );
   }
@@ -587,7 +587,7 @@ const styles = StyleSheet.create({
   },
   amenityIconFallback: {
     fontSize: 24,
-    color: colors.primary,
+    color: colors.secondary,
     fontWeight: '700',
   },
   amenityLabel: {
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
 
   // Reviews
   writeReviewBtn: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: radius.md,
@@ -670,7 +670,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: radius.full,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -779,11 +779,11 @@ const styles = StyleSheet.create({
     color: colors.text.muted,
   },
   bookButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     paddingHorizontal: spacing.xxl,
     paddingVertical: spacing.lg,
     borderRadius: radius.lg,
-    shadowColor: colors.primary,
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -827,7 +827,7 @@ const styles = StyleSheet.create({
   planBadgeText: {
     fontSize: 9,
     fontWeight: '800',
-    color: colors.primary,
+    color: colors.secondary,
     letterSpacing: 1,
   },
   planName: {
@@ -845,7 +845,7 @@ const styles = StyleSheet.create({
   planPrice: {
     fontSize: 22,
     fontWeight: '900',
-    color: colors.primary,
+    color: colors.secondary,
   },
   planPriceUnit: {
     fontSize: 11,
@@ -865,7 +865,7 @@ const styles = StyleSheet.create({
   },
   benefitCheck: {
     fontSize: 12,
-    color: colors.primary,
+    color: colors.secondary,
     fontWeight: '700',
     marginTop: 1,
   },
@@ -876,13 +876,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subscribeButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     paddingVertical: spacing.sm,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: spacing.md,
-    shadowColor: colors.primary,
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -911,7 +911,8 @@ const styles = StyleSheet.create({
   planScheduleHighlight: {
     fontSize: 11,
     fontWeight: '800',
-    color: colors.primary,
+    color: colors.secondary,
     marginTop: 2,
   },
 });
+

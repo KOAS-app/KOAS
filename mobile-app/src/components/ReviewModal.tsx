@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: spacing.md,
     borderRadius: radius.md,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     alignItems: 'center',
   },
   submitBtnDisabled: {
@@ -290,3 +290,4 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 });
+

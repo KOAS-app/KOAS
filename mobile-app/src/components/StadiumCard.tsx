@@ -28,7 +28,7 @@ export default function StadiumCard({ stadium, onPress }: Props) {
         ) : (
           <View style={styles.placeholderImage}>
             <View style={styles.placeholderIconCircle}>
-              <Feather name="map" size={40} color={colors.primary} />
+              <Feather name="map" size={40} color={colors.secondary} />
             </View>
           </View>
         )}
@@ -53,7 +53,7 @@ export default function StadiumCard({ stadium, onPress }: Props) {
         <View style={styles.cardMeta}>
           <View style={styles.locationRow}>
             <View style={styles.locationIconCircle}>
-              <Feather name="map-pin" size={12} color={colors.primary} />
+              <Feather name="map-pin" size={12} color={colors.secondary} />
             </View>
             <Text style={styles.locationText} numberOfLines={1}>
               {stadium.locations && stadium.locations.length === 1 ? stadium.locations[0] : `${stadium.locations?.length || 0} locations`}
@@ -71,10 +71,10 @@ export default function StadiumCard({ stadium, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#111816',
+    backgroundColor: colors.dark.card,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     overflow: 'hidden',
     marginBottom: spacing.xl,
   },
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   placeholderImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.elevated,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -98,9 +98,9 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(22, 163, 74, 0.15)',
+    backgroundColor: 'rgba(46, 111, 64, 0.15)',
     borderWidth: 1.5,
-    borderColor: 'rgba(22, 163, 74, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     left: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#134826ff',
+    backgroundColor: 'rgba(46, 111, 64, 0.15)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   ratingText: {
-    color: '#FFFFFF',
+    color: colors.primary,
     fontSize: 14,
     fontWeight: typography.weights.bold,
   },
@@ -137,32 +137,31 @@ const styles = StyleSheet.create({
   cardName: {
     fontSize: 20,
     fontWeight: typography.weights.extrabold,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     flex: 1,
     letterSpacing: -0.3,
   },
   openBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    backgroundColor: 'rgba(46, 111, 64, 0.15)',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 6,
     gap: 4,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.3)',
   },
   openIcon: {
-    color: '#22C55E',
+    color: colors.secondary,
     fontSize: 12,
     fontWeight: typography.weights.bold,
   },
   openText: {
-    color: '#22C55E',
+    color: colors.secondary,
     fontSize: 13,
     fontWeight: typography.weights.bold,
-  },
-  cardMeta: {
+  },  cardMeta: {
     gap: spacing.sm,
   },
   locationRow: {
@@ -174,16 +173,16 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: 'rgba(22, 163, 74, 0.15)',
+    backgroundColor: colors.successBg,
     borderWidth: 1,
-    borderColor: 'rgba(22, 163, 74, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
   },
   locationText: {
     fontSize: typography.sizes.sm,
-    color: '#8B9A94',
+    color: colors.text.muted,
     fontWeight: typography.weights.medium,
     flex: 1,
   },
@@ -194,12 +193,13 @@ const styles = StyleSheet.create({
   },
   reviewText: {
     fontSize: typography.sizes.sm,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: typography.weights.medium,
   },
   cardDesc: {
     fontSize: typography.sizes.sm,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     lineHeight: 20,
   },
 });
+

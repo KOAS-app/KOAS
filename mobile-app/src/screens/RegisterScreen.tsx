@@ -81,7 +81,7 @@ export default function RegisterScreen({ navigation }: Props) {
     <View style={styles.container}>
       {/* Gradient Background */}
       <LinearGradient
-        colors={['#0a0f0d', '#0d1411', '#0a0f0d']}
+        colors={[colors.dark.bg, colors.dark.surface, colors.dark.bg]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -243,7 +243,7 @@ export default function RegisterScreen({ navigation }: Props) {
                 activeOpacity={0.85}
               >
                 <LinearGradient
-                  colors={['#16a34a', '#15803d']}
+                  colors={[colors.secondary, colors.secondary]}
                   style={styles.btnGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     borderRadius: 150,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     opacity: 0.03,
   },
   keyboardView: {
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeights.relaxed * typography.sizes.xs,
   },
   termsLink: {
-    color: colors.primary,
+    color: colors.secondary,
     fontWeight: typography.weights.semibold,
   },
 
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.medium,
   },
   signinLink: {
-    color: colors.primary,
+    color: colors.secondary,
     fontWeight: typography.weights.semibold,
   },
 
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    backgroundColor: colors.primaryMuted,
+    backgroundColor: colors.secondaryMuted,
     borderRadius: radius.full,
     borderWidth: 1,
     borderColor: 'rgba(22, 163, 74, 0.2)',
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
   },
   trustText: {
     fontSize: typography.sizes.xs,
@@ -510,3 +510,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 });
+

@@ -19,10 +19,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { PlayerSubscription } from '../types';
 
 const statusColors: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  RECEIPT_SUBMITTED: { bg: 'rgba(59, 130, 246, 0.15)', text: '#3B82F6', border: 'rgba(59, 130, 246, 0.3)', label: 'Pending Review' },
-  ACTIVE:            { bg: 'rgba(34, 197, 94, 0.15)', text: '#22C55E', border: 'rgba(34, 197, 94, 0.3)', label: 'Active' },
-  REJECTED:          { bg: 'rgba(239, 68, 68, 0.15)', text: '#EF4444', border: 'rgba(239, 68, 68, 0.3)', label: 'Rejected' },
-  EXPIRED:           { bg: 'rgba(107, 123, 117, 0.15)', text: '#8B9A94', border: 'rgba(107, 123, 117, 0.3)', label: 'Expired' },
+  RECEIPT_SUBMITTED: { bg: colors.infoBg, text: colors.info, border: 'rgba(59, 130, 246, 0.35)', label: 'Pending Review' },
+  ACTIVE:            { bg: colors.successBg, text: colors.secondary, border: 'rgba(46, 111, 64, 0.3)', label: 'Active' },
+  REJECTED:          { bg: colors.dangerBg, text: colors.danger, border: 'rgba(239, 68, 68, 0.3)', label: 'Rejected' },
+  EXPIRED:           { bg: 'rgba(107, 123, 117, 0.15)', text: colors.text.muted, border: 'rgba(107, 123, 117, 0.3)', label: 'Expired' },
 };
 
 
@@ -100,17 +100,17 @@ export default function MyMembershipsScreen() {
 
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {loadingSubscriptions ? (
-          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.secondary} style={{ marginTop: 40 }} />
         ) : subscriptions.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Feather name="award" size={48} color="#8B9A94" style={{ marginBottom: 12, opacity: 0.5 }} />
+            <Feather name="award" size={48} color={colors.text.muted} style={{ marginBottom: 12, opacity: 0.5 }} />
             <Text style={styles.emptyText}>No stadium memberships yet</Text>
             <Text style={styles.emptySubtext}>Subscribe to stadium plans to unlock fast check-in passes.</Text>
           </View>
         ) : (
           <View style={styles.membershipList}>
             {subscriptions.map((sub) => {
-              const sColor = statusColors[sub.status] || { bg: '#1A2520', text: '#FFFFFF', border: '#2A3530', label: sub.status };
+              const sColor = statusColors[sub.status] || { bg: colors.dark.surface, text: colors.text.primary, border: colors.dark.border, label: sub.status };
               const daysLeft = sub.status === 'ACTIVE' ? getDaysRemaining(sub.endDate) : 0;
 
               return (
@@ -143,14 +143,14 @@ export default function MyMembershipsScreen() {
                   {sub.status === 'ACTIVE' && (
                     <View style={styles.cardFooter}>
                       <View style={styles.countdownWrapper}>
-                        <Feather name="clock" size={12} color={colors.primary} style={{ marginRight: 4 }} />
+                        <Feather name="clock" size={12} color={colors.secondary} style={{ marginRight: 4 }} />
                         <Text style={styles.countdownText}>
                           {daysLeft} days remaining
                         </Text>
                       </View>
                       <View style={styles.passPrompt}>
                         <Text style={styles.passPromptText}>View Pass</Text>
-                        <Feather name="arrow-right" size={12} color={colors.primary} style={{ marginLeft: 2 }} />
+                        <Feather name="arrow-right" size={12} color={colors.secondary} style={{ marginLeft: 2 }} />
                       </View>
                     </View>
                   )}
@@ -196,7 +196,7 @@ export default function MyMembershipsScreen() {
 
             {/* Close Button */}
             <TouchableOpacity style={styles.closeModalBtn} onPress={() => setSelectedSub(null)}>
-              <Feather name="x" size={20} color="#8B9A94" />
+              <Feather name="x" size={20} color={colors.text.secondary} />
             </TouchableOpacity>
 
             {/* Pass Header */}
@@ -237,7 +237,7 @@ export default function MyMembershipsScreen() {
                     
                     <View style={styles.gridItem}>
                       <Text style={styles.gridLabel}>DAYS REMAINING</Text>
-                      <Text style={[styles.gridValue, { color: colors.primary }]}>
+                      <Text style={[styles.gridValue, { color: colors.secondary }]}>
                         {getDaysRemaining(selectedSub.endDate)} Days
                       </Text>
                     </View>
@@ -273,38 +273,38 @@ export default function MyMembershipsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E0D' },
+  container: { flex: 1, backgroundColor: colors.dark.bg },
   header: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 },
-  headerTitle: { fontSize: 28, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 },
-  headerSubtitle: { fontSize: 13, color: '#8B9A94', marginTop: 4, fontWeight: '500' },
+  headerTitle: { fontSize: 28, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.5 },
+  headerSubtitle: { fontSize: 13, color: colors.text.secondary, marginTop: 4, fontWeight: '500' },
   scrollContainer: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 40 },
   emptyCard: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
   },
-  emptyText: { fontSize: 15, fontWeight: '700', color: '#FFFFFF', marginBottom: 4 },
-  emptySubtext: { fontSize: 12, color: '#8B9A94', textAlign: 'center', lineHeight: 16 },
+  emptyText: { fontSize: 15, fontWeight: '700', color: colors.text.primary, marginBottom: 4 },
+  emptySubtext: { fontSize: 12, color: colors.text.secondary, textAlign: 'center', lineHeight: 16 },
   membershipList: { gap: spacing.md },
   membershipCard: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     padding: spacing.lg,
   },
   activeCardGlow: {
-    borderColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: colors.secondary,
   },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.md },
-  planName: { fontSize: 18, fontWeight: '800', color: '#FFFFFF' },
-  stadiumName: { fontSize: 12, color: '#8B9A94', marginTop: 4, fontWeight: '600' },
+  planName: { fontSize: 18, fontWeight: '800', color: colors.text.primary },
+  stadiumName: { fontSize: 12, color: colors.text.secondary, marginTop: 4, fontWeight: '600' },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.sm, borderWidth: 1 },
   statusText: { fontSize: 10, fontWeight: '700' },
   cardFooter: {
@@ -312,23 +312,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#1A2520',
+    borderTopColor: colors.dark.border,
     paddingTop: spacing.md,
     marginTop: spacing.xs,
   },
   countdownWrapper: { flexDirection: 'row', alignItems: 'center' },
-  countdownText: { fontSize: 12, color: colors.primary, fontWeight: '700' },
+  countdownText: { fontSize: 12, color: colors.secondary, fontWeight: '700' },
   passPrompt: { flexDirection: 'row', alignItems: 'center' },
-  passPromptText: { fontSize: 12, color: colors.primary, fontWeight: '700' },
-  footerNote: { fontSize: 12, color: '#8B9A94', fontWeight: '500' },
-  rejectionTextHighlight: { fontSize: 12, color: '#EF4444', fontWeight: '700' },
+  passPromptText: { fontSize: 12, color: colors.secondary, fontWeight: '700' },
+  footerNote: { fontSize: 12, color: colors.text.secondary, fontWeight: '500' },
+  rejectionTextHighlight: { fontSize: 12, color: colors.danger, fontWeight: '700' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
   modalContent: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     padding: 24,
     paddingTop: 16,
     maxHeight: '90%',
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   dragHandle: {
     width: 36,
     height: 4,
-    backgroundColor: '#2A3530',
+    backgroundColor: colors.dark.border,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
@@ -347,16 +347,16 @@ const styles = StyleSheet.create({
     right: 20,
     padding: 6,
     borderRadius: radius.sm,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.border,
   },
-  modalHeading: { fontSize: 20, fontWeight: '900', color: '#FFFFFF', letterSpacing: -0.3, marginTop: 8 },
-  modalSubheading: { fontSize: 13, color: '#8B9A94', marginTop: 4, fontWeight: '500', marginBottom: 20 },
+  modalHeading: { fontSize: 20, fontWeight: '900', color: colors.text.primary, letterSpacing: -0.3, marginTop: 8 },
+  modalSubheading: { fontSize: 13, color: colors.text.secondary, marginTop: 4, fontWeight: '500', marginBottom: 20 },
   passTicket: {
-    backgroundColor: '#070C0A',
+    backgroundColor: colors.dark.card,
     borderRadius: radius.md,
     borderWidth: 1.5,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
-    shadowColor: colors.primary,
+    borderColor: colors.success,
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
@@ -370,17 +370,17 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     paddingBottom: 4,
   },
-  ticketPlan: { fontSize: 16, fontWeight: '800', color: '#FFFFFF' },
+  ticketPlan: { fontSize: 16, fontWeight: '800', color: colors.text.primary },
   ticketActiveBadge: {
-    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    backgroundColor: colors.successBg,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radius.xs,
     borderWidth: 0.5,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: colors.success,
   },
-  ticketActiveText: { fontSize: 9, fontWeight: '800', color: colors.primary, letterSpacing: 0.5 },
-  ticketStadium: { fontSize: 12, color: '#8B9A94', fontWeight: '600', paddingHorizontal: spacing.md, marginBottom: spacing.md },
+  ticketActiveText: { fontSize: 9, fontWeight: '800', color: colors.secondary, letterSpacing: 0.5 },
+  ticketStadium: { fontSize: 12, color: colors.text.secondary, fontWeight: '600', paddingHorizontal: spacing.md, marginBottom: spacing.md },
   ticketDividerWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -392,34 +392,34 @@ const styles = StyleSheet.create({
     width: 12,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     marginLeft: -6,
     borderWidth: 1.5,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: colors.success,
   },
   ticketRightNotch: {
     width: 12,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     marginRight: -6,
     borderWidth: 1.5,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: colors.success,
   },
   ticketDashedLine: {
     flex: 1,
     height: 1,
     borderStyle: 'dashed',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: colors.dark.border,
     marginHorizontal: 4,
   },
   ticketBody: { padding: spacing.lg, alignItems: 'center', gap: spacing.lg },
   codeContainer: {
-    backgroundColor: '#0A0E0D',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     paddingVertical: 18,
     paddingHorizontal: 24,
     width: '100%',
@@ -428,28 +428,28 @@ const styles = StyleSheet.create({
   },
   codeLabel: {
     fontSize: 10,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: '700',
     letterSpacing: 1,
   },
   codeText: {
     fontSize: 22,
-    color: '#22C55E',
+    color: colors.secondary,
     fontWeight: '800',
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
     letterSpacing: 2,
   },
   passDetailsGrid: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', gap: spacing.md },
   gridItem: { flex: 1 },
-  gridLabel: { fontSize: 9, fontWeight: '700', color: '#6B7B75', letterSpacing: 0.5 },
-  gridValue: { fontSize: 14, fontWeight: '800', color: '#FFFFFF', marginTop: 4 },
-  gridValueSub: { fontSize: 13, fontWeight: '600', color: '#8B9A94', marginTop: 4 },
+  gridLabel: { fontSize: 9, fontWeight: '700', color: colors.text.secondary, letterSpacing: 0.5 },
+  gridValue: { fontSize: 14, fontWeight: '800', color: colors.text.primary, marginTop: 4 },
+  gridValueSub: { fontSize: 13, fontWeight: '600', color: colors.text.secondary, marginTop: 4 },
   doneBtn: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     paddingVertical: spacing.md,
     borderRadius: radius.md,
     alignItems: 'center',
-    shadowColor: colors.primary,
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
@@ -458,3 +458,4 @@ const styles = StyleSheet.create({
   },
   doneBtnText: { color: '#FFFFFF', fontSize: 14, fontWeight: '800' },
 });
+

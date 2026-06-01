@@ -33,7 +33,7 @@ export default function FilterPills({ selectedFilter, onSelectFilter, availableL
           <Feather 
             name="map" 
             size={10} 
-            color={selectedFilter === 'All' ? '#FFFFFF' : colors.primary} 
+            color={selectedFilter === 'All' ? '#FFFFFF' : colors.secondary} 
           />
         </View>
         <Text style={[
@@ -58,7 +58,7 @@ export default function FilterPills({ selectedFilter, onSelectFilter, availableL
           <Feather 
             name="star" 
             size={10} 
-            color={selectedFilter === 'Top Rated' ? '#FFFFFF' : colors.primary} 
+            color={selectedFilter === 'Top Rated' ? '#FFFFFF' : colors.secondary} 
           />
         </View>
         <Text style={[
@@ -85,7 +85,7 @@ export default function FilterPills({ selectedFilter, onSelectFilter, availableL
             <Feather 
               name="map-pin" 
               size={10} 
-              color={selectedFilter === loc ? '#FFFFFF' : colors.primary} 
+              color={selectedFilter === loc ? '#FFFFFF' : colors.secondary} 
             />
           </View>
           <Text style={[
@@ -110,25 +110,25 @@ const styles = StyleSheet.create({
   filterPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderWidth: 1.5,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     marginRight: spacing.xs,
   },
   filterPillActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
   },
   filterIconCircle: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: 'rgba(22, 163, 74, 0.15)',
+    backgroundColor: colors.successBg,
     borderWidth: 1,
-    borderColor: 'rgba(22, 163, 74, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
@@ -138,11 +138,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   filterText: {
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.semibold,
-  },
-  filterTextActive: {
+  },  filterTextActive: {
     color: '#FFFFFF',
   },
 });
+

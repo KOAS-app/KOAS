@@ -167,12 +167,12 @@ function TabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#22C55E',
-        tabBarInactiveTintColor: '#6B7B75',
+        tabBarActiveTintColor: colors.secondary,
+        tabBarInactiveTintColor: colors.text.muted,
         tabBarStyle: {
-          backgroundColor: '#0A0E0D',
+          backgroundColor: colors.dark.bg,
           borderTopWidth: 1,
-          borderTopColor: '#1A2520',
+          borderTopColor: colors.dark.border,
           height: Platform.OS === 'ios' ? 95 : 75,
           paddingTop: spacing.md,
           paddingBottom: Platform.OS === 'ios' ? 28 : 12,
@@ -216,7 +216,7 @@ function TabNavigator() {
                   marginLeft: -20,
                   width: 40,
                   height: 3,
-                  backgroundColor: '#22C55E',
+                  backgroundColor: colors.secondary,
                   borderRadius: 2,
                 }} />
               )}
@@ -245,7 +245,7 @@ function TabNavigator() {
                   marginLeft: -20,
                   width: 40,
                   height: 3,
-                  backgroundColor: '#22C55E',
+                  backgroundColor: colors.secondary,
                   borderRadius: 2,
                 }} />
               )}
@@ -274,7 +274,7 @@ function TabNavigator() {
                   marginLeft: -20,
                   width: 40,
                   height: 3,
-                  backgroundColor: '#22C55E',
+                  backgroundColor: colors.secondary,
                   borderRadius: 2,
                 }} />
               )}
@@ -303,7 +303,7 @@ function TabNavigator() {
                   marginLeft: -20,
                   width: 40,
                   height: 3,
-                  backgroundColor: '#22C55E',
+                  backgroundColor: colors.secondary,
                   borderRadius: 2,
                 }} />
               )}
@@ -322,7 +322,7 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerTintColor: colors.primary }}>
+      <Stack.Navigator screenOptions={{ headerTintColor: colors.secondary }}>
         {!user ? (
           <Stack.Screen name="Auth" component={AuthNavigator} options={{ headerShown: false }} />
         ) : (
@@ -341,7 +341,7 @@ export default function AppNavigator() {
             <Stack.Screen
               name="SubscriptionCheckout"
               component={SubscriptionCheckoutScreen}
-              options={{ title: 'Membership Checkout', headerStyle: { backgroundColor: '#0A0E0D', borderBottomColor: '#1A2520' }, headerTintColor: '#22C55E' }}
+              options={{ title: 'Membership Checkout', headerStyle: { backgroundColor: colors.dark.bg, borderBottomColor: colors.dark.border }, headerTintColor: colors.secondary }}
             />
           </>
         )}
@@ -349,3 +349,4 @@ export default function AppNavigator() {
     </NavigationContainer>
   );
 }
+

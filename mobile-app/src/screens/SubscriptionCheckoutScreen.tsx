@@ -375,7 +375,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.secondary} />
       </View>
     );
   }
@@ -407,7 +407,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         <View style={styles.planCard}>
           <View style={styles.badgeRow}>
             <View style={styles.membershipBadge}>
-              <Feather name="award" size={12} color={colors.primary} style={{ marginRight: 4 }} />
+              <Feather name="award" size={12} color={colors.secondary} style={{ marginRight: 4 }} />
               <Text style={styles.membershipBadgeText}>STEP 1: SELECT TIME SLOTS</Text>
             </View>
           </View>
@@ -468,7 +468,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
           {/* Results Count */}
           {searchDay && searchTimeRange && (
             <View style={styles.resultsCount}>
-              <Feather name="filter" size={14} color={colors.primary} />
+              <Feather name="filter" size={14} color={colors.secondary} />
               <Text style={styles.resultsCountText}>
                 {filteredSlots.length} slot(s) found
               </Text>
@@ -488,13 +488,13 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         {/* Results: Slots grouped by date */}
         {!searchDay || !searchTimeRange ? (
           <View style={styles.emptyState}>
-            <Feather name="search" size={48} color="#8B9A94" style={{ opacity: 0.5 }} />
+            <Feather name="search" size={48} color={colors.text.secondary} style={{ opacity: 0.5 }} />
             <Text style={styles.emptyStateText}>Select day and time to search</Text>
             <Text style={styles.emptyStateSubtext}>Choose your preferred day of the week and time range above</Text>
           </View>
         ) : filteredDates.length === 0 ? (
           <View style={styles.emptyState}>
-            <Feather name="calendar" size={48} color="#8B9A94" style={{ opacity: 0.5 }} />
+            <Feather name="calendar" size={48} color={colors.text.secondary} style={{ opacity: 0.5 }} />
             <Text style={styles.emptyStateText}>No slots available</Text>
             <Text style={styles.emptyStateSubtext}>Try a different day or time range</Text>
           </View>
@@ -525,7 +525,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
                     </View>
                     {hasSelectedSlots && (
                       <View style={styles.selectedIndicator}>
-                        <Feather name="check-circle" size={16} color={colors.primary} />
+                        <Feather name="check-circle" size={16} color={colors.secondary} />
                       </View>
                     )}
                   </View>
@@ -556,7 +556,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
                           )}
                           {isSelected && (
                             <View style={styles.selectedBadge}>
-                              <Feather name="check" size={12} color="#FFFFFF" />
+                              <Feather name="check" size={12} color={colors.text.inverse} />
                             </View>
                           )}
                         </TouchableOpacity>
@@ -573,7 +573,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         {selectedSlots.length > 0 && (
           <View style={styles.selectedCountBanner}>
             <View style={styles.selectedCountLeft}>
-              <Feather name="check-circle" size={16} color={colors.primary} />
+              <Feather name="check-circle" size={16} color={colors.secondary} />
               <Text style={styles.selectedCountText}>{selectedSlots.length} slot(s) selected</Text>
             </View>
           </View>
@@ -585,7 +585,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
           disabled={selectedSlots.length === 0}
         >
           <Text style={styles.continueButtonText}>Review Selections</Text>
-          <Feather name="arrow-right" size={18} color="#FFFFFF" />
+          <Feather name="arrow-right" size={18} color={colors.text.inverse} />
         </TouchableOpacity>
       </ScrollView>
     );
@@ -599,7 +599,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         <View style={styles.planCard}>
           <View style={styles.badgeRow}>
             <View style={styles.membershipBadge}>
-              <Feather name="award" size={12} color={colors.primary} style={{ marginRight: 4 }} />
+              <Feather name="award" size={12} color={colors.secondary} style={{ marginRight: 4 }} />
               <Text style={styles.membershipBadgeText}>STEP 2: REVIEW YOUR SELECTIONS</Text>
             </View>
           </View>
@@ -611,7 +611,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         <View style={styles.selectedSlotsSection}>
           <View style={styles.selectedSlotsHeader}>
             <View style={styles.selectedSlotsHeaderLeft}>
-              <Feather name="check-circle" size={18} color={colors.primary} />
+              <Feather name="check-circle" size={18} color={colors.secondary} />
               <Text style={styles.selectedSlotsTitle}>Your Selected Slots</Text>
             </View>
             <View style={styles.selectedSlotsBadge}>
@@ -698,14 +698,14 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
           onPress={handleContinueToPayment}
         >
           <Text style={styles.continueButtonText}>Continue to Payment</Text>
-          <Feather name="arrow-right" size={18} color="#FFFFFF" />
+          <Feather name="arrow-right" size={18} color={colors.text.inverse} />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => setCurrentStep(1)}
         >
-          <Feather name="plus" size={18} color={colors.primary} />
+          <Feather name="plus" size={18} color={colors.secondary} />
           <Text style={styles.backButtonText}>Add More Slots</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -718,11 +718,11 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
       {/* Progress Indicator */}
       <View style={styles.progressBar}>
         <View style={[styles.progressStep, styles.progressStepComplete]}>
-          <Feather name="check" size={14} color="#FFFFFF" />
+          <Feather name="check" size={14} color={colors.text.inverse} />
         </View>
         <View style={[styles.progressLine, styles.progressLineActive]} />
         <View style={[styles.progressStep, styles.progressStepComplete]}>
-          <Feather name="check" size={14} color="#FFFFFF" />
+          <Feather name="check" size={14} color={colors.text.inverse} />
         </View>
         <View style={[styles.progressLine, currentStep >= 3 && styles.progressLineActive]} />
         <View style={[styles.progressStep, currentStep >= 3 && styles.progressStepActive]}>
@@ -734,7 +734,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
       <View style={styles.planCard}>
         <View style={styles.badgeRow}>
           <View style={styles.membershipBadge}>
-            <Feather name="award" size={12} color={colors.primary} style={{ marginRight: 4 }} />
+            <Feather name="award" size={12} color={colors.secondary} style={{ marginRight: 4 }} />
             <Text style={styles.membershipBadgeText}>MEMBERSHIP TIER</Text>
           </View>
         </View>
@@ -765,7 +765,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
           <View style={styles.bankBox}>
             <View style={styles.bankDetailRow}>
               <View style={styles.bankDetailLabelWrapper}>
-                <Feather name="home" size={14} color="#8B9A94" style={{ marginRight: 8 }} />
+                <Feather name="home" size={14} color={colors.text.secondary} style={{ marginRight: 8 }} />
                 <Text style={styles.bankDetailLabel}>Bank Name</Text>
               </View>
               <Text style={styles.bankDetailValue}>{bankName}</Text>
@@ -773,7 +773,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
 
             <View style={styles.bankDetailRow}>
               <View style={styles.bankDetailLabelWrapper}>
-                <Feather name="credit-card" size={14} color="#8B9A94" style={{ marginRight: 8 }} />
+                <Feather name="credit-card" size={14} color={colors.text.secondary} style={{ marginRight: 8 }} />
                 <Text style={styles.bankDetailLabel}>Account Number</Text>
               </View>
               <View style={styles.valueCopyWrapper}>
@@ -782,14 +782,14 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
                   onPress={() => handleCopy(accountNumber || '', 'Account number')}
                   style={styles.copyBtn}
                 >
-                  <Feather name="copy" size={14} color={colors.primary} />
+                  <Feather name="copy" size={14} color={colors.secondary} />
                 </TouchableOpacity>
               </View>
             </View>
 
             <View style={styles.bankDetailRow}>
               <View style={styles.bankDetailLabelWrapper}>
-                <Feather name="user" size={14} color="#8B9A94" style={{ marginRight: 8 }} />
+                <Feather name="user" size={14} color={colors.text.secondary} style={{ marginRight: 8 }} />
                 <Text style={styles.bankDetailLabel}>Account Holder</Text>
               </View>
               <Text style={styles.bankDetailValue}>{accountHolderName}</Text>
@@ -797,7 +797,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
 
             <View style={[styles.bankDetailRow, { borderBottomWidth: 0 }]}>
               <View style={styles.bankDetailLabelWrapper}>
-                <Feather name="dollar-sign" size={14} color="#8B9A94" style={{ marginRight: 8 }} />
+                <Feather name="dollar-sign" size={14} color={colors.text.secondary} style={{ marginRight: 8 }} />
                 <Text style={styles.bankDetailLabel}>Total Amount</Text>
               </View>
               <Text style={styles.amountValue}>{price.toLocaleString()} ETB</Text>
@@ -829,14 +829,14 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
           <View style={styles.previewContainer}>
             <Image source={{ uri: receiptImage.uri }} style={styles.receiptPreview} resizeMode="cover" />
             <TouchableOpacity style={styles.replaceBtn} onPress={handlePickImage}>
-              <Feather name="refresh-cw" size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Feather name="refresh-cw" size={14} color={colors.text.inverse} style={{ marginRight: 6 }} />
               <Text style={styles.replaceBtnText}>Replace Receipt</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <TouchableOpacity style={styles.uploadPlaceholder} onPress={handlePickImage} activeOpacity={0.8}>
             <View style={styles.uploadPlaceholderIcon}>
-              <Feather name="image" size={32} color={colors.primary} />
+              <Feather name="image" size={32} color={colors.secondary} />
             </View>
             <Text style={styles.uploadPlaceholderText}>Choose Receipt Screenshot</Text>
             <Text style={styles.uploadPlaceholderSubtext}>Supports JPG, PNG (Max 5MB)</Text>
@@ -855,10 +855,10 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         activeOpacity={0.9}
       >
         {submitting ? (
-          <ActivityIndicator size="small" color="#FFFFFF" />
+          <ActivityIndicator size="small" color={colors.text.inverse} />
         ) : (
           <>
-            <Feather name="check-circle" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Feather name="check-circle" size={18} color={colors.text.inverse} style={{ marginRight: 8 }} />
             <Text style={styles.submitButtonText}>Submit Application</Text>
           </>
         )}
@@ -869,7 +869,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         onPress={() => setCurrentStep(2)}
         disabled={submitting}
       >
-        <Feather name="arrow-left" size={18} color={colors.primary} />
+        <Feather name="arrow-left" size={18} color={colors.secondary} />
         <Text style={styles.backButtonText}>Go Back to Review</Text>
       </TouchableOpacity>
 
@@ -883,7 +883,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0E0D',
+    backgroundColor: colors.dark.bg,
   },
   content: {
     padding: spacing.lg,
@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0A0E0D',
+    backgroundColor: colors.dark.bg,
   },
   progressBar: {
     flexDirection: 'row',
@@ -906,43 +906,43 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.surface,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#2A3530',
+    borderColor: colors.dark.border,
   },
   progressStepActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
   },
   progressStepComplete: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
   },
   progressStepText: {
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontSize: 14,
     fontWeight: '800',
   },
   progressLine: {
     width: 40,
     height: 2,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.border,
     marginHorizontal: spacing.xs,
   },
   progressLineActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
   },
   planCard: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: 'rgba(46, 111, 64, 0.25)',
     padding: spacing.xl,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 4,
   },
@@ -953,43 +953,43 @@ const styles = StyleSheet.create({
   membershipBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    backgroundColor: colors.successBg,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: radius.sm,
     borderWidth: 0.5,
-    borderColor: 'rgba(34, 197, 94, 0.4)',
+    borderColor: 'rgba(46, 111, 64, 0.35)',
   },
   membershipBadgeText: {
     fontSize: 9,
     fontWeight: '800',
-    color: colors.primary,
+    color: colors.secondary,
     letterSpacing: 1,
   },
   planName: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     letterSpacing: -0.3,
   },
   stadiumName: {
     fontSize: 14,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: '600',
     marginTop: 2,
   },
   constraintsBox: {
     marginTop: spacing.md,
     padding: spacing.md,
-    backgroundColor: 'rgba(34, 197, 94, 0.05)',
+    backgroundColor: colors.successBg,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.15)',
+    borderColor: colors.success,
     gap: spacing.xs,
   },
   constraintText: {
     fontSize: 12,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     fontWeight: '600',
   },
   instructionBox: {
@@ -997,40 +997,40 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: spacing.sm,
     padding: spacing.md,
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
+    backgroundColor: colors.successBg,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.2)',
+    borderColor: 'rgba(46, 111, 64, 0.2)',
   },
   instructionText: {
     flex: 1,
     fontSize: 13,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     lineHeight: 18,
     fontWeight: '500',
   },
   selectedSummary: {
     padding: spacing.md,
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.md,
     borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderColor: colors.secondary,
   },
   selectedSummaryTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: colors.primary,
+    color: colors.secondary,
   },
   selectedSummarySubtext: {
     fontSize: 12,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     marginTop: 2,
   },
   selectedSlotsSection: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.lg,
     borderWidth: 2,
-    borderColor: colors.primary,
+    borderColor: colors.secondary,
     padding: spacing.lg,
     gap: spacing.md,
   },
@@ -1047,10 +1047,10 @@ const styles = StyleSheet.create({
   selectedSlotsTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.primary,
   },
   selectedSlotsBadge: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: radius.full,
@@ -1060,11 +1060,11 @@ const styles = StyleSheet.create({
   selectedSlotsBadgeText: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.inverse,
   },
   selectedSlotsSubtext: {
     fontSize: 13,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: '600',
     lineHeight: 18,
   },
@@ -1075,10 +1075,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
+    backgroundColor: colors.successBg,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.3)',
     padding: spacing.md,
   },
   selectedSlotItemLeft: {
@@ -1088,7 +1088,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   selectedSlotDateBadge: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: radius.sm,
@@ -1098,13 +1098,13 @@ const styles = StyleSheet.create({
   selectedSlotDateBadgeDay: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.text.inverse,
     textTransform: 'uppercase',
   },
   selectedSlotDateBadgeDate: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.inverse,
     marginTop: 2,
   },
   selectedSlotDetails: {
@@ -1114,12 +1114,12 @@ const styles = StyleSheet.create({
   selectedSlotTime: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.primary,
   },
   selectedSlotLocation: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#8B9A94',
+    color: colors.text.secondary,
   },
   removeSlotButton: {
     width: 32,
@@ -1137,28 +1137,28 @@ const styles = StyleSheet.create({
   dateGroupHeader: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     marginBottom: spacing.sm,
     paddingLeft: spacing.xs,
   },
   searchSection: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     padding: spacing.lg,
     gap: spacing.md,
   },
   searchTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     marginBottom: spacing.xs,
   },
   searchSubtitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8B9A94',
+    color: colors.text.secondary,
     marginBottom: spacing.md,
   },
   filterGroup: {
@@ -1167,7 +1167,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#8B9A94',
+    color: colors.text.secondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -1177,22 +1177,22 @@ const styles = StyleSheet.create({
   filterChip: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.full,
     borderWidth: 1.5,
-    borderColor: '#2A3530',
+    borderColor: colors.dark.border,
   },
   filterChipActive: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    borderColor: colors.primary,
+    backgroundColor: colors.successBg,
+    borderColor: colors.secondary,
   },
   filterChipText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#8B9A94',
+    color: colors.text.secondary,
   },
   filterChipTextActive: {
-    color: colors.primary,
+    color: colors.secondary,
   },
   resultsCount: {
     flexDirection: 'row',
@@ -1200,33 +1200,33 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingTop: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: '#1A2520',
+    borderTopColor: colors.dark.border,
   },
   resultsCountText: {
     flex: 1,
     fontSize: 13,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.secondary,
   },
   clearFilters: {
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
-    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    backgroundColor: colors.successBg,
     borderRadius: radius.sm,
   },
   clearFiltersText: {
     fontSize: 12,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.secondary,
   },
   resultsContainer: {
     gap: spacing.lg,
   },
   dateSection: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     overflow: 'hidden',
   },
   dateSectionHeader: {
@@ -1234,13 +1234,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: spacing.md,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.border,
     borderBottomWidth: 1,
-    borderBottomColor: '#2A3530',
+    borderBottomColor: colors.dark.border,
   },
   dateSectionHeaderSelected: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    borderBottomColor: 'rgba(34, 197, 94, 0.3)',
+    backgroundColor: colors.successBg,
+    borderBottomColor: 'rgba(46, 111, 64, 0.3)',
   },
   dateInfo: {
     flex: 1,
@@ -1248,25 +1248,25 @@ const styles = StyleSheet.create({
   dateDayOfWeek: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.primary,
   },
   dateDayOfWeekSelected: {
-    color: colors.primary,
+    color: colors.secondary,
   },
   dateFullDate: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#8B9A94',
+    color: colors.text.secondary,
     marginTop: 2,
   },
   dateFullDateSelected: {
-    color: 'rgba(34, 197, 94, 0.8)',
+    color: colors.secondary,
   },
   selectedIndicator: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+    backgroundColor: colors.successBg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1280,22 +1280,22 @@ const styles = StyleSheet.create({
   monthButton: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.full,
     borderWidth: 1.5,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
   },
   monthButtonSelected: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    borderColor: colors.primary,
+    backgroundColor: colors.successBg,
+    borderColor: colors.secondary,
   },
   monthButtonText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#8B9A94',
+    color: colors.text.secondary,
   },
   monthButtonTextSelected: {
-    color: colors.primary,
+    color: colors.secondary,
   },
   calendarGrid: {
     flexDirection: 'row',
@@ -1305,37 +1305,37 @@ const styles = StyleSheet.create({
   },
   dateCard: {
     width: '31%',
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.md,
     borderWidth: 1.5,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     overflow: 'hidden',
   },
   dateHeader: {
     padding: spacing.sm,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.border,
     alignItems: 'center',
   },
   dateHeaderSelected: {
-    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+    backgroundColor: colors.successBg,
   },
   dayOfWeek: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#8B9A94',
+    color: colors.text.secondary,
     textTransform: 'uppercase',
   },
   dayOfWeekSelected: {
-    color: colors.primary,
+    color: colors.secondary,
   },
   dayOfMonth: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     marginTop: 2,
   },
   dayOfMonthSelected: {
-    color: colors.primary,
+    color: colors.secondary,
   },
   slotsInDate: {
     padding: spacing.xs,
@@ -1346,27 +1346,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: spacing.xs,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#2A3530',
+    borderColor: colors.dark.border,
   },
   miniSlotCardSelected: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    borderColor: colors.primary,
+    backgroundColor: colors.successBg,
+    borderColor: colors.secondary,
   },
   miniSlotTime: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.text.primary,
   },
   miniSlotTimeSelected: {
-    color: colors.primary,
+    color: colors.secondary,
   },
   moreSlots: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#8B9A94',
+    color: colors.text.secondary,
     textAlign: 'center',
     paddingVertical: spacing.xs,
   },
@@ -1379,15 +1379,15 @@ const styles = StyleSheet.create({
   slotCard: {
     width: '48%',
     padding: spacing.md,
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.md,
     borderWidth: 1.5,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     position: 'relative',
   },
   slotCardSelected: {
-    borderColor: colors.primary,
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
+    borderColor: colors.secondary,
+    backgroundColor: colors.successBg,
   },
   slotTime: {
     flexDirection: 'row',
@@ -1398,22 +1398,22 @@ const styles = StyleSheet.create({
   slotTimeText: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.primary,
   },
   slotTimeTextSelected: {
-    color: colors.primary,
+    color: colors.secondary,
   },
   slotTimeSeparator: {
     fontSize: 12,
-    color: '#8B9A94',
+    color: colors.text.secondary,
   },
   slotLocation: {
     fontSize: 11,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: '600',
   },
   slotLocationSelected: {
-    color: colors.primary,
+    color: colors.secondary,
   },
   selectedBadge: {
     position: 'absolute',
@@ -1422,7 +1422,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1434,24 +1434,24 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     textAlign: 'center',
   },
   emptyStateSubtext: {
     fontSize: 13,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     textAlign: 'center',
     lineHeight: 18,
   },
   continueButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.lg,
     borderRadius: radius.lg,
-    shadowColor: colors.primary,
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -1459,13 +1459,13 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   continueButtonDisabled: {
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.surface,
     shadowOpacity: 0,
     elevation: 0,
     opacity: 0.5,
   },
   continueButtonText: {
-    color: '#FFFFFF',
+    color: colors.text.inverse,
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: -0.2,
@@ -1475,10 +1475,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: spacing.md,
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    backgroundColor: colors.successBg,
     borderRadius: radius.md,
     borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderColor: colors.secondary,
   },
   selectedCountLeft: {
     flexDirection: 'row',
@@ -1488,10 +1488,10 @@ const styles = StyleSheet.create({
   selectedCountText: {
     fontSize: 15,
     fontWeight: '800',
-    color: colors.primary,
+    color: colors.secondary,
   },
   backButton: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -1499,18 +1499,18 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.3)',
     marginTop: spacing.sm,
   },
   backButtonText: {
-    color: colors.primary,
+    color: colors.secondary,
     fontSize: 15,
     fontWeight: '700',
     letterSpacing: -0.2,
   },
   divider: {
     height: 1,
-    backgroundColor: '#1A2520',
+    backgroundColor: colors.dark.border,
     marginVertical: spacing.md,
   },
   priceRow: {
@@ -1520,19 +1520,19 @@ const styles = StyleSheet.create({
   },
   priceLabel: {
     fontSize: 14,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: '500',
   },
   priceValue: {
     fontSize: 20,
     fontWeight: '900',
-    color: colors.primary,
+    color: colors.secondary,
   },
   section: {
-    backgroundColor: '#0F1713',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
     padding: spacing.lg,
     gap: spacing.sm,
   },
@@ -1546,32 +1546,32 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   stepNumber: {
-    color: '#FFFFFF',
+    color: colors.text.inverse,
     fontSize: 12,
     fontWeight: '800',
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text.primary,
     letterSpacing: -0.2,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     lineHeight: 18,
     fontWeight: '500',
   },
   bankBox: {
-    backgroundColor: 'rgba(34, 197, 94, 0.04)',
+    backgroundColor: colors.successBg,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.12)',
+    borderColor: 'rgba(46, 111, 64, 0.12)',
     paddingVertical: spacing.xs,
     marginTop: spacing.xs,
   },
@@ -1582,7 +1582,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#1A2520',
+    borderBottomColor: colors.dark.border,
   },
   bankDetailLabelWrapper: {
     flexDirection: 'row',
@@ -1590,12 +1590,12 @@ const styles = StyleSheet.create({
   },
   bankDetailLabel: {
     fontSize: 13,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: '600',
   },
   bankDetailValue: {
     fontSize: 13,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     fontWeight: '700',
   },
   valueCopyWrapper: {
@@ -1605,27 +1605,27 @@ const styles = StyleSheet.create({
   },
   bankDetailValueHighlight: {
     fontSize: 14,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     fontWeight: '800',
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
   copyBtn: {
     padding: spacing.xs,
     borderRadius: radius.sm,
-    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    backgroundColor: colors.successBg,
   },
   amountValue: {
     fontSize: 16,
-    color: colors.primary,
+    color: colors.secondary,
     fontWeight: '900',
   },
   warningBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(234, 179, 8, 0.1)',
+    backgroundColor: colors.warningBg,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(234, 179, 8, 0.3)',
+    borderColor: colors.warning,
     padding: spacing.md,
     marginTop: spacing.xs,
   },
@@ -1643,7 +1643,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginTop: spacing.xs,
     borderWidth: 1,
-    borderColor: '#1A2520',
+    borderColor: colors.dark.border,
   },
   receiptPreview: {
     width: '100%',
@@ -1655,7 +1655,7 @@ const styles = StyleSheet.create({
     right: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(10, 14, 13, 0.85)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: radius.md,
@@ -1664,7 +1664,7 @@ const styles = StyleSheet.create({
   },
   replaceBtnText: {
     fontSize: 12,
-    color: '#FFFFFF',
+    color: colors.text.inverse,
     fontWeight: '700',
   },
   uploadPlaceholder: {
@@ -1672,8 +1672,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: 'rgba(34, 197, 94, 0.3)',
-    backgroundColor: '#0A0E0D',
+    borderColor: 'rgba(46, 111, 64, 0.3)',
+    backgroundColor: colors.dark.surface,
     justifyContent: 'center',
     alignItems: 'center',
     gap: spacing.xs,
@@ -1683,29 +1683,29 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    backgroundColor: colors.successBg,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing.xs,
   },
   uploadPlaceholderText: {
     fontSize: 14,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     fontWeight: '700',
   },
   uploadPlaceholderSubtext: {
     fontSize: 11,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     fontWeight: '500',
   },
   submitButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: spacing.lg,
     borderRadius: radius.lg,
-    shadowColor: colors.primary,
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -1713,23 +1713,24 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   submitButtonDisabled: {
-    backgroundColor: '#1A2520',
-    borderColor: '#2A3530',
+    backgroundColor: colors.dark.surface,
+    borderColor: colors.dark.border,
     shadowOpacity: 0,
     elevation: 0,
     opacity: 0.5,
   },
   submitButtonText: {
-    color: '#FFFFFF',
+    color: colors.text.inverse,
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: -0.2,
   },
   disclaimer: {
     fontSize: 11,
-    color: '#6B7B75',
+    color: colors.text.secondary,
     textAlign: 'center',
     lineHeight: 16,
     paddingHorizontal: spacing.md,
   },
 });
+

@@ -11,7 +11,7 @@ export default function EmptyState({ searchQuery, selectedFilter }: Props) {
   return (
     <View style={styles.empty}>
       <View style={styles.emptyIconCircle}>
-        <Feather name="map" size={32} color={colors.primary} />
+        <Feather name="map" size={32} color={colors.secondary} />
       </View>
       <Text style={styles.emptyTitle}>No stadiums found</Text>
       <Text style={styles.emptyText}>
@@ -33,9 +33,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'rgba(22, 163, 74, 0.15)',
+    backgroundColor: colors.successBg,
     borderWidth: 1.5,
-    borderColor: 'rgba(22, 163, 74, 0.3)',
+    borderColor: 'rgba(46, 111, 64, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing.lg,
@@ -43,12 +43,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.extrabold,
-    color: '#FFFFFF',
+    color: colors.text.primary,
     marginBottom: spacing.xs,
   },
   emptyText: {
     fontSize: typography.sizes.base,
-    color: '#8B9A94',
+    color: colors.text.secondary,
     textAlign: 'center',
   },
 });
+
