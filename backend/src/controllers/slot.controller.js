@@ -277,6 +277,139 @@ export const generateSlotsFromPlan = async (req, res) => {
   }
 };
 
+// PUT /api/slots/:id — owner updates a slot (only if not booked)
+export const updateSlot = async (req, res) => {
+  try {
+    const slot = await prisma.slot.findUnique({ where: { id: req.params.id } });
+    if (!slot) return res.status(404).json({ message: 'Slot not found' });
+
+    const stadium = await prisma.stadium.findUnique({ where: { id: slot.stadiumId } });
+    if (stadium?.ownerId !== req.user.id) {
+      return res.status(403).json({ message: 'Not your stadium' });
+    }
+
+    if (slot.isBooked) {
+      return res.status(400).json({ message: 'Cannot edit a booked slot' });
+    }
+
+    const { location, startTime, endTime, price } = req.body;
+
+    // If location is being updated, verify it exists in stadium locations
+    if (location && !stadium.locations.includes(location)) {
+      return res.status(400).json({ message: 'Invalid location for this stadium' });
+    }
+
+    const updates = {};
+    if (location !== undefined) updates.location = location;
+    if (startTime !== undefined) updates.startTime = new Date(startTime);
+    if (endTime !== undefined) updates.endTime = new Date(endTime);
+    if (price !== undefined) updates.price = parseFloat(price);
+
+    // Check for overlapping slots if times are changing
+    if (startTime || endTime) {
+      const overlap = await prisma.slot.findFirst({
+        where: {
+          stadiumId: slot.stadiumId,
+          location: location || slot.location,
+          id: { not: slot.id },
+          OR: [
+            {
+              startTime: { lt: endTime ? new Date(endTime) : slot.endTime },
+              endTime: { gt: startTime ? new Date(startTime) : slot.startTime },
+            },
+          ],
+        },
+      });
+      if (overlap) {
+        return res.status(400).json({ message: 'Slot overlaps with an existing slot at this location' });
+      }
+    }
+
+    const updated = await prisma.slot.update({
+      where: { id: req.params.id },
+      data: updates,
+    });
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// POST /api/slots/bulk-delete — owner deletes multiple slots at once
+export const bulkDeleteSlots = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    const slots = await prisma.slot.findMany({
+      where: { id: { in: ids } },
+      include: { booking: true },
+    });
+
+    if (slots.length !== ids.length) {
+      return res.status(404).json({ message: 'One or more slots not found' });
+    }
+
+    // Verify all slots belong to the owner
+    const stadiumIds = [...new Set(slots.map(s => s.stadiumId))];
+    const stadiums = await prisma.stadium.findMany({
+      where: { id: { in: stadiumIds } },
+    });
+
+    for (const stadium of stadiums) {
+      if (stadium.ownerId !== req.user.id) {
+        return res.status(403).json({ message: 'Not your stadium' });
+      }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      for (const slot of slots) {
+        if (slot.booking) {
+          await tx.payment.deleteMany({ where: { bookingId: slot.booking.id } });
+          await tx.booking.delete({ where: { id: slot.booking.id } });
+        }
+      }
+      await tx.slot.deleteMany({ where: { id: { in: ids } } });
+    });
+
+    res.json({ message: `${ids.length} slot(s) deleted` });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE /api/slots/all/:stadiumId — owner deletes ALL slots for their stadium
+export const deleteAllSlots = async (req, res) => {
+  try {
+    const stadium = await prisma.stadium.findUnique({ where: { id: req.params.stadiumId } });
+    if (!stadium) return res.status(404).json({ message: 'Stadium not found' });
+    if (stadium.ownerId !== req.user.id) {
+      return res.status(403).json({ message: 'Not your stadium' });
+    }
+
+    // Get all slot IDs with their bookings
+    const slots = await prisma.slot.findMany({
+      where: { stadiumId: req.params.stadiumId },
+      select: { id: true, booking: { select: { id: true } } },
+    });
+
+    const slotIds = slots.map(s => s.id);
+    const bookingIds = slots.filter(s => s.booking).map(s => s.booking.id);
+
+    await prisma.$transaction(async (tx) => {
+      if (bookingIds.length > 0) {
+        await tx.payment.deleteMany({ where: { bookingId: { in: bookingIds } } });
+        await tx.booking.deleteMany({ where: { id: { in: bookingIds } } });
+      }
+      await tx.slot.deleteMany({ where: { id: { in: slotIds } } });
+    });
+
+    res.json({ message: `${slotIds.length} slot(s) deleted.` });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // DELETE /api/slots/:id — owner deletes a slot (cascades to booking and payment)
 export const deleteSlot = async (req, res) => {
   try {

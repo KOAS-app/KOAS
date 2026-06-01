@@ -11,6 +11,25 @@ export const createSlotSchema = z.object({
   path: ['endTime'],
 });
 
+export const updateSlotSchema = z.object({
+  location:  z.string().min(1, 'Location is required').optional(),
+  startTime: z.coerce.date({ errorMap: () => ({ message: 'Invalid start time' }) }).optional(),
+  endTime:   z.coerce.date({ errorMap: () => ({ message: 'Invalid end time' }) }).optional(),
+  price:     z.coerce.number().positive('Price must be a positive number').optional(),
+}).refine((d) => d.location !== undefined || d.startTime !== undefined || d.endTime !== undefined || d.price !== undefined, {
+  message: 'At least one field must be provided for update',
+}).refine((d) => {
+  if (d.startTime && d.endTime) return d.endTime > d.startTime;
+  return true;
+}, {
+  message: 'End time must be after start time',
+  path: ['endTime'],
+});
+
+export const bulkDeleteSlotsSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1, 'At least one slot ID is required'),
+});
+
 export const bulkSlotSchema = z.object({
   stadiumId:  z.string().uuid('Invalid stadium ID'),
   location:   z.string().min(1, 'Location is required'),

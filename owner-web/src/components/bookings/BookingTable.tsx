@@ -17,7 +17,7 @@ interface Props {
 
 export default function BookingTable({ 
   bookings, loading, filter, setFilter, search, setSearch, 
-  fmtDate, fmtTime, doAction, actionLoading, setReceiptBooking 
+  fmtDate, fmtTime, doAction, actionLoading, setReceiptBooking
 }: Props) {
   return (
     <div className="bg-white border border-[var(--color-border)] rounded-[20px] shadow-sm overflow-hidden mb-8">

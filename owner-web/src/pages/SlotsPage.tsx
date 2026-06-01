@@ -6,13 +6,14 @@ import { getApiError } from '../utils/apiError';
 import { useAuth } from '../context/AuthContext';
 import { getActiveTier, TIER_LIMITS } from '../utils/tier';
 import GenerateFromPlanModal from '../components/GenerateFromPlanModal';
+import EditSlotModal from '../components/EditSlotModal';
 
 type Tab = 'bulk' | 'single';
 
 interface BulkForm  { location: string; date: string; openHour: string; closeHour: string; duration: string; price: string; }
 interface SingleForm { location: string; startTime: string; endTime: string; price: string; }
 
-const fmt     = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const fmt     = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
 
 
@@ -33,6 +34,12 @@ export default function SlotsPage() {
   const [tab, setTab]             = useState<Tab>('bulk');
   const [saving, setSaving]       = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
+
+  const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'booked'>('all');
+  const [dateFilter, setDateFilter] = useState<string>('');
+  const [editingSlot, setEditingSlot] = useState<Slot | null>(null);
+  const [selectedSlotIds, setSelectedSlotIds] = useState<Set<string>>(new Set());
 
   const [single, setSingle] = useState<SingleForm>({ location: '', startTime: '', endTime: '', price: '' });
   const [bulk, setBulk]     = useState<BulkForm>({
@@ -139,7 +146,16 @@ export default function SlotsPage() {
     } catch (err) { alert(getApiError(err, 'Failed to delete slot.')); }
   };
 
-  const grouped = slots.reduce<Record<string, Slot[]>>((acc, slot) => {
+  const filteredSlots = slots
+    .filter(s => locationFilter === 'all' || s.location === locationFilter)
+    .filter(s => statusFilter === 'all' || (statusFilter === 'available' && !s.isBooked) || (statusFilter === 'booked' && s.isBooked));
+
+  // Date filter: if dateFilter is set, only show slots for that date
+  const dateFilteredSlots = dateFilter
+    ? filteredSlots.filter(s => new Date(s.startTime).toDateString() === new Date(dateFilter).toDateString())
+    : filteredSlots;
+
+  const grouped = dateFilteredSlots.reduce<Record<string, Slot[]>>((acc, slot) => {
     const day = new Date(slot.startTime).toDateString();
     if (!acc[day]) acc[day] = [];
     acc[day].push(slot);
@@ -449,6 +465,137 @@ export default function SlotsPage() {
 
         {/* Right: Slot list */}
         <div className="flex flex-col gap-6">
+          {/* Stats summary */}
+          {!loading && slots.length > 0 && (
+            <div className="flex items-center gap-4 px-5 py-3 bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-[0.8125rem] font-semibold text-[var(--color-text-secondary)]">Total</span>
+                <span className="text-[1.0625rem] font-black text-[var(--color-text-base)]">{dateFilteredSlots.length}</span>
+              </div>
+              <div className="w-px h-6 bg-[var(--color-border)]" />
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[var(--color-success)] shadow-[0_0_6px_var(--color-success)]" />
+                <span className="text-[0.8125rem] font-semibold text-[var(--color-text-secondary)]">Available</span>
+                <span className="text-[1.0625rem] font-black text-[var(--color-success)]">{dateFilteredSlots.filter(s => !s.isBooked).length}</span>
+              </div>
+              <div className="w-px h-6 bg-[var(--color-border)]" />
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[var(--color-danger)]" />
+                <span className="text-[0.8125rem] font-semibold text-[var(--color-text-secondary)]">Booked</span>
+                <span className="text-[1.0625rem] font-black text-[var(--color-danger)]">{dateFilteredSlots.filter(s => s.isBooked).length}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Filter bar */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Location filter */}
+            {stadiumLocations.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-[0.75rem] font-semibold text-[var(--color-text-muted)] tracking-tight uppercase">Location:</span>
+                <select
+                  className="px-3 py-2 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.8125rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)]"
+                  value={locationFilter}
+                  onChange={e => setLocationFilter(e.target.value)}
+                >
+                  <option value="all">All Locations</option>
+                  {stadiumLocations.map(loc => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Status filter */}
+            <div className="flex items-center gap-2">
+              <span className="text-[0.75rem] font-semibold text-[var(--color-text-muted)] tracking-tight uppercase">Status:</span>
+              <div className="flex gap-1 p-1 bg-[var(--color-surface-muted)] rounded-[10px] border border-[var(--color-border)]">
+                {(['all', 'available', 'booked'] as const).map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setStatusFilter(s)}
+                    className={`px-3 py-1.5 rounded-lg text-[0.75rem] font-bold transition-all ${
+                      statusFilter === s
+                        ? 'bg-[var(--color-surface-card)] text-[var(--color-text-base)] shadow-sm'
+                        : 'bg-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
+                    }`}
+                  >
+                    {s === 'all' ? 'All' : s === 'available' ? 'Available' : 'Booked'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Date filter */}
+            <div className="flex items-center gap-2">
+              <span className="text-[0.75rem] font-semibold text-[var(--color-text-muted)] tracking-tight uppercase">Date:</span>
+              <input
+                type="date"
+                className="px-3 py-2 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.8125rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)]"
+                value={dateFilter}
+                onChange={e => setDateFilter(e.target.value)}
+              />
+              {dateFilter && (
+                <button
+                  onClick={() => setDateFilter('')}
+                  className="px-2 py-1.5 rounded-lg text-[0.75rem] font-semibold text-[var(--color-text-muted)] bg-transparent border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            {/* Bulk delete */}
+            {selectedSlotIds.size > 0 && (
+              <button
+                onClick={async () => {
+                  const count = selectedSlotIds.size;
+                  if (!confirm(`Delete ${count} selected slot(s)? This will also cancel any associated bookings.`)) return;
+                  try {
+                    await api.post('/slots/bulk-delete', { ids: Array.from(selectedSlotIds) });
+                    setSelectedSlotIds(new Set());
+                    flash(`${count} slot(s) deleted.`);
+                    fetchStadiumAndSlots();
+                  } catch (err) {
+                    alert(getApiError(err, 'Failed to delete slots.'));
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-danger)] border border-[var(--color-danger)] transition-all hover:bg-[#dc2626] hover:shadow-[0_3px_8px_rgba(220,38,38,0.25)]"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                Delete ({selectedSlotIds.size})
+              </button>
+            )}
+
+            {/* Delete All */}
+            {!loading && slots.length > 0 && (
+              <button
+                onClick={async () => {
+                  if (!confirm('Delete ALL slots for this stadium? This will also cancel any associated bookings and payments. This action cannot be undone.')) return;
+                  if (!confirm('Are you absolutely sure? This will permanently remove all time slots.')) return;
+                  try {
+                    await api.delete(`/slots/all/${stadiumId}`);
+                    setSelectedSlotIds(new Set());
+                    flash('All slots deleted.');
+                    fetchStadiumAndSlots();
+                  } catch (err) {
+                    alert(getApiError(err, 'Failed to delete all slots.'));
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-danger)] bg-transparent border border-[var(--color-danger)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                Delete All
+              </button>
+            )}
+          </div>
+
           {loading && (
             <div className="flex items-center justify-center gap-3 py-16">
               <div className="inline-block w-6 h-6 border-2 border-[var(--color-border)] border-t-[var(--color-primary)] rounded-full animate-spin" />
@@ -456,11 +603,20 @@ export default function SlotsPage() {
             </div>
           )}
 
-          {!loading && slots.length === 0 && (
+          {!loading && filteredSlots.length === 0 && (
             <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] p-14 shadow-sm text-center">
               <div className="text-5xl opacity-50 mb-4">🕐</div>
-              <p className="text-base font-bold text-[var(--color-text-base)] mb-2">No slots yet</p>
-              <p className="text-sm text-[var(--color-text-muted)] max-w-md mx-auto">Use the form on the left to generate your first time slots.</p>
+              {slots.length === 0 ? (
+                <>
+                  <p className="text-base font-bold text-[var(--color-text-base)] mb-2">No slots yet</p>
+                  <p className="text-sm text-[var(--color-text-muted)] max-w-md mx-auto">Use the form on the left to generate your first time slots.</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-base font-bold text-[var(--color-text-base)] mb-2">No slots for this location</p>
+                  <p className="text-sm text-[var(--color-text-muted)] max-w-md mx-auto">Try selecting a different location.</p>
+                </>
+              )}
             </div>
           )}
 
@@ -484,10 +640,22 @@ export default function SlotsPage() {
                     key={slot.id}
                     className={`flex flex-col sm:flex-row sm:items-center justify-between px-5 py-3.5 transition-all hover:bg-[var(--color-surface-muted)] ${
                       i < daySlots.length - 1 ? 'border-b border-[var(--color-border)]' : ''
-                    } ${slot.isBooked ? 'bg-[var(--color-surface-muted)] opacity-75' : 'bg-transparent'}`}
+                    } ${slot.isBooked ? 'bg-[var(--color-surface-muted)] opacity-75' : 'bg-transparent'} ${
+                      selectedSlotIds.has(slot.id) ? 'ring-2 ring-inset ring-[var(--color-primary)] bg-[var(--color-primary-bg)]' : ''
+                    }`}
                   >
-                    {/* Status dot + time + location */}
-                    <div className="flex items-start sm:items-center gap-3.5">
+                    {/* Checkbox + Status dot + time + location */}
+                    <div className="flex items-start sm:items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedSlotIds.has(slot.id)}
+                        onChange={() => {
+                          const next = new Set(selectedSlotIds);
+                          if (next.has(slot.id)) next.delete(slot.id); else next.add(slot.id);
+                          setSelectedSlotIds(next);
+                        }}
+                        className="mt-1 sm:mt-0 w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] cursor-pointer"
+                      />
                       <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 sm:mt-0 ${
                         slot.isBooked 
                           ? 'bg-[var(--color-danger)]' 
@@ -518,7 +686,7 @@ export default function SlotsPage() {
                       </div>
                     </div>
 
-                    {/* Price + delete */}
+                    {/* Price + actions */}
                     <div className="flex items-center gap-3 sm:gap-4 mt-3 sm:mt-0">
                       <div className="text-right">
                         <span className="text-[1rem] font-black text-[var(--color-primary)] tracking-tight">
@@ -528,16 +696,30 @@ export default function SlotsPage() {
                           ETB
                         </span>
                       </div>
-                      <button
-                        onClick={() => handleDelete(slot.id, slot.isBooked)}
-                        title="Delete slot"
-                        className="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-transparent flex items-center justify-center text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6" />
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        {!slot.isBooked && (
+                          <button
+                            onClick={() => setEditingSlot(slot)}
+                            title="Edit slot"
+                            className="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-transparent flex items-center justify-center text-[var(--color-text-muted)] transition-all hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-bg)] hover:border-[#bbf7d0]"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(slot.id, slot.isBooked)}
+                          title="Delete slot"
+                          className="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-transparent flex items-center justify-center text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -546,6 +728,19 @@ export default function SlotsPage() {
           ))}
         </div>
       </div>
+
+      {editingSlot && (
+        <EditSlotModal
+          slot={editingSlot}
+          stadiumLocations={stadiumLocations}
+          onClose={() => setEditingSlot(null)}
+          onSuccess={() => {
+            setEditingSlot(null);
+            flash('Slot updated.');
+            fetchStadiumAndSlots();
+          }}
+        />
+      )}
     </div>
   );
 }

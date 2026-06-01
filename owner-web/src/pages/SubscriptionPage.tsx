@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getActiveTier, getTrialDaysRemaining, isTrialActive, TIER_LIMITS, SubscriptionTier } from '../utils/tier';
 import api from '../api/axios';
@@ -24,6 +24,18 @@ export default function SubscriptionPage() {
   const [banksCount, setBanksCount] = useState(0);
   const [plansCount, setPlansCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [contactOpen, setContactOpen] = useState(false);
+  const contactRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (contactRef.current && !contactRef.current.contains(e.target as Node)) {
+        setContactOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetchUsageMetrics = async () => {
@@ -418,16 +430,46 @@ export default function SubscriptionPage() {
               We process subscription activations manually via secure local transfers. To upgrade your plan, request custom features, or clear bank detail limits instantly, please contact our support team.
             </p>
           </div>
-          <a
-            href=""
-            onClick={(e) => {
-              e.preventDefault();
-              alert("Please reach out to KOAS support agents directly to manually renew or upgrade your stadium package.");
-            }}
-            className="w-full md:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-[#064e3b] bg-[#4ade80] hover:bg-[#6ee7b7] transition-all whitespace-nowrap shadow-md shadow-[#4ade80]/20"
-          >
-            Contact Support
-          </a>
+          <div className="relative" ref={contactRef}>
+            <button
+              onClick={() => setContactOpen(!contactOpen)}
+              className="w-full md:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-[#064e3b] bg-[#4ade80] hover:bg-[#6ee7b7] transition-all whitespace-nowrap shadow-md shadow-[#4ade80]/20 cursor-pointer border-none gap-2"
+            >
+              Contact Support
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${contactOpen ? 'rotate-180' : ''}`}>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            {contactOpen && (
+              <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 w-64 bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-xl shadow-2xl overflow-hidden z-50">
+                <a
+                  href="mailto:koasmeda21@gmail.com"
+                  className="flex items-center gap-3 px-4 py-3.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover)] transition-colors no-underline border-b border-[var(--color-border)]"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-primary)] flex-shrink-0">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                  <div className="text-left">
+                    <div className="font-semibold text-[var(--color-text-base)]">By Email</div>
+                    <div className="text-[11px] text-[var(--color-text-muted)] mt-0.5">koasmeda21@gmail.com</div>
+                  </div>
+                </a>
+                <a
+                  href="tel:0981559200"
+                  className="flex items-center gap-3 px-4 py-3.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover)] transition-colors no-underline"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-primary)] flex-shrink-0">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                  <div className="text-left">
+                    <div className="font-semibold text-[var(--color-text-base)]">By Phone</div>
+                    <div className="text-[11px] text-[var(--color-text-muted)] mt-0.5">0981559200</div>
+                  </div>
+                </a>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -23,11 +23,12 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [stats, setStats] = useState<OwnerStats | null>(null);
   const [insights, setInsights] = useState<BookingInsight[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all');
   const [search, setSearch] = useState('');
+  const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [stadiumLocations, setStadiumLocations] = useState<string[]>([]);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [receiptBooking, setReceiptBooking] = useState<Booking | null>(null);
   const [insightsDate, setInsightsDate] = useState<Date>(new Date());
@@ -35,14 +36,12 @@ export default function BookingsPage() {
   const fetchData = async () => {
     try {
       const dateParam = insightsDate.toLocaleDateString('en-CA');
-      const [bookingsRes, statsRes, insightsRes, activityRes] = await Promise.all([
+      const [bookingsRes, insightsRes, activityRes] = await Promise.all([
         api.get(`/bookings/owner/all?status=${filter}&search=${search}&date=${dateParam}`),
-        api.get(`/bookings/owner/stats?date=${dateParam}`),
         api.get(`/bookings/owner/insights?date=${dateParam}`),
         api.get('/bookings/owner/recent')
       ]);
       setBookings(bookingsRes.data);
-      setStats(statsRes.data);
       setInsights(insightsRes.data);
       setActivities(activityRes.data);
     } catch (err) {
@@ -55,6 +54,14 @@ export default function BookingsPage() {
   useEffect(() => {
     fetchData();
   }, [filter, search, insightsDate]);
+
+  // Fetch stadium locations once
+  useEffect(() => {
+    api.get('/stadiums/my').then(res => {
+      const stadium = res.data[0];
+      if (stadium?.locations) setStadiumLocations(stadium.locations);
+    }).catch(() => {});
+  }, []);
 
   const doAction = async (bookingId: string, action: 'confirm' | 'owner-cancel') => {
     setActionLoading(bookingId);
@@ -110,6 +117,34 @@ export default function BookingsPage() {
   endDate.setDate(startDate.getDate() + 6);
   const dateRangeLabel = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
+  // Location-filtered data
+  const locationBookings = locationFilter === 'all'
+    ? bookings
+    : bookings.filter(b => b.slot.location === locationFilter);
+
+  const locationStats: OwnerStats = {
+    pending: locationBookings.filter(b => b.status === 'PENDING').length,
+    confirmed: locationBookings.filter(b => b.status === 'CONFIRMED').length,
+    cancelled: locationBookings.filter(b => b.status === 'CANCELLED').length,
+    paid: locationBookings.filter(b => b.payment?.status === 'PAID').length,
+    revenue: locationBookings
+      .filter(b => b.payment?.status === 'PAID')
+      .reduce((sum, b) => sum + (b.payment?.amount || b.slot.price || 0), 0),
+  };
+
+  const locationActivities = locationFilter === 'all'
+    ? activities
+    : activities.filter(a => a.location === locationFilter);
+
+  // Build location-filtered insight counts for the chart
+  const locationInsights: BookingInsight[] = insights.map(ins => ({
+    ...ins,
+    count: locationBookings.filter(b => {
+      const bDate = new Date(b.slot.startTime).toISOString().split('T')[0];
+      return bDate === ins.date;
+    }).length,
+  }));
+
   return (
     <div className="max-w-[1400px] mx-auto pb-12">
       {/* ─── Top Bar ───────────────────────────────────────────── */}
@@ -134,6 +169,24 @@ export default function BookingsPage() {
               onChange={(e) => e.target.value && setInsightsDate(new Date(e.target.value))}
             />
           </div>
+          {stadiumLocations.length > 0 && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-white border border-[var(--color-border)] rounded-xl shadow-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-text-muted)] flex-shrink-0">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <select
+                className="text-sm font-bold text-[var(--color-text-secondary)] bg-transparent border-none outline-none cursor-pointer"
+                value={locationFilter}
+                onChange={e => setLocationFilter(e.target.value)}
+              >
+                <option value="all">All Locations</option>
+                {stadiumLocations.map(loc => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -146,21 +199,21 @@ export default function BookingsPage() {
 
       {/* ─── Stats Grid ────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-10">
-        <StatCard label="Pending Approval" value={stats?.pending || 0} sub="Requires action" color="warning" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>} />
-        <StatCard label="Confirmed" value={stats?.confirmed || 0} sub="Scheduled slots" color="success" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>} />
-        <StatCard label="Paid" value={stats?.paid || 0} sub="Completed payments" color="info" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>} />
-        <StatCard label="Total Revenue" value={`${stats?.revenue.toLocaleString() || 0} ETB`} sub="All time earnings" color="success" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>} />
+        <StatCard label="Pending Approval" value={locationStats.pending} sub="Requires action" color="warning" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>} />
+        <StatCard label="Confirmed" value={locationStats.confirmed} sub="Scheduled slots" color="success" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>} />
+        <StatCard label="Paid" value={locationStats.paid} sub="Completed payments" color="info" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>} />
+        <StatCard label="Total Revenue" value={`${locationStats.revenue.toLocaleString() || 0} ETB`} sub="All time earnings" color="success" icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>} />
       </div>
 
       <BookingTable
-        bookings={bookings} loading={loading} filter={filter} setFilter={setFilter}
+        bookings={locationBookings} loading={loading} filter={filter} setFilter={setFilter}
         search={search} setSearch={setSearch} fmtDate={fmtDate} fmtTime={fmtTime}
         doAction={doAction} actionLoading={actionLoading} setReceiptBooking={setReceiptBooking}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
-        <BookingInsights insights={insights} stats={stats} bookings={bookings} />
-        <RecentActivity activities={activities} fmtDate={fmtDate} timeAgo={timeAgo} />
+        <BookingInsights insights={locationInsights} stats={locationStats} bookings={locationBookings} />
+        <RecentActivity activities={locationActivities} fmtDate={fmtDate} timeAgo={timeAgo} />
       </div>
 
       {receiptBooking && (

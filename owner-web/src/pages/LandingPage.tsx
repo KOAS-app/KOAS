@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import HeroSection from '../components/HeroSection';
@@ -14,6 +14,18 @@ export default function LandingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [contactOpen, setContactOpen] = useState(false);
+  const contactRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (contactRef.current && !contactRef.current.contains(e.target as Node)) {
+        setContactOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   
   const activeTier = getActiveTier(user);
 
@@ -432,9 +444,46 @@ export default function LandingPage() {
                 Claim 14-Day Free Trial
               </Link>
             )}
-            <a href="#" className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-[#1f2d2a] hover:bg-[#2d3d37] text-white text-sm sm:text-base font-bold rounded-lg transition-all border border-[#2d3d37] no-underline text-center">
-              Contact Sales Support
-            </a>
+            <div className="relative" ref={contactRef}>
+              <button
+                onClick={(e) => { e.preventDefault(); setContactOpen(!contactOpen); }}
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-[#1f2d2a] hover:bg-[#2d3d37] text-white text-sm sm:text-base font-bold rounded-lg transition-all border border-[#2d3d37] no-underline text-center cursor-pointer flex items-center justify-center gap-2"
+              >
+                Contact Sales Support
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${contactOpen ? 'rotate-180' : ''}`}>
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {contactOpen && (
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 bg-[#111819] border border-[#1f2d2a] rounded-xl shadow-2xl overflow-hidden z-50">
+                  <a
+                    href="mailto:koasmeda21@gmail.com"
+                    className="flex items-center gap-3 px-4 py-3.5 text-sm font-medium text-[#d1d5db] hover:text-[#4ade80] hover:bg-[#1f2d2a]/50 transition-colors no-underline border-b border-[#1f2d2a]/60"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4ade80] flex-shrink-0">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                      <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                    <div className="text-left">
+                      <div className="font-semibold text-white">By Email</div>
+                      <div className="text-[11px] text-[#9ca3af] mt-0.5">koasmeda21@gmail.com</div>
+                    </div>
+                  </a>
+                  <a
+                    href="tel:0981559200"
+                    className="flex items-center gap-3 px-4 py-3.5 text-sm font-medium text-[#d1d5db] hover:text-[#4ade80] hover:bg-[#1f2d2a]/50 transition-colors no-underline"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#4ade80] flex-shrink-0">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                    <div className="text-left">
+                      <div className="font-semibold text-white">By Phone</div>
+                      <div className="text-[11px] text-[#9ca3af] mt-0.5">0981559200</div>
+                    </div>
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="mt-6 sm:mt-8 flex items-center justify-center gap-1.5 text-xs text-[#4ade80] font-semibold">
