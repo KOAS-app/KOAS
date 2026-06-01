@@ -1,4 +1,4 @@
-﻿-- Add missing SubscriptionPlan schedule and usage columns
+-- Add missing SubscriptionPlan schedule and usage columns
 ALTER TABLE "SubscriptionPlan"
 ADD COLUMN "openingTime" TEXT NOT NULL DEFAULT '08:00 AM';
 
