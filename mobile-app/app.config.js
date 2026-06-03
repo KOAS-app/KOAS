@@ -21,7 +21,10 @@ export default {
         foregroundImage: "./assets/logo/koas_official_icon.png",
         backgroundColor: "#0a0f0d"  
       },
-      package: "com.koas.app"
+      package: "com.koas.app",
+      navigationBar: {
+        backgroundColor: "#f9fafb"
+      }
     },
     web: {
       favicon: "./assets/favicon.png"
@@ -29,8 +32,7 @@ export default {
     extra: {
       // Set this to your deployed backend URL for production/EAS builds
       // Leave undefined for local Expo Go development (auto-detects LAN IP)
-      // Example: apiUrl: "https://your-backend.up.railway.app"
-      apiUrl: "https://koas-production.up.railway.app" || undefined,
+      // apiUrl: "https://your-backend.up.railway.app",
       eas: {
         projectId: "33957a49-59c5-49ae-a629-342fb905dad1"
       }

@@ -10,6 +10,7 @@ export default function MembersPage() {
   const [filter, setFilter] = useState<'all' | 'active' | 'expired'>('all');
   const [search, setSearch] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<string>('all');
+  const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
 
   const fetchData = async () => {
@@ -51,14 +52,16 @@ export default function MembersPage() {
     return `${days} days left`;
   };
 
+  const locations = [...new Set(members.map(m => m.subscriptionPlan.location).filter(Boolean) as string[])];
+
   const filteredMembers = members.filter(m => {
     if (filter === 'active') return m.status === 'ACTIVE' && new Date(m.endDate) >= new Date();
     if (filter === 'expired') return new Date(m.endDate) < new Date();
     return true;
-  });
+  }).filter(m => selectedLocation === 'all' || m.subscriptionPlan.location === selectedLocation);
 
-  const activeCount = members.filter(m => m.status === 'ACTIVE' && new Date(m.endDate) >= new Date()).length;
-  const expiredCount = members.filter(m => new Date(m.endDate) < new Date()).length;
+  const activeCount = filteredMembers.filter(m => m.status === 'ACTIVE' && new Date(m.endDate) >= new Date()).length;
+  const expiredCount = filteredMembers.filter(m => new Date(m.endDate) < new Date()).length;
 
   if (loading && !members.length) {
     return (
@@ -85,6 +88,57 @@ export default function MembersPage() {
           {error}
         </div>
       )}
+
+      {/* ─── Filters ───────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
+        <div className="flex items-center gap-2">
+          {(['all', 'active', 'expired'] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${
+                filter === f
+                  ? 'bg-[var(--color-primary)] text-white shadow-md'
+                  : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] hover:bg-[var(--color-border)]'
+              }`}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <select
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            className="px-4 py-2 border border-[var(--color-border)] rounded-lg text-sm font-semibold text-[var(--color-text-secondary)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+          >
+            <option value="all">All Locations</option>
+            {locations.map(loc => (
+              <option key={loc} value={loc}>{loc}</option>
+            ))}
+          </select>
+
+          <select
+            value={selectedPlan}
+            onChange={(e) => setSelectedPlan(e.target.value)}
+            className="px-4 py-2 border border-[var(--color-border)] rounded-lg text-sm font-semibold text-[var(--color-text-secondary)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+          >
+            <option value="all">All Plans</option>
+            {plans.map(plan => (
+              <option key={plan.id} value={plan.id}>{plan.name}</option>
+            ))}
+          </select>
+
+          <input
+            type="text"
+            placeholder="Search members..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="px-4 py-2 border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-base)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] w-full sm:w-64"
+          />
+        </div>
+      </div>
 
       {/* ─── Stats Cards ───────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
@@ -127,46 +181,6 @@ export default function MembersPage() {
 
       {/* ─── Table Card ────────────────────────────────────────── */}
       <div className="bg-white border border-[var(--color-border)] rounded-xl shadow-sm overflow-hidden">
-        {/* Toolbar */}
-        <div className="p-6 border-b border-[var(--color-border)] flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex items-center gap-2">
-            {(['all', 'active', 'expired'] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${
-                  filter === f
-                    ? 'bg-[var(--color-primary)] text-white shadow-md'
-                    : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] hover:bg-[var(--color-border)]'
-                }`}
-              >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <select
-              value={selectedPlan}
-              onChange={(e) => setSelectedPlan(e.target.value)}
-              className="px-4 py-2 border border-[var(--color-border)] rounded-lg text-sm font-semibold text-[var(--color-text-secondary)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-            >
-              <option value="all">All Plans</option>
-              {plans.map(plan => (
-                <option key={plan.id} value={plan.id}>{plan.name}</option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              placeholder="Search members..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="px-4 py-2 border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-base)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] w-full sm:w-64"
-            />
-          </div>
-        </div>
-
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full">

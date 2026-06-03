@@ -481,6 +481,22 @@ export default function SubscriptionPlanModal({ plan, onClose, onSuccess }: Prop
               </div>
             )}
 
+            {/* Info Banner */}
+            <div className="flex items-start gap-2.5 px-3.5 py-3 mb-5 rounded-[10px] bg-[#f0fdf4] border border-[#bbf7d0]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              <div className="text-[0.75rem] leading-relaxed text-[#166534]">
+                <p className="font-bold mb-0.5">Generate slots to enable bookings</p>
+                <p>
+                  Players who want to book manually need available time slots. 
+                  Subscription members also need slots to reserve their play time.
+                </p>
+              </div>
+            </div>
+
             <div className="flex flex-col gap-4">
               {/* Plan constraints preview */}
               <div className="p-3 rounded-lg bg-[rgba(34,197,94,0.05)] border border-[rgba(34,197,94,0.15)]">

@@ -2,6 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Platform, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, Circle, Rect, Line, Polyline } from 'react-native-svg';
 import { useAuth } from '../context/AuthContext';
 import { colors, spacing } from '../theme';
@@ -163,6 +164,8 @@ function AuthNavigator() {
 }
 
 function TabNavigator() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -173,23 +176,23 @@ function TabNavigator() {
           backgroundColor: colors.dark.bg,
           borderTopWidth: 1,
           borderTopColor: colors.dark.border,
-          height: Platform.OS === 'ios' ? 95 : 75,
+          height: 56 + insets.bottom + spacing.md,
           paddingTop: spacing.md,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 12,
+          paddingBottom: insets.bottom + 8,
           paddingHorizontal: spacing.md,
           elevation: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
-          marginTop: 4,
-          marginBottom: 6,
+          marginTop: 2,
+          marginBottom: 4,
           letterSpacing: 0.2,
           fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
         },
         tabBarItemStyle: {
-          paddingVertical: spacing.xs,
-          gap: 2,
+          paddingVertical: 0,
+          gap: 1,
           position: 'relative',
         },
         tabBarHideOnKeyboard: true,
@@ -211,7 +214,7 @@ function TabNavigator() {
               {props.accessibilityState?.selected && (
                 <View style={{
                   position: 'absolute',
-                  bottom: Platform.OS === 'ios' ? 24 : 8,
+                  bottom: insets.bottom + 8,
                   left: '50%',
                   marginLeft: -20,
                   width: 40,
@@ -240,7 +243,7 @@ function TabNavigator() {
               {props.accessibilityState?.selected && (
                 <View style={{
                   position: 'absolute',
-                  bottom: Platform.OS === 'ios' ? 24 : 8,
+                  bottom: insets.bottom + 8,
                   left: '50%',
                   marginLeft: -20,
                   width: 40,
@@ -269,7 +272,7 @@ function TabNavigator() {
               {props.accessibilityState?.selected && (
                 <View style={{
                   position: 'absolute',
-                  bottom: Platform.OS === 'ios' ? 24 : 8,
+                  bottom: insets.bottom + 8,
                   left: '50%',
                   marginLeft: -20,
                   width: 40,
@@ -298,7 +301,7 @@ function TabNavigator() {
               {props.accessibilityState?.selected && (
                 <View style={{
                   position: 'absolute',
-                  bottom: Platform.OS === 'ios' ? 24 : 8,
+                  bottom: insets.bottom + 8,
                   left: '50%',
                   marginLeft: -20,
                   width: 40,

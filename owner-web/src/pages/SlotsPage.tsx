@@ -94,11 +94,18 @@ export default function SlotsPage() {
 
     const selectedDate = new Date(bulk.date);
     const today = new Date();
+    const openFloat = timeToFloat(bulk.openHour);
     const closeFloat = timeToFloat(bulk.closeHour);
+    const nowFloat = today.getHours() + today.getMinutes() / 60;
     
     if (selectedDate.toDateString() === today.toDateString()) {
-      if (closeFloat <= today.getHours() + today.getMinutes() / 60) {
+      if (closeFloat <= nowFloat) {
         setError('The selected time range is already in the past.');
+        setSaving(false);
+        return;
+      }
+      if (openFloat < nowFloat) {
+        setError('Open time is in the past. Slots cannot be created for past times.');
         setSaving(false);
         return;
       }

@@ -98,12 +98,6 @@ export const bulkCreateSlots = async (req, res) => {
       const start = new Date(`${date}T${String(startHourInt).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00`);
       const end = new Date(`${date}T${String(endHourInt).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00`);
 
-      // Skip if the slot is in the past
-      if (start < new Date()) {
-        currentHour = endHour;
-        continue;
-      }
-
       // Skip if overlapping slot already exists at this location
       const overlap = await prisma.slot.findFirst({
         where: {

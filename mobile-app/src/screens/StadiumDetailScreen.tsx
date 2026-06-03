@@ -1,5 +1,6 @@
 import { useEffect, useState, useLayoutEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Image, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import Svg, { Path, Circle, Rect, Line } from 'react-native-svg';
 import api from '../api/axios';
@@ -122,6 +123,7 @@ const amenityIconComponents: Record<string, React.ComponentType> = {
 };
 
 export default function StadiumDetailScreen({ route, navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const { stadiumId, stadiumName } = route.params;
   const [stadium, setStadium] = useState<Stadium & { slots?: Slot[] } | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -430,12 +432,12 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
           </View>
 
           {/* Bottom Spacing */}
-          <View style={{ height: 100 }} />
+          <View style={{ height: 100 + insets.bottom }} />
         </View>
       </ScrollView>
 
       {/* Bottom Bar with Pricing and Book Button */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: spacing.lg + insets.bottom }]}>
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>From</Text>
           <Text style={styles.priceAmount}>

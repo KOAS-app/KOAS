@@ -197,6 +197,7 @@ export const getMyStadiums = async (req, res) => {
   try {
     const stadiums = await prisma.stadium.findMany({
       where: { ownerId: req.user.id },
+      include: { bankAccounts: true },
     });
 
     res.json(stadiums);
