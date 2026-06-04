@@ -897,10 +897,10 @@ const styles = StyleSheet.create({
     letterSpacing: -0.1,
   },
   planScheduleContainer: {
-    backgroundColor: '#111814',
+    backgroundColor: colors.dark.surface,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#1D2A20',
+    borderColor: colors.dark.border,
     padding: spacing.md,
     marginBottom: spacing.md,
     gap: 4,

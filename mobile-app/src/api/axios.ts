@@ -28,7 +28,8 @@ const getBaseUrl = (): string => {
 
 const api = axios.create({
   baseURL: getBaseUrl(),
-  timeout: 10000,
+  timeout: 30000, // Increased timeout for file uploads
+  // Do NOT set headers globally - let each request handle its own
 });
 
 let logoutCallback: (() => Promise<void>) | null = null;
@@ -40,6 +41,14 @@ export const setLogoutCallback = (cb: () => Promise<void>) => {
 api.interceptors.request.use(async (config) => {
   const token = await AsyncStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  
+  // For FormData uploads, ensure proper Content-Type handling
+  // Don't manually set Content-Type for multipart/form-data - axios will add boundary
+  if (config.data instanceof FormData) {
+    // Delete any manually set Content-Type to let axios handle it
+    delete config.headers['Content-Type'];
+  }
+  
   return config;
 });
 

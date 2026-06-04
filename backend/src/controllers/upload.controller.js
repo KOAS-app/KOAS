@@ -59,10 +59,14 @@ export const uploadReceipt = multer({
 // POST /api/upload/stadium-image
 export const uploadStadiumImage = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+    if (!req.file) {
+      console.error('No file in request. Body:', req.body);
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
     const imageUrl = `/uploads/stadiums/${req.file.filename}`;
     res.json({ message: 'Image uploaded successfully', imageUrl, filename: req.file.filename });
   } catch (err) {
+    console.error('Stadium image upload error:', err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -86,10 +90,15 @@ export const deleteStadiumImage = async (req, res) => {
 // POST /api/upload/receipt
 export const uploadReceiptImage = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+    if (!req.file) {
+      console.error('No file in receipt upload. Body:', req.body, 'Headers:', req.headers['content-type']);
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
     const imageUrl = `/uploads/receipts/${req.file.filename}`;
+    console.log('Receipt uploaded successfully:', imageUrl);
     res.json({ message: 'Receipt uploaded successfully', imageUrl, filename: req.file.filename });
   } catch (err) {
+    console.error('Receipt upload error:', err);
     res.status(500).json({ message: err.message });
   }
 };

@@ -98,7 +98,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
 
     return slots.filter(slot => {
       const slotDate = new Date(slot.startTime);
-      const slotDayIndex = slotDate.getDay();
+      const slotDayIndex = slotDate.getUTCDay();
       
       // Check if slot is in the future
       if (slotDate < new Date()) return false;
@@ -116,10 +116,10 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
       if (!isDayAllowed) return false;
 
       // Check time of day
-      const slotStartMinutes = slotDate.getHours() * 60 + slotDate.getMinutes();
+      const slotStartMinutes = slotDate.getUTCHours() * 60 + slotDate.getUTCMinutes();
       const slotEndDate = new Date(slot.endTime);
-      let slotEndMinutes = slotEndDate.getHours() * 60 + slotEndDate.getMinutes();
-      if (slotEndMinutes === 0 && slotEndDate.getDate() !== slotDate.getDate()) {
+      let slotEndMinutes = slotEndDate.getUTCHours() * 60 + slotEndDate.getUTCMinutes();
+      if (slotEndMinutes === 0 && slotEndDate.getUTCDate() !== slotDate.getUTCDate()) {
         slotEndMinutes = 1440;
       }
 
@@ -151,7 +151,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: false,
       quality: 0.8,
     });
@@ -269,15 +269,18 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
     try {
       // 1. Upload receipt to /api/upload/receipt
       const formData = new FormData();
+      const ext = receiptImage.mimeType?.split('/')[1] || 'jpg';
+      
+      // React Native FormData requires specific format
       formData.append('receipt', {
         uri: receiptImage.uri,
         type: receiptImage.mimeType || 'image/jpeg',
-        name: `subscription-receipt-${Date.now()}.jpg`,
+        name: `subscription-receipt-${Date.now()}.${ext}`,
       } as any);
 
-      const uploadRes = await api.post('/upload/receipt', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      // CRITICAL: Do NOT set Content-Type header manually
+      // Let axios set it automatically with the correct boundary
+      const uploadRes = await api.post('/upload/receipt', formData);
 
       const { imageUrl } = uploadRes.data;
 
@@ -302,6 +305,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         ]
       );
     } catch (err) {
+      console.error('Subscription upload error:', err.response?.data || err.message);
       Alert.alert('Submission Failed', getApiError(err, 'Failed to submit subscription request.'));
     } finally {
       setSubmitting(false);
@@ -323,7 +327,8 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
     return date.toLocaleDateString('en-US', {
       weekday: 'short',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'UTC'
     });
   };
 
@@ -337,6 +342,8 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
     return grouped;
   };
 
+  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
   const filterSlotsBySearch = (slots: Slot[]) => {
     let filtered = slots;
 
@@ -344,7 +351,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
     if (searchDay) {
       filtered = filtered.filter(slot => {
         const slotDate = new Date(slot.startTime);
-        const dayOfWeek = slotDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const dayOfWeek = DAY_NAMES[slotDate.getUTCDay()];
         return dayOfWeek === searchDay;
       });
     }
@@ -353,7 +360,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
     if (searchTimeRange) {
       filtered = filtered.filter(slot => {
         const slotDate = new Date(slot.startTime);
-        const slotHour = slotDate.getHours();
+        const slotHour = slotDate.getUTCHours();
         
         switch (searchTimeRange) {
           case 'morning': // 6 AM - 12 PM
@@ -662,8 +669,8 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
               if (!slot) return null;
 
               const slotDate = new Date(slot.startTime);
-              const dayOfWeek = slotDate.toLocaleDateString('en-US', { weekday: 'short' });
-              const fullDate = slotDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              const dayOfWeek = slotDate.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
+              const fullDate = slotDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 
               return (
                 <View key={slotId} style={styles.selectedSlotItem}>

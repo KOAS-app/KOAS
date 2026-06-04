@@ -92,7 +92,7 @@ export default function BookingsScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: false,
       quality: 0.8,
     });
@@ -113,15 +113,20 @@ export default function BookingsScreen() {
 
     try {
       const formData = new FormData();
+      
+      // Extract file extension from URI or MIME type
+      const ext = previewReceipt.mimeType?.split('/')[1] || 'jpg';
+      
+      // React Native FormData requires specific format
       formData.append('receipt', {
         uri: previewReceipt.uri,
         type: previewReceipt.mimeType || 'image/jpeg',
-        name: `receipt-${Date.now()}.jpg`,
+        name: `receipt-${Date.now()}.${ext}`,
       } as any);
 
-      const uploadRes = await api.post('/upload/receipt', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      // CRITICAL: Do NOT set Content-Type header manually
+      // Let axios set it automatically with the correct boundary
+      const uploadRes = await api.post('/upload/receipt', formData);
 
       const { imageUrl } = uploadRes.data;
 
@@ -131,6 +136,7 @@ export default function BookingsScreen() {
       setPreviewReceipt(null);
       fetchBookings();
     } catch (err) {
+      console.error('Receipt upload error:', err.response?.data || err.message);
       Alert.alert('Upload Failed', getApiError(err, 'Failed to upload receipt.'));
     } finally {
       setUploading(false);
