@@ -13,8 +13,8 @@ type Tab = 'bulk' | 'single';
 interface BulkForm  { location: string; date: string; openHour: string; closeHour: string; duration: string; price: string; }
 interface SingleForm { location: string; startTime: string; endTime: string; price: string; }
 
-const fmt     = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-const fmtDate = (iso: string) => new Date(iso).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+const fmt     = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' });
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' });
 
 
 export default function SlotsPage() {

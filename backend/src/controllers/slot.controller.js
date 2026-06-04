@@ -95,8 +95,8 @@ export const bulkCreateSlots = async (req, res) => {
       const endHourInt = Math.floor(endHour);
       const endMinutes = Math.round((endHour - endHourInt) * 60);
       
-      const start = new Date(`${date}T${String(startHourInt).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00`);
-      const end = new Date(`${date}T${String(endHourInt).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00`);
+      const start = new Date(`${date}T${String(startHourInt).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00Z`);
+      const end = new Date(`${date}T${String(endHourInt).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00Z`);
 
       // Skip if overlapping slot already exists at this location
       const overlap = await prisma.slot.findFirst({
@@ -224,8 +224,8 @@ export const generateSlotsFromPlan = async (req, res) => {
         const endHourInt = Math.floor(endHour);
         const endMinutes = Math.round((endHour - endHourInt) * 60);
         
-        const slotStart = new Date(`${dateStr}T${String(startHourInt).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00`);
-        const slotEnd = new Date(`${dateStr}T${String(endHourInt).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00`);
+        const slotStart = new Date(`${dateStr}T${String(startHourInt).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}:00Z`);
+        const slotEnd = new Date(`${dateStr}T${String(endHourInt).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}:00Z`);
 
         // Skip if in the past
         if (slotStart < new Date()) {

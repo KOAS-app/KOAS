@@ -1,10 +1,10 @@
 import type { Booking } from '../../types';
 
 const fmtTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
 
 const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+  new Date(iso).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
 
 export const STATUS_BADGE: Record<string, string> = {
   PENDING:   'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]',

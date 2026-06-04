@@ -10,7 +10,7 @@ import RecentActivity from '../components/bookings/RecentActivity';
 
 // Helpers
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-const fmtTime = (iso: string) => new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+const fmtTime = (iso: string) => new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
 const timeAgo = (iso: string) => {
   const seconds = Math.floor((new Date().getTime() - new Date(iso).getTime()) / 1000);
   if (seconds < 60) return 'Just now';

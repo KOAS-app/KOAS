@@ -345,10 +345,10 @@ export default function VerifyMembershipPage() {
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Booking Time</label>
                   <p className="text-xs font-semibold text-[var(--color-text-secondary)] mt-1.5">
-                    📅 {new Date(result.data.slot.startTime).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                    📅 {new Date(result.data.slot.startTime).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
                   </p>
                   <p className="text-xs font-semibold text-[var(--color-primary)] mt-1">
-                    🕒 {new Date(result.data.slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(result.data.slot.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    🕒 {new Date(result.data.slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} - {new Date(result.data.slot.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
                   </p>
                 </div>
               </div>

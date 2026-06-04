@@ -264,7 +264,7 @@ export default function BookingsScreen() {
                       <Feather name="calendar" size={14} color={colors.text.muted} />
                       <Text style={styles.infoText}>
                         {new Date(item.slot.startTime).toLocaleDateString('en-US', {
-                          weekday: 'short', month: 'short', day: 'numeric',
+                          weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC',
                         })}
                       </Text>
                     </View>
@@ -272,9 +272,9 @@ export default function BookingsScreen() {
                     <View style={styles.infoRow}>
                       <Feather name="clock" size={14} color={colors.text.muted} />
                       <Text style={styles.infoText}>
-                        {new Date(item.slot.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(item.slot.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
                         {' – '}
-                        {new Date(item.slot.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(item.slot.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
                       </Text>
                     </View>
 
@@ -562,7 +562,8 @@ export default function BookingsScreen() {
                         {new Date(selectedBooking.slot.startTime).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
-                          year: 'numeric'
+                          year: 'numeric',
+                          timeZone: 'UTC'
                         })}
                       </Text>
                     </View>
@@ -572,7 +573,8 @@ export default function BookingsScreen() {
                       <Text style={[styles.gridValue, { color: colors.secondary }]}>
                         {new Date(selectedBooking.slot.startTime).toLocaleTimeString('en-US', {
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
+                          timeZone: 'UTC'
                         })}
                       </Text>
                     </View>
