@@ -151,12 +151,23 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: false,
       quality: 0.8,
     });
 
-    if (result.canceled || !result.assets[0]) return;
+    console.log('ImagePicker result (subscription):', result);
+
+    if (result.canceled || !result.assets || !result.assets[0]) {
+      console.log('Image selection cancelled or no asset returned');
+      return;
+    }
+
+    console.log('Selected image:', {
+      uri: result.assets[0].uri,
+      mimeType: result.assets[0].mimeType,
+      fileName: result.assets[0].fileName,
+    });
 
     setReceiptImage({
       uri: result.assets[0].uri,
