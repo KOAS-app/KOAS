@@ -4,8 +4,12 @@ import { uploadToCloudinary, deleteFromCloudinary, extractPublicId } from '../co
 // ─── Shared file filter ────────────────────────────────────────────────────────
 const imageFileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  
+  // Extract extension from originalname
+  const fileExt = file.originalname.split('.').pop()?.toLowerCase() || '';
+  const extname = allowedTypes.test(fileExt);
   const mimetype = allowedTypes.test(file.mimetype);
+  
   if (mimetype && extname) return cb(null, true);
   cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp)'));
 };

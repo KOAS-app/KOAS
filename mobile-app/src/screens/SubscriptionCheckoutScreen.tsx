@@ -278,6 +278,10 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
     setSubmitting(true);
 
     try {
+      console.log('=== SUBSCRIPTION UPLOAD START ===');
+      console.log('Receipt image:', receiptImage);
+      console.log('API Base URL:', API_BASE_URL);
+      
       // 1. Upload receipt to /api/upload/receipt
       const formData = new FormData();
       const ext = receiptImage.mimeType?.split('/')[1] || 'jpg';
@@ -289,12 +293,19 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         name: `subscription-receipt-${Date.now()}.${ext}`,
       } as any);
 
+      console.log('Uploading receipt to Cloudinary...');
+      
       // CRITICAL: Do NOT set Content-Type header manually
       // Let axios set it automatically with the correct boundary
-      const uploadRes = await api.post('/upload/receipt', formData);
+      const uploadRes = await api.post('/upload/receipt', formData, {
+        timeout: 60000, // 60 seconds for image upload
+      });
 
+      console.log('Upload response:', uploadRes.data);
       const { imageUrl } = uploadRes.data;
 
+      console.log('Submitting subscription request...');
+      
       // 2. Submit subscription request with selected slots
       await api.post('/player-subscriptions/subscribe', {
         subscriptionPlanId: planId,
@@ -302,6 +313,8 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         receiptImageUrl: imageUrl,
         selectedSlotIds: selectedSlots, // Include selected slots
       });
+
+      console.log('Subscription submitted successfully!');
 
       Alert.alert(
         'Success',
@@ -316,8 +329,25 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
         ]
       );
     } catch (err) {
-      console.error('Subscription upload error:', err.response?.data || err.message);
-      Alert.alert('Submission Failed', getApiError(err, 'Failed to submit subscription request.'));
+      console.error('=== SUBSCRIPTION UPLOAD ERROR ===');
+      console.error('Error type:', err.code);
+      console.error('Error message:', err.message);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
+      
+      let errorMessage = 'Failed to submit subscription request.';
+      
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        errorMessage = 'Upload timeout. Please check your internet connection and try again.';
+      } else if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
+        errorMessage = 'Network error. Please check your internet connection and that the backend is running.';
+      } else if (err.response?.status === 413) {
+        errorMessage = 'Image file is too large. Please select a smaller image.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+      
+      Alert.alert('Submission Failed', errorMessage);
     } finally {
       setSubmitting(false);
     }
