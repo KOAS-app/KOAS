@@ -30,8 +30,8 @@ export default {
       favicon: "./assets/favicon.png"
     },
     extra: {
-      // Set to your Railway backend for production testing via Expo Go
-      // Comment out to auto-detect LAN IP for local backend
+      // Production API URL - used only in standalone builds (APK/IPA)
+      // In development (Expo Go), this will be ignored and local IP auto-detected
       apiUrl: "https://koas-production.up.railway.app",
       eas: {
         projectId: "33957a49-59c5-49ae-a629-342fb905dad1"
