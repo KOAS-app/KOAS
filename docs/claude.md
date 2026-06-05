@@ -325,10 +325,11 @@ src/
 ### Local Setup
 1. Install dependencies: `npm install` in each folder
 2. Configure `.env` files with database credentials
-3. Run Prisma migrations: `npx prisma migrate dev`
-4. Seed database: `node prisma/seed.js`
-5. Start backend: `npm run dev` (backend)
-6. Start frontend apps: `npm run dev` (admin-web, owner-web)
+3. For mobile local development, use `mobile-app/.env.example` or leave `API_URL` unset for Expo debugger host fallback.
+4. Run Prisma migrations: `npx prisma migrate dev`
+5. Seed database: `node prisma/seed.js`
+6. Start backend: `npm run dev` (backend)
+7. Start frontend apps: `npm run dev` (admin-web, owner-web)
 
 ### Build & Deploy
 1. Build backend: Production-ready Node.js app
