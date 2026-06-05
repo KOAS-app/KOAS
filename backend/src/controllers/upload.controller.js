@@ -28,6 +28,19 @@ const stadiumStorage = multer.diskStorage({
   }
 });
 
+// ─── Location image storage ────────────────────────────────────────────────────
+const locationStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../../public/uploads/stadiums');
+    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `location-${uniqueSuffix}${path.extname(file.originalname)}`);
+  }
+});
+
 // ─── Receipt image storage ─────────────────────────────────────────────────────
 const receiptStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -44,6 +57,12 @@ const receiptStorage = multer.diskStorage({
 // ─── Multer instances ──────────────────────────────────────────────────────────
 export const upload = multer({
   storage: stadiumStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: imageFileFilter,
+});
+
+export const uploadLocationImageMulter = multer({
+  storage: locationStorage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: imageFileFilter,
 });
@@ -73,6 +92,36 @@ export const uploadStadiumImage = async (req, res) => {
 
 // DELETE /api/upload/stadium-image/:filename
 export const deleteStadiumImage = async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const filePath = path.join(__dirname, '../../public/uploads/stadiums', filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      res.json({ message: 'Image deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'Image not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// POST /api/upload/location-image
+export const uploadLocationImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const imageUrl = `/uploads/stadiums/${req.file.filename}`;
+    res.json({ message: 'Image uploaded successfully', imageUrl, filename: req.file.filename });
+  } catch (err) {
+    console.error('Location image upload error:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE /api/upload/location-image/:filename
+export const deleteLocationImage = async (req, res) => {
   try {
     const { filename } = req.params;
     const filePath = path.join(__dirname, '../../public/uploads/stadiums', filename);

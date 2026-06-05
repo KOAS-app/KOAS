@@ -4,23 +4,9 @@ import { getActiveTier } from '../utils/tier.js';
 // POST /api/stadiums — owner creates a stadium
 export const createStadium = async (req, res) => {
   try {
-    const { name, locations, description, imageUrl, amenities } = req.body;
-    
-    if (locations && Array.isArray(locations)) {
-      const activeTier = await getActiveTier(req.user.id);
-      if (activeTier === 'STARTER' && locations.length > 1) {
-        return res.status(400).json({ 
-          message: 'Subscription limit reached: Starter tier is limited to 1 branch location. Upgrade your plan to manage more branches.' 
-        });
-      }
-      if (activeTier === 'PRO' && locations.length > 3) {
-        return res.status(400).json({ 
-          message: 'Subscription limit reached: Pro tier is limited to 3 branch locations. Upgrade your plan to manage more branches.' 
-        });
-      }
-    }
-    
-    console.log('Creating stadium with data:', { name, locations, description, imageUrl, amenities });
+    const { name, description, amenities } = req.body;
+
+    console.log('Creating stadium with data:', { name, description, amenities });
 
     // Check if owner already has a stadium
     const existingStadium = await prisma.stadium.findUnique({
@@ -34,12 +20,11 @@ export const createStadium = async (req, res) => {
     const stadium = await prisma.stadium.create({
       data: {
         name,
-        locations,
         description,
-        imageUrl,
         amenities: amenities || [],
         ownerId: req.user.id,
       },
+      include: { locations: true },
     });
 
     console.log('Stadium created:', stadium);
@@ -56,9 +41,10 @@ export const getStadiums = async (req, res) => {
   try {
     const stadiums = await prisma.stadium.findMany({
       where: { isApproved: true },
-      include: { 
+      include: {
         owner: { select: { id: true, name: true } },
         reviews: { select: { rating: true } },
+        locations: true,
       },
     });
 
@@ -67,7 +53,7 @@ export const getStadiums = async (req, res) => {
       const avgRating = stadium.reviews.length > 0
         ? stadium.reviews.reduce((sum, r) => sum + r.rating, 0) / stadium.reviews.length
         : 0;
-      
+
       const { reviews, ...stadiumData } = stadium;
       return {
         ...stadiumData,
@@ -92,6 +78,7 @@ export const getStadiumById = async (req, res) => {
         slots: true, // Include all slots (both booked and available)
         reviews: { select: { rating: true } },
         bankAccounts: true, // Include bank details so players can verify transfer info
+        locations: true,
       },
     });
 
@@ -120,7 +107,7 @@ export const updateStadium = async (req, res) => {
   try {
     console.log('=== UPDATE STADIUM REQUEST ===');
     console.log('Request body:', req.body);
-    
+
     const stadium = await prisma.stadium.findUnique({
       where: { id: req.params.id },
     });
@@ -130,37 +117,22 @@ export const updateStadium = async (req, res) => {
       return res.status(403).json({ message: 'Not your stadium' });
     }
 
-    const { name, locations, description, imageUrl, amenities } = req.body;
-    
-    if (locations && Array.isArray(locations)) {
-      const activeTier = await getActiveTier(req.user.id);
-      if (activeTier === 'STARTER' && locations.length > 1) {
-        return res.status(400).json({ 
-          message: 'Subscription limit reached: Starter tier is limited to 1 branch location. Upgrade your plan to manage more branches.' 
-        });
-      }
-      if (activeTier === 'PRO' && locations.length > 3) {
-        return res.status(400).json({ 
-          message: 'Subscription limit reached: Pro tier is limited to 3 branch locations. Upgrade your plan to manage more branches.' 
-        });
-      }
-    }
-    
-    console.log('Extracted values:', { name, locations, description, imageUrl, amenities });
-    
-    const updateData = { 
-      name, 
-      locations, 
-      description, 
-      imageUrl,
-      amenities: amenities || []
+    const { name, description, amenities } = req.body;
+
+    console.log('Extracted values:', { name, description, amenities });
+
+    const updateData = {
+      name,
+      description,
+      amenities: amenities || [],
     };
-    
+
     console.log('Update data object:', updateData);
-    
+
     const updated = await prisma.stadium.update({
       where: { id: req.params.id },
       data: updateData,
+      include: { locations: true },
     });
 
     console.log('Stadium updated successfully:', updated);
@@ -197,7 +169,7 @@ export const getMyStadiums = async (req, res) => {
   try {
     const stadiums = await prisma.stadium.findMany({
       where: { ownerId: req.user.id },
-      include: { bankAccounts: true },
+      include: { bankAccounts: true, locations: true },
     });
 
     res.json(stadiums);

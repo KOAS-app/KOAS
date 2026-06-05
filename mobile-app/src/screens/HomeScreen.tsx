@@ -61,11 +61,11 @@ export default function HomeScreen({ navigation }: Props) {
     .filter(stadium => {
       const matchesSearch = searchQuery.trim() === '' ||
         stadium.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        stadium.locations.some(loc => loc.toLowerCase().includes(searchQuery.toLowerCase()));
+        stadium.locations.some(loc => loc.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
       let matchesPill = true;
       if (selectedFilter !== 'All' && selectedFilter !== 'Top Rated') {
-        matchesPill = stadium.locations.includes(selectedFilter);
+        matchesPill = stadium.locations.some(loc => loc.name === selectedFilter);
       }
 
       return matchesSearch && matchesPill;
@@ -75,7 +75,7 @@ export default function HomeScreen({ navigation }: Props) {
     filteredStadiums.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
   }
 
-  const availableLocations = Array.from(new Set(stadiums.flatMap(s => s.locations || [])));
+  const availableLocations = Array.from(new Set(stadiums.flatMap(s => (s.locations || []).map(l => l.name))));
 
   return (
     <View style={styles.container}>

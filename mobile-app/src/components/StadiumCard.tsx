@@ -19,9 +19,9 @@ export default function StadiumCard({ stadium, onPress }: Props) {
     >
       {/* Stadium Image with Overlays */}
       <View style={styles.imageContainer}>
-        {stadium.imageUrl ? (
+        {(stadium.locations?.[0]?.images?.[0]) ? (
           <Image
-            source={{ uri: `${API_BASE_URL}${stadium.imageUrl}` }}
+            source={{ uri: `${API_BASE_URL}${stadium.locations[0].images[0]}` }}
             style={styles.cardImage}
             resizeMode="cover"
           />
@@ -56,7 +56,7 @@ export default function StadiumCard({ stadium, onPress }: Props) {
               <Feather name="map-pin" size={12} color={colors.secondary} />
             </View>
             <Text style={styles.locationText} numberOfLines={1}>
-              {stadium.locations && stadium.locations.length === 1 ? stadium.locations[0] : `${stadium.locations?.length || 0} locations`}
+              {stadium.locations && stadium.locations.length === 1 ? stadium.locations[0].name : `${stadium.locations?.length || 0} locations`}
             </Text>
           </View>
         </View>

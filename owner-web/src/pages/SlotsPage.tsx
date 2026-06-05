@@ -61,12 +61,13 @@ export default function SlotsPage() {
       }
 
       setStadiumId(stadium.id);
-      setStadiumLocations(stadium.locations || []);
+      const locNames = (stadium.locations || []).map((l: any) => l.name);
+      setStadiumLocations(locNames);
 
       // Set default location if available
       if (stadium.locations && stadium.locations.length > 0) {
-        setBulk(prev => ({ ...prev, location: stadium.locations[0] }));
-        setSingle(prev => ({ ...prev, location: stadium.locations[0] }));
+        setBulk(prev => ({ ...prev, location: locNames[0] }));
+        setSingle(prev => ({ ...prev, location: locNames[0] }));
       }
 
       // Then fetch slots

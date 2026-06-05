@@ -14,6 +14,7 @@ import uploadRoutes  from './routes/upload.routes.js';
 import bankAccountRoutes from './routes/bankAccount.routes.js';
 import subscriptionPlanRoutes from './routes/subscriptionPlan.routes.js';
 import playerSubscriptionRoutes from './routes/playerSubscription.routes.js';
+import locationRoutes from './routes/location.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -74,6 +75,7 @@ app.use('/api/upload',   uploadRoutes);
 app.use('/api/bank-accounts', bankAccountRoutes);
 app.use('/api/subscription-plans', subscriptionPlanRoutes);
 app.use('/api/player-subscriptions', playerSubscriptionRoutes);
+app.use('/api/locations',          locationRoutes);
 
 app.get('/', (_req, res) => res.json({ message: 'KOAS API Running' }));
 

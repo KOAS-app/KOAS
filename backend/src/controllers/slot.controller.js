@@ -7,14 +7,14 @@ export const createSlot = async (req, res) => {
     const { stadiumId, location, startTime, endTime, price } = req.body;
 
     // Verify stadium belongs to this owner
-    const stadium = await prisma.stadium.findUnique({ where: { id: stadiumId } });
+    const stadium = await prisma.stadium.findUnique({ where: { id: stadiumId }, include: { locations: true } });
     if (!stadium) return res.status(404).json({ message: 'Stadium not found' });
     if (stadium.ownerId !== req.user.id) {
       return res.status(403).json({ message: 'Not your stadium' });
     }
 
     // Verify location exists in stadium locations
-    if (!stadium.locations.includes(location)) {
+    if (!stadium.locations.some(l => l.name === location)) {
       return res.status(400).json({ message: 'Invalid location for this stadium' });
     }
 
@@ -58,7 +58,7 @@ export const bulkCreateSlots = async (req, res) => {
     const { stadiumId, location, date, openHour, closeHour, price, duration = 1 } = req.body;
     // date: "2026-05-12", openHour: 8, closeHour: 22, price: 500, duration: 1 (in hours)
 
-    const stadium = await prisma.stadium.findUnique({ where: { id: stadiumId } });
+    const stadium = await prisma.stadium.findUnique({ where: { id: stadiumId }, include: { locations: true } });
     if (!stadium) return res.status(404).json({ message: 'Stadium not found' });
     if (stadium.ownerId !== req.user.id) {
       return res.status(403).json({ message: 'Not your stadium' });
@@ -72,7 +72,7 @@ export const bulkCreateSlots = async (req, res) => {
     }
 
     // Verify location exists in stadium locations
-    if (!stadium.locations.includes(location)) {
+    if (!stadium.locations.some(l => l.name === location)) {
       return res.status(400).json({ message: 'Invalid location for this stadium' });
     }
 
@@ -143,7 +143,7 @@ export const generateSlotsFromPlan = async (req, res) => {
     // Fetch the subscription plan
     const plan = await prisma.subscriptionPlan.findUnique({
       where: { id: subscriptionPlanId },
-      include: { stadium: true }
+      include: { stadium: { include: { locations: true } } }
     });
 
     if (!plan) {
@@ -156,7 +156,7 @@ export const generateSlotsFromPlan = async (req, res) => {
     }
 
     // Verify location exists in stadium locations
-    if (!plan.stadium.locations.includes(location)) {
+    if (!plan.stadium.locations.some(l => l.name === location)) {
       return res.status(400).json({ message: 'Invalid location for this stadium' });
     }
 
@@ -277,7 +277,7 @@ export const updateSlot = async (req, res) => {
     const slot = await prisma.slot.findUnique({ where: { id: req.params.id } });
     if (!slot) return res.status(404).json({ message: 'Slot not found' });
 
-    const stadium = await prisma.stadium.findUnique({ where: { id: slot.stadiumId } });
+    const stadium = await prisma.stadium.findUnique({ where: { id: slot.stadiumId }, include: { locations: true } });
     if (stadium?.ownerId !== req.user.id) {
       return res.status(403).json({ message: 'Not your stadium' });
     }
@@ -289,7 +289,7 @@ export const updateSlot = async (req, res) => {
     const { location, startTime, endTime, price } = req.body;
 
     // If location is being updated, verify it exists in stadium locations
-    if (location && !stadium.locations.includes(location)) {
+    if (location && !stadium.locations.some(l => l.name === location)) {
       return res.status(400).json({ message: 'Invalid location for this stadium' });
     }
 

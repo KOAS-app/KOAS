@@ -64,6 +64,16 @@ const NAV = [
     ),
   },
   {
+    to: '/locations',
+    label: 'Locations',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+    ),
+  },
+  {
     to: '/bank-details',
     label: 'Bank Details',
     icon: (
@@ -123,6 +133,7 @@ function useBreadcrumb() {
   if (pathname.includes('/members')) return ['Members'];
   if (pathname.includes('/slots')) return ['Time Slots'];
   if (pathname.includes('/reviews')) return ['Reviews'];
+  if (pathname.includes('/locations')) return ['Locations'];
   if (pathname.includes('/bank-details')) return ['Bank Details'];
   if (pathname.includes('/subscription')) return ['My Subscription'];
   if (pathname.includes('/subscription-plans')) return ['Subscription Plans'];

@@ -113,7 +113,7 @@ export default function StadiumsPage() {
                     {stadium.name}
                   </p>
                   <div className="text-xs mt-1.5 text-[var(--color-text-muted)] font-medium flex flex-wrap items-center gap-x-2 gap-y-1.5">
-                    <span className="flex items-center gap-1">📍 {stadium.locations.length === 1 ? stadium.locations[0] : `${stadium.locations.length} locations`}</span>
+                    <span className="flex items-center gap-1">📍 {stadium.locations.length === 1 ? stadium.locations[0].name : `${stadium.locations.length} locations`}</span>
                     <span className="text-[var(--color-border-strong)]">•</span>
                     <span className="flex items-center gap-1">Owner: {stadium.owner.name}</span>
                     {getTierBadge(stadium.owner.subscriptionPlan)}

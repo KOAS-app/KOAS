@@ -34,20 +34,33 @@ model User {
 model Stadium {
   id                String    @id @default(uuid())
   name              String
-  locations         String[]  // Array of branch locations
   description       String?
-  imageUrl          String?   // Main stadium image
   amenities         String[]  @default([]) // Stadium amenities/features
   ownerId           String    @unique // One stadium per owner
   isApproved        Boolean   @default(false)
   createdAt         DateTime  @default(now())
 
-  owner         User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner         User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  locations     Location[]
   bookings      Booking[]
   slots         Slot[]
   reviews       Review[]
   bankAccounts  BankAccount[]
   subscriptionPlans SubscriptionPlan[]
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  stadiumId String
+  name      String
+  address   String?
+  images    String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stadium   Stadium  @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+
+  @@index([stadiumId])
 }
 
 model BankAccount {

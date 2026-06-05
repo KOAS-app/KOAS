@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Stadium } from '../types';
 import { getApiError } from '../utils/apiError';
-import { useAuth } from '../context/AuthContext';
-import { getActiveTier, TIER_LIMITS } from '../utils/tier';
 
 interface Props {
   stadium: Stadium | null;
@@ -14,24 +12,13 @@ interface Props {
 
 export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const isEdit = stadium !== null;
-  
-  const activeTier = getActiveTier(user);
-  const limits = TIER_LIMITS[activeTier];
-  const maxLocations = limits.maxLocations;
 
-  const [form, setForm] = useState({ 
-    name: '', 
-    locations: [''], 
-    description: '', 
-    imageUrl: '', 
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
     amenities: [] as string[]
   });
-  const isLimitReached = form.locations.length >= maxLocations;
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -51,44 +38,16 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
 
   useEffect(() => {
     if (isEdit) {
-      setForm({ 
-        name: stadium.name, 
-        locations: stadium.locations.length > 0 ? stadium.locations : [''],
+      setForm({
+        name: stadium.name,
         description: stadium.description ?? '',
-        imageUrl: stadium.imageUrl ?? '',
         amenities: stadium.amenities ?? []
       });
-      if (stadium.imageUrl) {
-        setImagePreview(stadium.imageUrl);
-      }
     }
   }, [stadium, isEdit]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-
-  const handleLocationChange = (index: number, value: string) => {
-    setForm(prev => ({
-      ...prev,
-      locations: prev.locations.map((loc, i) => i === index ? value : loc)
-    }));
-  };
-
-  const addLocation = () => {
-    setForm(prev => ({
-      ...prev,
-      locations: [...prev.locations, '']
-    }));
-  };
-
-  const removeLocation = (index: number) => {
-    if (form.locations.length > 1) {
-      setForm(prev => ({
-        ...prev,
-        locations: prev.locations.filter((_, i) => i !== index)
-      }));
-    }
-  };
 
   const toggleAmenity = (amenity: string) => {
     setForm(prev => ({
@@ -99,113 +58,33 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
     }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please select an image file');
-        return;
-      }
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Image size must be less than 5MB');
-        return;
-      }
-      setImageFile(file);
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      setError('');
-    }
-  };
-
-  const handleRemoveImage = () => {
-    console.log('Removing image, current form.imageUrl:', form.imageUrl);
-    setImageFile(null);
-    setImagePreview('');
-    setForm(prev => {
-      const updated = { ...prev, imageUrl: '' };
-      console.log('Updated form after removing image:', updated);
-      return updated;
-    });
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevent double submission
-    
-    if (loading || uploading) {
-      console.log('Already submitting, ignoring...');
-      return;
-    }
-    
+    e.stopPropagation();
+
+    if (loading) return;
+
     setError('');
     setLoading(true);
-    
-    console.log('=== SUBMIT STARTED ===');
-    console.log('Form state:', form);
-    console.log('Image file:', imageFile);
-    
-    try {
-      let finalImageUrl = form.imageUrl; // Start with existing imageUrl
-      
-      // If there's a new image file, upload it first
-      if (imageFile) {
-        console.log('New image file detected, uploading...');
-        setUploading(true);
-        
-        try {
-          const formData = new FormData();
-          formData.append('image', imageFile);
 
-          // Don't set Content-Type header - let axios set it with the correct boundary
-          const uploadRes = await api.post('/upload/stadium-image', formData);
-          
-          console.log('Upload response:', uploadRes.data);
-          finalImageUrl = uploadRes.data.imageUrl;
-          console.log('New imageUrl from upload:', finalImageUrl);
-        } catch (uploadErr) {
-          console.error('Upload failed:', uploadErr);
-          throw new Error('Failed to upload image');
-        } finally {
-          setUploading(false);
-        }
-      } else {
-        console.log('No new image file, using existing imageUrl:', finalImageUrl);
-      }
-      
-      console.log('About to submit with imageUrl:', finalImageUrl);
-      
+    try {
       const submitData = {
         name: form.name,
-        locations: form.locations.filter(loc => loc.trim() !== ''), // Remove empty locations
         description: form.description,
-        imageUrl: finalImageUrl || undefined,
         amenities: form.amenities
       };
 
-      console.log('Final submit data:', JSON.stringify(submitData, null, 2));
-
       if (isEdit) {
-        console.log('Updating stadium:', stadium.id);
         await api.put(`/stadiums/${stadium.id}`, submitData);
       } else {
-        console.log('Creating new stadium');
         await api.post('/stadiums', submitData);
       }
-      
-      console.log('=== SUBMIT SUCCESSFUL ===');
+
       onSaved();
     } catch (err) {
-      console.error('Submit error:', err);
       setError(getApiError(err, 'Failed to save stadium.'));
     } finally {
       setLoading(false);
-      setUploading(false);
     }
   };
 
@@ -248,58 +127,6 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">
-                Stadium Image
-                <span className="text-[var(--color-text-muted)] font-normal ml-1">(optional)</span>
-              </label>
-              
-              {/* Image Preview */}
-              {imagePreview && (
-                <div className="relative mb-3 rounded-[10px] overflow-hidden border-[1.5px] border-[var(--color-border)]">
-                  <img 
-                    src={imagePreview.startsWith('http') ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${imagePreview}` : imagePreview}
-                    alt="Stadium preview" 
-                    className="w-full h-40 object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-lg bg-[rgba(0,0,0,0.6)] backdrop-blur-sm flex items-center justify-center text-white transition-all hover:bg-[rgba(220,38,38,0.8)]"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-
-              {/* File Input */}
-              <div className="relative">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  id="stadium-image-input"
-                />
-                <label
-                  htmlFor="stadium-image-input"
-                  className="flex items-center justify-center gap-2 w-full px-3.5 py-3 border-[1.5px] border-dashed border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-secondary)] text-[0.8125rem] font-medium cursor-pointer transition-all hover:border-[var(--color-primary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-primary)]"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                  {imagePreview ? 'Change Image' : 'Upload Stadium Image'}
-                </label>
-              </div>
-              <p className="text-[0.75rem] text-[var(--color-text-muted)] mt-1.5">
-                JPG, PNG, GIF or WebP. Max size 5MB.
-              </p>
-            </div>
-
-            <div>
               <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] mb-1.5 tracking-tight">Stadium Name</label>
               <input
                 name="name" type="text"
@@ -310,87 +137,6 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
                 required
                 autoFocus
               />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-[0.8125rem] font-semibold text-[var(--color-text-secondary)] tracking-tight">
-                  Branch Locations
-                </label>
-                {isLimitReached ? (
-                  <span className="inline-flex items-center gap-1 text-[0.75rem] font-semibold text-[var(--color-warning)] bg-[var(--color-warning-bg)] px-2 py-0.5 rounded border border-[rgba(217,119,6,0.15)] select-none">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="mr-0.5">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                    Tier Limit Reached ({form.locations.length}/{maxLocations})
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={addLocation}
-                    className="text-[0.75rem] font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors"
-                  >
-                    + Add Location
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-col gap-2">
-                {form.locations.map((location, index) => (
-                  <div key={index} className="flex gap-2">
-                    <input
-                      type="text"
-                      className="flex-1 px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all placeholder:text-[var(--color-text-muted)] hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white"
-                      placeholder={`Location ${index + 1} (e.g., Bole, Addis Ababa)`}
-                      value={location}
-                      onChange={(e) => handleLocationChange(index, e.target.value)}
-                      required={index === 0}
-                    />
-                    {form.locations.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeLocation(index)}
-                        className="w-10 h-10 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-transparent text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
-                        title="Remove location"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              {isLimitReached ? (
-                <div className="mt-3 p-3 rounded-[10px] bg-[rgba(217,119,6,0.05)] border border-[rgba(217,119,6,0.15)]">
-                  <div className="flex gap-2.5">
-                    <span className="text-base select-none">👑</span>
-                    <div className="flex-1">
-                      <p className="text-[0.75rem] font-bold text-[var(--color-text-base)]">
-                        Need more locations?
-                      </p>
-                      <p className="text-[0.7rem] text-[var(--color-text-muted)] mt-0.5 leading-relaxed">
-                        Your active tier ({activeTier}) restricts your stadium to a maximum of {maxLocations} branch location{maxLocations > 1 ? 's' : ''}.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onClose();
-                          navigate('/subscription');
-                        }}
-                        className="mt-1.5 text-[0.7rem] font-extrabold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] inline-flex items-center gap-0.5 transition-all group"
-                      >
-                        Upgrade Subscription
-                        <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-[0.75rem] text-[var(--color-text-muted)] mt-1.5">
-                  Add all your branch locations. At least one location is required.
-                </p>
-              )}
             </div>
 
             <div>
@@ -448,14 +194,9 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
               <button
                 type="submit"
                 className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={loading || uploading}
+                disabled={loading}
               >
-                {uploading ? (
-                  <span className="flex items-center gap-2">
-                    <div className="inline-block w-3.5 h-3.5 border-[1.5px] border-[rgba(255,255,255,0.3)] border-t-white rounded-full animate-spin" />
-                    Uploading…
-                  </span>
-                ) : loading ? (
+                {loading ? (
                   <span className="flex items-center gap-2">
                     <div className="inline-block w-3.5 h-3.5 border-[1.5px] border-[rgba(255,255,255,0.3)] border-t-white rounded-full animate-spin" />
                     Saving…

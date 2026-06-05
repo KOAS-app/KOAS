@@ -1,4 +1,4 @@
-export type { User, Stadium, Slot, Booking, Payment, Dispute, Review };
+export type { User, Stadium, Location, Slot, Booking, Payment, Dispute, Review };
 
 interface User {
   id: string;
@@ -11,13 +11,22 @@ interface User {
   createdAt: string;
 }
 
+interface Location {
+  id: string;
+  stadiumId: string;
+  name: string;
+  address?: string;
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface Stadium {
   id: string;
   name: string;
-  locations: string[];
   description?: string;
-  imageUrl?: string;
   amenities?: string[];
+  locations: Location[];
   bankName?: string;
   accountNumber?: string;
   accountHolderName?: string;
@@ -62,7 +71,7 @@ interface Booking {
 
 // A dispute is a Payment with its full booking context
 interface Dispute {
-  id: string; // payment id
+  id: string;
   amount: number;
   status: 'DISPUTED';
   receiptImageUrl?: string;

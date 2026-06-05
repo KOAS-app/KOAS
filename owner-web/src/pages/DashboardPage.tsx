@@ -126,7 +126,8 @@ export default function DashboardPage() {
   }
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-  const imageUrl = stadium.imageUrl ? `${apiUrl}${stadium.imageUrl}` : null;
+  const firstLocationImage = stadium.locations?.[0]?.images?.[0];
+  const imageUrl = firstLocationImage ? `${apiUrl}${firstLocationImage}` : null;
 
   return (
     <div>
@@ -172,7 +173,7 @@ export default function DashboardPage() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-primary)] flex-shrink-0">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
                     </svg>
-                    {stadium.locations.join(' • ')}
+                    {stadium.locations.map(l => l.name).join(' • ') || 'No locations'}
                   </span>
                   <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[0.6875rem] font-bold tracking-wide border ${
                     stadium.isApproved 

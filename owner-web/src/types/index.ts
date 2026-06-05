@@ -1,13 +1,22 @@
+export interface Location {
+  id: string;
+  stadiumId: string;
+  name: string;
+  address?: string;
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Stadium {
   id: string;
   name: string;
-  locations: string[]; // Changed from location to locations array
   description?: string;
-  imageUrl?: string;
-  amenities?: string[]; // Stadium amenities/features
-  bankName?: string; // Bank name for payments
-  accountNumber?: string; // Bank account number
-  accountHolderName?: string; // Account holder name
+  amenities?: string[];
+  locations: Location[];
+  bankName?: string;
+  accountNumber?: string;
+  accountHolderName?: string;
   isApproved: boolean;
   createdAt: string;
 }
@@ -88,7 +97,7 @@ export interface SubscriptionPlan {
   stadiumId: string;
   name: string;
   price: number;
-  duration: number; // in days
+  duration: number;
   description?: string;
   isActive: boolean;
   location?: string;

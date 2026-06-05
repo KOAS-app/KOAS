@@ -3,10 +3,16 @@ import { useAuth } from '../context/AuthContext';
 import { getActiveTier, getTrialDaysRemaining, isTrialActive, TIER_LIMITS, SubscriptionTier } from '../utils/tier';
 import api from '../api/axios';
 
+interface Location {
+  id: string;
+  name: string;
+  images: string[];
+}
+
 interface Stadium {
   id: string;
   name: string;
-  locations?: string[];
+  locations?: Location[];
 }
 
 interface BankAccount {

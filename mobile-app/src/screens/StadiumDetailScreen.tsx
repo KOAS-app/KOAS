@@ -1,4 +1,4 @@
-import { useEffect, useState, useLayoutEffect } from 'react';
+import { useEffect, useState, useLayoutEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Image, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
@@ -133,6 +133,8 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
   const [totalReviews, setTotalReviews] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const imageScrollRef = useRef<ScrollView>(null);
 
   const fetchStadium = async () => {
     try {
@@ -209,20 +211,52 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
     ? Math.min(...stadium.slots.map(slot => slot.price))
     : 0;
 
+  // Collect all images from all locations for the carousel
+  const allImages: string[] = [];
+  if (stadium.locations) {
+    stadium.locations.forEach(loc => {
+      if (loc.images) allImages.push(...loc.images);
+    });
+  }
+
   return (
     <>
       <ScrollView style={styles.container}>
-        {/* Hero Image with Overlay */}
+        {/* Hero Image Carousel with Overlay */}
         <View style={styles.heroContainer}>
-          {stadium.imageUrl ? (
-            <Image 
-              source={{ uri: `${API_BASE_URL}${stadium.imageUrl}` }}
+          {allImages.length > 0 ? (
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              ref={imageScrollRef}
+              onMomentumScrollEnd={(e) => {
+                const index = Math.round(e.nativeEvent.contentOffset.x / width);
+                setActiveImageIndex(index);
+              }}
               style={styles.heroImage}
-              resizeMode="cover"
-            />
+            >
+              {allImages.map((img, i) => (
+                <Image
+                  key={i}
+                  source={{ uri: `${API_BASE_URL}${img}` }}
+                  style={[styles.heroImage, { width }]}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
           ) : (
             <View style={[styles.heroImage, styles.heroPlaceholder]}>
               <Text style={styles.heroPlaceholderText}>🏟️</Text>
+            </View>
+          )}
+
+          {/* Image counter badge */}
+          {allImages.length > 1 && (
+            <View style={styles.imageCounter}>
+              <Text style={styles.imageCounterText}>
+                {activeImageIndex + 1} / {allImages.length}
+              </Text>
             </View>
           )}
           
@@ -241,7 +275,7 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
             
             {/* Locations */}
             <Text style={styles.heroLocation}>
-              📍 {stadium.locations.join(' • ')}
+              📍 {stadium.locations.map(l => l.name).join(' • ') || 'No locations'}
             </Text>
             
             <View style={styles.heroMeta}>
@@ -252,6 +286,21 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
                 </Text>
               </View>
             </View>
+
+            {/* Pagination Dots */}
+            {allImages.length > 1 && (
+              <View style={styles.dotsContainer}>
+                {allImages.map((_, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.dot,
+                      i === activeImageIndex && styles.dotActive,
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
           </View>
         </View>
 
@@ -275,6 +324,43 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
                   </View>
                 );
               })}
+            </View>
+          )}
+
+          {/* Location Galleries */}
+          {stadium.locations && stadium.locations.length > 0 && (
+            <View style={styles.section}>
+              {stadium.locations.map((loc) => (
+                loc.images && loc.images.length > 0 ? (
+                  <View key={loc.id} style={{ marginBottom: spacing.lg }}>
+                    <Text style={[styles.sectionTitle, { marginBottom: spacing.sm }]}>
+                      📍 {loc.name}
+                      <Text style={{ fontSize: typography.sizes.sm, color: colors.text.muted, fontWeight: typography.weights.medium }}>
+                        {' '}({loc.images.length} photos)
+                      </Text>
+                    </Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={{ gap: spacing.sm }}
+                    >
+                      {loc.images.map((img, i) => (
+                        <Image
+                          key={i}
+                          source={{ uri: `${API_BASE_URL}${img}` }}
+                          style={{
+                            width: 160,
+                            height: 120,
+                            borderRadius: radius.md,
+                            backgroundColor: colors.dark.surface,
+                          }}
+                          resizeMode="cover"
+                        />
+                      ))}
+                    </ScrollView>
+                  </View>
+                ) : null
+              ))}
             </View>
           )}
 
@@ -559,6 +645,41 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.medium,
     color: 'rgba(255, 255, 255, 0.8)',
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: spacing.sm,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  dotActive: {
+    width: 20,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#4ade80',
+  },
+  imageCounter: {
+    position: 'absolute',
+    top: 56,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  imageCounterText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#fff',
   },
 
   // Content

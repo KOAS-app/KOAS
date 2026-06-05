@@ -18,10 +18,16 @@ interface Stats {
   openDisputesCount: number;
 }
 
+interface PendingLocation {
+  id: string;
+  name: string;
+  images: string[];
+}
+
 interface PendingStadium {
   id: string;
   name: string;
-  locations: string[];
+  locations: PendingLocation[];
   owner: {
     id: string;
     name: string;
@@ -356,7 +362,7 @@ export default function DashboardPage() {
                       {s.name}
                     </p>
                     <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5 truncate">
-                      Owner: {s.owner.name} &nbsp;·&nbsp; {s.locations.join(', ')}
+                      Owner: {s.owner.name} &nbsp;·&nbsp; {(s.locations || []).map((l: any) => l.name).join(', ') || 'No locations'}
                     </p>
                   </div>
                   <button

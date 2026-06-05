@@ -22,7 +22,7 @@ export default function SubscriptionPlanModal({ plan, onClose, onSuccess }: Prop
       try {
         const res = await api.get('/stadiums/my');
         const stadium = res.data[0];
-        setStadiumData({ id: stadium.id, locations: stadium.locations || [] });
+        setStadiumData({ id: stadium.id, locations: (stadium.locations || []).map((l: any) => l.name) });
       } catch (err) {
         console.error('Failed to fetch stadium:', err);
       } finally {
@@ -116,10 +116,11 @@ export default function SubscriptionPlanModal({ plan, onClose, onSuccess }: Prop
         // Fetch stadium data for locations
         const stadiumRes = await api.get('/stadiums/my');
         const stadium = stadiumRes.data[0];
-        setStadiumData({ id: stadium.id, locations: stadium.locations || [] });
+        const locNames = (stadium.locations || []).map((l: any) => l.name);
+        setStadiumData({ id: stadium.id, locations: locNames });
         
         // Use plan's location for slot generation
-        setSlotForm(prev => ({ ...prev, location: form.location || stadium.locations[0] || '' }));
+        setSlotForm(prev => ({ ...prev, location: form.location || locNames[0] || '' }));
         
         setStep('slots');
       }
