@@ -14,7 +14,7 @@ type Props = StackScreenProps<AuthStackParamList, 'Register'>;
 
 export default function RegisterScreen({ navigation }: Props) {
   const { login } = useAuth();
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', phoneNumber: '' });
+  const [form, setForm] = useState({ name: '', password: '', confirm: '', phoneNumber: '' });
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
@@ -27,21 +27,9 @@ export default function RegisterScreen({ navigation }: Props) {
     return null;
   };
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) return 'Please enter a valid email address.';
-    return null;
-  };
-
   const handleRegister = async () => {
-    if (!form.name || !form.email || !form.password || !form.confirm || !form.phoneNumber) {
+    if (!form.name || !form.password || !form.confirm || !form.phoneNumber) {
       Alert.alert('Required Fields', 'Please fill in all fields');
-      return;
-    }
-
-    const emailError = validateEmail(form.email);
-    if (emailError) {
-      Alert.alert('Invalid Email', emailError);
       return;
     }
 
@@ -63,7 +51,6 @@ export default function RegisterScreen({ navigation }: Props) {
     try {
       const res = await api.post('/auth/register', {
         name: form.name,
-        email: form.email,
         password: form.password,
         phoneNumber: form.phoneNumber,
         role: 'PLAYER',
@@ -136,30 +123,6 @@ export default function RegisterScreen({ navigation }: Props) {
                     onFocus={() => setFocusedField('name')}
                     onBlur={() => setFocusedField(null)}
                     autoCapitalize="words"
-                    editable={!loading}
-                    returnKeyType="next"
-                  />
-                </View>
-              </View>
-
-              {/* Email Input */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email</Text>
-                <View style={[
-                  styles.inputWrapper,
-                  focusedField === 'email' && styles.inputWrapperFocused,
-                ]}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="you@example.com"
-                    placeholderTextColor={colors.input.placeholder}
-                    value={form.email}
-                    onChangeText={(v) => setForm((p) => ({ ...p, email: v }))}
-                    onFocus={() => setFocusedField('email')}
-                    onBlur={() => setFocusedField(null)}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
                     editable={!loading}
                     returnKeyType="next"
                   />

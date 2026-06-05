@@ -16,12 +16,14 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: 'Phone number is required.' });
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+    // Only check for duplicate email if one was provided
+    if (email) {
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+      if (existingUser) {
+        return res.status(400).json({ message: 'User already exists' });
+      }
     }
 
     const hashedPassword = await hashPassword(password);
@@ -45,16 +47,10 @@ export const register = async (req, res) => {
       });
     } else {
       // PLAYER
-      const user = await prisma.user.create({
-        data: {
-          name,
-          email,
-          password: hashedPassword,
-          role,
-          phoneNumber: phoneNumber || null,
-          isApproved: true, // Players are auto-approved
-        },
-      });
+      const userData = { name, password: hashedPassword, role, phoneNumber: phoneNumber || null, isApproved: true };
+      if (email) userData.email = email;
+
+      const user = await prisma.user.create({ data: userData });
 
       const token = generateToken(user, req);
       return res.status(201).json({ user, token });
@@ -66,10 +62,10 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { phoneNumber, password } = req.body;
 
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const user = await prisma.user.findFirst({
+      where: { phoneNumber },
     });
 
     if (!user) {

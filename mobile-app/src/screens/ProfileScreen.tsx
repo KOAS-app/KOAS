@@ -64,6 +64,7 @@ export default function ProfileScreen() {
             </Text>
           </View>
           <Text style={styles.name}>{user?.name}</Text>
+          <Text style={styles.phone}>{user?.phoneNumber}</Text>
           <Text style={styles.email}>{user?.email}</Text>
         </View>
 
@@ -139,6 +140,7 @@ const styles = StyleSheet.create({
   },
   avatarText: { fontSize: 28, fontWeight: '900', color: colors.text.inverse },
   name: { fontSize: 20, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.3, marginBottom: 4 },
+  phone: { fontSize: 13, color: colors.text.secondary, fontWeight: '500', marginBottom: 4 },
   email: { fontSize: 13, color: colors.text.secondary, fontWeight: '500' },
 
   // Actions Container

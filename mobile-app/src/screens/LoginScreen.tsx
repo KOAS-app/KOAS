@@ -14,20 +14,24 @@ type Props = StackScreenProps<AuthStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [emailFocused, setEmailFocused] = useState(false);
+  const [phoneFocused, setPhoneFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Required Fields', 'Please enter your email and password');
+    if (!phoneNumber || !password) {
+      Alert.alert('Required Fields', 'Please enter your phone number and password');
+      return;
+    }
+    if (!/^\+251[79]\d{8}$/.test(phoneNumber)) {
+      Alert.alert('Invalid Phone Number', 'Phone number must be in Ethiopian format: +251XXXXXXXXX');
       return;
     }
     setLoading(true);
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await api.post('/auth/login', { phoneNumber, password });
       const { user, token } = res.data;
       if (user.role !== 'PLAYER') {
         Alert.alert('Access Denied', 'This app is for players only.');
@@ -84,22 +88,22 @@ export default function LoginScreen({ navigation }: Props) {
 
             {/* Form */}
             <View style={styles.form}>
-              {/* Email Input */}
+              {/* Phone Number Input */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email</Text>
+                <Text style={styles.label}>Phone Number</Text>
                 <View style={[
                   styles.inputWrapper,
-                  emailFocused && styles.inputWrapperFocused,
+                  phoneFocused && styles.inputWrapperFocused,
                 ]}>
                   <TextInput
                     style={styles.input}
-                    placeholder="you@example.com"
+                    placeholder="+251912345678"
                     placeholderTextColor={colors.input.placeholder}
-                    value={email}
-                    onChangeText={setEmail}
-                    onFocus={() => setEmailFocused(true)}
-                    onBlur={() => setEmailFocused(false)}
-                    keyboardType="email-address"
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
+                    onFocus={() => setPhoneFocused(true)}
+                    onBlur={() => setPhoneFocused(false)}
+                    keyboardType="phone-pad"
                     autoCapitalize="none"
                     autoCorrect={false}
                     editable={!loading}
