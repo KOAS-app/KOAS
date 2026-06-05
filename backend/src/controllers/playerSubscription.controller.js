@@ -46,8 +46,13 @@ export const subscribeToPlan = async (req, res) => {
   try {
     const { subscriptionPlanId, pricePaid, receiptImageUrl, selectedSlotIds } = req.body;
 
-    if (!subscriptionPlanId || pricePaid === undefined || !receiptImageUrl) {
+    if (!subscriptionPlanId || pricePaid === undefined || pricePaid === null || !receiptImageUrl) {
       return res.status(400).json({ message: 'Missing required checkout details.' });
+    }
+
+    const parsedPrice = parseFloat(pricePaid);
+    if (isNaN(parsedPrice)) {
+      return res.status(400).json({ message: 'Invalid price value provided.' });
     }
 
     // Verify the subscription plan exists and is active
@@ -62,6 +67,21 @@ export const subscribeToPlan = async (req, res) => {
 
     if (!plan.isActive) {
       return res.status(400).json({ message: 'This subscription plan is currently inactive.' });
+    }
+
+    // Check for an existing PENDING or RECEIPT_SUBMITTED application for this stadium
+    const existingPending = await prisma.playerSubscription.findFirst({
+      where: {
+        playerId: req.user.id,
+        subscriptionPlan: { stadiumId: plan.stadiumId },
+        status: { in: ['RECEIPT_SUBMITTED', 'PENDING'] }
+      }
+    });
+
+    if (existingPending) {
+      return res.status(400).json({
+        message: 'You already have a pending membership application at this stadium. Please wait for the owner to review it.',
+      });
     }
 
     // Verify player does not already have an active subscription for this stadium
@@ -93,11 +113,11 @@ export const subscribeToPlan = async (req, res) => {
         playerId: req.user.id,
         subscriptionPlanId,
         subscriptionCode,
-        pricePaid: parseFloat(pricePaid),
+        pricePaid: parsedPrice,
         receiptImageUrl,
         status: 'RECEIPT_SUBMITTED',
         playerSubmittedAt: new Date(),
-        selectedSlotIds: selectedSlotIds || [] // Store selected slot IDs
+        selectedSlotIds: selectedSlotIds || []
       },
       include: {
         subscriptionPlan: {
@@ -112,7 +132,10 @@ export const subscribeToPlan = async (req, res) => {
     });
   } catch (error) {
     console.error('Player subscribe error:', error);
-    res.status(500).json({ message: 'Failed to process subscription request.' });
+    const message = process.env.NODE_ENV !== 'production' && error?.message
+      ? error.message
+      : 'Failed to process subscription request.';
+    res.status(500).json({ message });
   }
 };
 

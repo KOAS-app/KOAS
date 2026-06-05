@@ -16,7 +16,7 @@ router.post('/stadium-image', authenticate, authorizeRoles('OWNER'), (req, res, 
 }, uploadStadiumImage);
 
 // Delete stadium image (owner only)
-router.delete('/stadium-image/:publicId', authenticate, authorizeRoles('OWNER'), deleteStadiumImage);
+router.delete('/stadium-image/:filename', authenticate, authorizeRoles('OWNER'), deleteStadiumImage);
 
 // Upload payment receipt (player only)
 router.post('/receipt', authenticate, authorizeRoles('PLAYER'), (req, res, next) => {

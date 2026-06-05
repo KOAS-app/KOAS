@@ -319,8 +319,8 @@ export default function UsersPage() {
                       setRejectModalUser(user);
                       setRejectReason('');
                     }}
-                    title="Revoke approval">
-                    ✕ Revoke
+                    title="Reject approval">
+                    ✕ Reject
                   </button>
                 )}
                 <button

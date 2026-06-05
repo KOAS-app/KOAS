@@ -55,7 +55,8 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response?.status === 401) {
+      console.log('🔓 Authentication expired, logging out...');
       if (logoutCallback) {
         await logoutCallback();
       } else {

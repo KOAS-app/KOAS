@@ -67,12 +67,14 @@ const submitReceipt = async () => {
 ```typescript
 // Determines base URL based on environment
 const getBaseUrl = (): string => {
-  // Production (from app.config.js)
-  const prodUrl = Constants.expoConfig?.extra?.apiUrl;
-  if (prodUrl) return prodUrl;  // "https://koas-production.up.railway.app"
-  
-  // Development (auto-detect)
+  // Development: Auto-detect local backend via LAN IP
   // Returns: "http://192.168.1.100:5000" (your LAN IP)
+  
+  // Production: Use configured URL from environment
+  const prodUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (prodUrl) return prodUrl;
+  
+  return detectLocalUrl();
 }
 
 export const API_BASE_URL = getBaseUrl();
@@ -83,7 +85,7 @@ export const API_URL = `${API_BASE_URL}/api`;
 
 ```typescript
 const api = axios.create({
-  baseURL: getBaseUrl(),  // "https://koas-production.up.railway.app/api"
+  baseURL: getBaseUrl(),  // Your backend API URL
   timeout: 30000,         // 30 seconds for uploads
 });
 
@@ -104,7 +106,7 @@ api.interceptors.request.use(async (config) => {
 **Actual HTTP Request:**
 
 ```http
-POST https://koas-production.up.railway.app/api/upload/receipt
+POST https://your-backend-url/api/upload/receipt
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
@@ -306,10 +308,10 @@ WHERE "id" = 'payment-uuid';
 
 ```typescript
 // receiptModal.payment.receiptImageUrl = "/uploads/receipts/receipt-1778754655959-201265401.jpg"
-// API_BASE_URL = "https://koas-production.up.railway.app"
+// API_BASE_URL = "https://your-backend-url"
 
 // Final URL:
-uri: "https://koas-production.up.railway.app/uploads/receipts/receipt-1778754655959-201265401.jpg"
+uri: "https://your-backend-url/uploads/receipts/receipt-1778754655959-201265401.jpg"
 ```
 
 **Backend Static File Serving:**
@@ -324,7 +326,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 **HTTP Request:**
 
 ```http
-GET https://koas-production.up.railway.app/uploads/receipts/receipt-1778754655959-201265401.jpg
+GET https://your-backend-url/uploads/receipts/receipt-1778754655959-201265401.jpg
 ```
 
 **Result:** Image displays in mobile app.
@@ -420,7 +422,7 @@ GET https://koas-production.up.railway.app/uploads/receipts/receipt-177875465595
 │      }} />                                                       │
 │                                                                  │
 │      Full URL:                                                  │
-│      https://koas-production.up.railway.app/uploads/receipts/.. │
+│      https://your-backend-url/uploads/receipts/...              │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -432,8 +434,8 @@ GET https://koas-production.up.railway.app/uploads/receipts/receipt-177875465595
 ### 1. **API Base URL Configuration** ✅
 ```typescript
 // mobile-app/src/config/api.ts
-API_BASE_URL = "https://koas-production.up.railway.app"  // Production
-API_BASE_URL = "http://192.168.1.100:5000"               // Local dev
+API_BASE_URL = "https://your-backend-url"         // Production
+API_BASE_URL = "http://192.168.1.100:5000"        // Local dev
 ```
 
 ### 2. **Upload Endpoint** ✅
@@ -460,7 +462,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 ```typescript
 // Correctly constructs full URL
 uri: `${API_BASE_URL}${payment.receiptImageUrl}`
-// https://koas-production.up.railway.app/uploads/receipts/receipt-xxx.jpg
+// https://your-backend-url/uploads/receipts/receipt-xxx.jpg
 ```
 
 ### 6. **Database Storage** ✅
@@ -473,7 +475,7 @@ receiptImageUrl: "/uploads/receipts/receipt-xxx.jpg"
 
 ## 🎯 What Was Wrong vs. What's Fixed
 
-### ❌ **Before (Broken in Production)**
+### ❌ **Before (Broken)**
 
 ```typescript
 // Mobile app was sending WRONG Content-Type
@@ -496,23 +498,7 @@ const uploadRes = await api.post('/upload/receipt', formData);
 
 ---
 
-## 📊 Integration Status
+## 🚀 Ready for Deployment
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| **Image Picker** | ✅ Working | Properly extracts URI and MIME type |
-| **FormData Construction** | ✅ Fixed | React Native format correct |
-| **Content-Type Header** | ✅ Fixed | Now auto-set by axios |
-| **Upload Endpoint** | ✅ Working | Multer parsing successful |
-| **File Storage** | ✅ Working | Saves to correct directory |
-| **Static Serving** | ✅ Working | Express serves from /uploads |
-| **URL Construction** | ✅ Working | Properly combines base + path |
-| **Database Storage** | ✅ Working | Stores relative path |
-| **Image Display** | ✅ Working | Constructs full URL correctly |
-
----
-
-## 🚀 Ready to Deploy
-
-The integration is **100% correct**. The only issue was the Content-Type header, which is now fixed. Deploy and test!
+The integration is **100% correct**. The issue was the Content-Type header, which is now fixed. Deploy and test!
 

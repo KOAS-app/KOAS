@@ -5,7 +5,7 @@ This guide covers deploying the KOAS backend to cPanel with file upload support.
 
 ## 📋 Prerequisites
 - cPanel account with Node.js support
-- PostgreSQL database (cPanel or external like Railway)
+- PostgreSQL database (cPanel or external provider)
 - Domain/subdomain configured
 - FTP/SSH access
 
@@ -66,7 +66,7 @@ nano .env
 
 ### 3.2 Add Production Variables
 ```env
-# Database (Use Railway or cPanel PostgreSQL)
+# Database (Use cPanel PostgreSQL or external provider)
 DATABASE_URL="postgresql://user:password@host:5432/dbname"
 
 # Auth
@@ -108,8 +108,8 @@ NODE_ENV=production
 
 ## 🗄️ Step 5: Database Setup
 
-### If Using Railway Postgres
-- Keep existing `DATABASE_URL` from Railway
+### If Using External PostgreSQL
+- Keep existing `DATABASE_URL` from your database provider
 - Already migrated? Skip to Step 6
 
 ### If Using cPanel Postgres

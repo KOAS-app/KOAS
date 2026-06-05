@@ -307,15 +307,15 @@ src/
 - Backend uses Node.js runtime
 
 ### Recommended Deployment
-1. **Database**: PostgreSQL hosted on managed service (AWS RDS, Heroku Postgres, etc.)
-2. **Backend**: Node.js server on cloud platform (Heroku, AWS EC2, Railway, etc.)
+1. **Database**: PostgreSQL hosted on managed service (AWS RDS, DigitalOcean, etc.)
+2. **Backend**: Node.js server on cloud platform (AWS EC2, DigitalOcean, cPanel, etc.)
 3. **Admin Web**: Static hosting (Vercel, Netlify, AWS S3 + CloudFront)
 4. **Owner Web**: Static hosting (Vercel, Netlify, AWS S3 + CloudFront)
 5. **Mobile App**: App stores or expo.dev deployment
 
 ### Environment Separation
 - Development: Local PostgreSQL, local backend server
-- Staging: Managed database, staging server
+- Staging: Managed database, staging server  
 - Production: Managed database, production server with HTTPS
 
 ---

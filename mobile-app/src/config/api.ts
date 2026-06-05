@@ -3,18 +3,7 @@ import { Platform } from 'react-native';
 
 // Determine the correct base URL for API and static assets
 const getBaseUrl = (): string => {
-  // Check if this is a standalone build (APK/IPA) vs Expo Go
-  const isStandaloneBuild = Constants.executionEnvironment === 'standalone' || 
-                             Constants.executionEnvironment === 'storeClient';
-  
-  // Use production API URL for standalone builds (APK/IPA)
-  const prodUrl = Constants.expoConfig?.extra?.apiUrl;
-  if (isStandaloneBuild && prodUrl) {
-    console.log('📱 Using production API:', prodUrl);
-    return prodUrl;
-  }
-
-  // For Expo Go / development, auto-detect local backend
+  // Auto-detect local backend for development
   const debuggerHost = Constants.expoConfig?.hostUri ?? Constants.manifest2?.extra?.expoGo?.debuggerHost;
 
   if (debuggerHost) {

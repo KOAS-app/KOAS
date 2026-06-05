@@ -44,9 +44,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
             setUser(updatedUser);
           } catch (err: any) {
-            console.error('Mobile startup session verification failed:', err);
-            if (err.response && err.response.status === 401) {
+            // Handle expired or invalid token gracefully
+            if (err.response?.status === 401) {
+              console.log('🔓 Session expired, logging out...');
               await logout();
+            } else {
+              // Log other errors (network issues, etc.) but don't logout
+              console.warn('⚠️ Could not verify session:', err.message || 'Network error');
+              // Keep cached user for offline-like experience, will retry on next action
             }
           }
         }

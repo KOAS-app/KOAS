@@ -1,7 +1,7 @@
 # 🔧 Image Upload Production Fix
 
 ## Problem Summary
-Mobile app receipt uploads were failing in production (Railway) but working locally. Root cause: **Incorrect Content-Type header handling in React Native FormData uploads**.
+Mobile app receipt uploads were failing due to **incorrect Content-Type header handling in React Native FormData uploads**.
 
 ## ✅ Changes Made
 
@@ -33,40 +33,21 @@ Mobile app receipt uploads were failing in production (Railway) but working loca
 
 ## 🎯 How to Test
 
-### Local Testing (Already Working)
+### Local Testing
 ```bash
-# Should continue to work as before
+# Start backend
+cd backend
+npm run dev
+
+# Test upload endpoints
 ```
 
-### Production Testing on Railway
-1. Commit and push changes to GitHub
-2. Railway auto-deploys (or use `railway up`)
-3. Deploy updated mobile app to Expo
-4. Test receipt upload in production
-5. Check Railway logs:
-   ```bash
-   railway logs --tail
-   ```
+### Production Testing
+1. Deploy backend to your production server
+2. Test receipt upload from mobile app
+3. Check server logs for any errors
 
-### ⚠️ Railway Important Note
-**File storage on Railway is EPHEMERAL** - uploaded files will be deleted on every deployment/restart. This is expected and acceptable for testing. For production, you'll need to migrate to cloud storage (Cloudinary/S3/Spaces). See `RAILWAY_DEPLOYMENT.md` for details.
-
-## 📋 Railway Deployment Notes
-
-### ⚠️ Railway Limitations
-- ❌ File storage is **ephemeral** (deleted on deploy/restart)
-- ✅ Database is persistent
-- ✅ Perfect for testing and development
-- ❌ Not production-ready for user-generated content
-
-### ✅ What Works on Railway
-- [x] Upload directories auto-create
-- [x] Proper file type validation
-- [x] File size limits (5MB stadiums, 10MB receipts)
-- [x] Images work until next deploy
-- [x] Great for testing features
-
-### 🚨 For Production (Later)
+### 🚨 For Production
 
 1. **File Permissions**
    ```bash
@@ -76,7 +57,6 @@ Mobile app receipt uploads were failing in production (Railway) but working loca
    ```
 
 2. **Environment Variables**
-   Add to cPanel environment (or .htaccess):
    ```
    DATABASE_URL=<your-postgres-url>
    JWT_SECRET=<your-secret>
@@ -86,16 +66,11 @@ Mobile app receipt uploads were failing in production (Railway) but working loca
    ```
 
 3. **Static File Serving**
-   Ensure your cPanel Node.js app serves static files from `/public/uploads`
+   Ensure your server serves static files from `/public/uploads`
 
 4. **Upload Size Limits**
-   Check cPanel PHP/Node upload limits:
-   - Should allow at least 10MB
-   - Update `.htaccess` if needed:
-     ```apache
-     php_value upload_max_filesize 10M
-     php_value post_max_size 12M
-     ```
+   - Should allow at least 10MB for receipts
+   - Configure server to handle larger uploads if needed
 
 5. **Test These Scenarios**
    - [ ] Upload stadium image from owner web
@@ -108,11 +83,8 @@ Mobile app receipt uploads were failing in production (Railway) but working loca
 
 ### Check Backend Logs
 ```bash
-# Railway
-railway logs
-
-# cPanel
-tail -f ~/logs/your-app.log
+# View server logs
+tail -f logs/server.log
 ```
 
 ### Common Error Messages
@@ -170,12 +142,12 @@ This ensures that even if code accidentally sets the header, it gets removed.
 ## 🚀 Next Steps (Optional Improvements)
 
 ### Short-term
-- [ ] Test on cPanel production
-- [ ] Monitor Railway logs for any remaining issues
+- [ ] Test production deployment
+- [ ] Monitor server logs for any remaining issues
 - [ ] Add rate limiting (express-rate-limit)
 
 ### Long-term (When scaling)
-- [ ] Migrate to Cloudinary or S3
+- [ ] Migrate to cloud storage (S3, DigitalOcean Spaces, etc.)
 - [ ] Add image optimization (sharp)
 - [ ] Implement CDN
 - [ ] Add orphan file cleanup
@@ -186,9 +158,9 @@ This ensures that even if code accidentally sets the header, it gets removed.
 If upload issues persist:
 1. Check backend logs for "No file in receipt upload"
 2. Verify mobile app is using the fixed axios.ts
-3. Check Railway/cPanel upload directory permissions
+3. Check upload directory permissions
 4. Verify CORS settings include your mobile app domain
 
 ---
 **Fixed**: June 4, 2026
-**Tested**: Local ✅ | Production: Pending deployment
+**Tested**: Local ✅

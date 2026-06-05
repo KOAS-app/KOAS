@@ -12,6 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
@@ -277,77 +278,86 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
 
     setSubmitting(true);
 
+    // ── Step 1: Upload receipt (use native fetch — axios corrupts the
+    //    multipart boundary in React Native due to its default JSON headers)
+    let imageUrl: string;
     try {
       console.log('=== SUBSCRIPTION UPLOAD START ===');
       console.log('Receipt image:', receiptImage);
       console.log('API Base URL:', API_BASE_URL);
-      
-      // 1. Upload receipt to /api/upload/receipt
+
+      const token = await AsyncStorage.getItem('token');
+      const ext = receiptImage.mimeType?.split('/')[1]?.replace('jpeg', 'jpg') || 'jpg';
+
       const formData = new FormData();
-      const ext = receiptImage.mimeType?.split('/')[1] || 'jpg';
-      
-      // React Native FormData requires specific format
       formData.append('receipt', {
         uri: receiptImage.uri,
         type: receiptImage.mimeType || 'image/jpeg',
         name: `subscription-receipt-${Date.now()}.${ext}`,
       } as any);
 
-      console.log('Uploading receipt to Cloudinary...');
-      
-      // CRITICAL: Do NOT set Content-Type header manually
-      // Let axios set it automatically with the correct boundary
-      const uploadRes = await api.post('/upload/receipt', formData, {
-        timeout: 60000, // 60 seconds for image upload
+      console.log('Uploading receipt via fetch...');
+
+      // ⚠️ Do NOT set Content-Type here — React Native fetch sets it
+      // automatically with the correct multipart boundary.
+      const uploadResponse = await fetch(`${API_BASE_URL}/api/upload/receipt`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
       });
 
-      console.log('Upload response:', uploadRes.data);
-      const { imageUrl } = uploadRes.data;
+      const uploadData = await uploadResponse.json();
+      console.log('Upload response:', uploadData);
 
+      if (!uploadResponse.ok) {
+        throw new Error(uploadData?.message || `Upload failed with status ${uploadResponse.status}`);
+      }
+
+      imageUrl = uploadData?.imageUrl;
+      if (!imageUrl) {
+        throw new Error('Server did not return an image URL after upload.');
+      }
+    } catch (uploadErr: any) {
+      console.error('Receipt upload failed:', uploadErr);
+      setSubmitting(false);
+      Alert.alert(
+        'Upload Failed',
+        uploadErr?.message || 'Could not upload your receipt. Please check your connection and try again.'
+      );
+      return;
+    }
+
+    // ── Step 2: Submit subscription application ───────────────────────────────
+    try {
       console.log('Submitting subscription request...');
-      
-      // 2. Submit subscription request with selected slots
+
       await api.post('/player-subscriptions/subscribe', {
         subscriptionPlanId: planId,
         pricePaid: price,
         receiptImageUrl: imageUrl,
-        selectedSlotIds: selectedSlots, // Include selected slots
+        selectedSlotIds: selectedSlots,
       });
 
       console.log('Subscription submitted successfully!');
 
       Alert.alert(
-        'Success',
-        'Your subscription application has been submitted successfully! The stadium owner will verify and activate your membership.',
+        'Application Submitted',
+        'Your membership application has been submitted successfully! The stadium owner will review and activate your membership.',
         [
           {
             text: 'OK',
-            onPress: () => {
-              navigation.popToTop();
-            },
+            onPress: () => navigation.popToTop(),
           },
         ]
       );
-    } catch (err) {
-      console.error('=== SUBSCRIPTION UPLOAD ERROR ===');
-      console.error('Error type:', err.code);
-      console.error('Error message:', err.message);
-      console.error('Error response:', err.response?.data);
-      console.error('Error status:', err.response?.status);
-      
-      let errorMessage = 'Failed to submit subscription request.';
-      
-      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        errorMessage = 'Upload timeout. Please check your internet connection and try again.';
-      } else if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
-        errorMessage = 'Network error. Please check your internet connection and that the backend is running.';
-      } else if (err.response?.status === 413) {
-        errorMessage = 'Image file is too large. Please select a smaller image.';
-      } else if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      }
-      
-      Alert.alert('Submission Failed', errorMessage);
+    } catch (submitErr) {
+      console.error('Subscription submit failed:', submitErr);
+      Alert.alert(
+        'Submission Failed',
+        getApiError(submitErr, 'Failed to submit your subscription. Please try again.')
+      );
     } finally {
       setSubmitting(false);
     }
