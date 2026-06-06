@@ -19,8 +19,12 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  phoneNumber: z.string().regex(/^\+251[79]\d{8}$/, 'Phone number must be in Ethiopian format: +251XXXXXXXXX'),
+  email: z.string().trim().toLowerCase().email('Invalid email address').optional(),
+  phoneNumber: z.string().regex(/^\+251[79]\d{8}$/, 'Phone number must be in Ethiopian format: +251XXXXXXXXX').optional(),
   password: z.string().min(1, 'Password is required'),
+}).refine(data => data.email || data.phoneNumber, {
+  message: 'Email or phone number is required',
+  path: ['email'],
 });
 
 export const changePasswordSchema = z.object({

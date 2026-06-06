@@ -62,10 +62,10 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { phoneNumber, password } = req.body;
+    const { email, phoneNumber, password } = req.body;
 
     const user = await prisma.user.findFirst({
-      where: { phoneNumber },
+      where: email ? { email } : { phoneNumber },
     });
 
     if (!user) {
