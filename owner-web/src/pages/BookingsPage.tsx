@@ -59,7 +59,7 @@ export default function BookingsPage() {
   useEffect(() => {
     api.get('/stadiums/my').then(res => {
       const stadium = res.data[0];
-      if (stadium?.locations) setStadiumLocations(stadium.locations);
+      if (stadium?.locations) setStadiumLocations(stadium.locations.map((l: any) => l.name));
     }).catch(() => {});
   }, []);
 
