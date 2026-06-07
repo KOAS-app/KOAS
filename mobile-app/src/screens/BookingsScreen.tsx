@@ -5,6 +5,7 @@ import {
   ScrollView, TextInput,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Feather } from '@expo/vector-icons';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
@@ -104,15 +105,25 @@ export default function BookingsScreen() {
       return;
     }
 
+    const asset = result.assets[0];
     console.log('Selected image:', {
-      uri: result.assets[0].uri,
-      mimeType: result.assets[0].mimeType,
-      fileName: result.assets[0].fileName,
+      uri: asset.uri,
+      mimeType: asset.mimeType,
+      fileName: asset.fileName,
     });
 
+    // Copy to cache dir to avoid content:// URI issues on Android
+    const ext = asset.mimeType?.split('/')[1] || 'jpg';
+    if (!FileSystem.cacheDirectory) {
+      Alert.alert('Error', 'Cannot access cache directory.');
+      return;
+    }
+    const cacheUri = `${FileSystem.cacheDirectory}receipt-${Date.now()}.${ext}`;
+    await FileSystem.copyAsync({ from: asset.uri, to: cacheUri });
+
     setPreviewReceipt({
-      uri: result.assets[0].uri,
-      mimeType: result.assets[0].mimeType,
+      uri: cacheUri,
+      mimeType: asset.mimeType,
       booking,
     });
   };
