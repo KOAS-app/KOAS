@@ -32,7 +32,8 @@ export default {
     extra: {
       apiUrl: process.env.API_URL || 'http://localhost:5000',
       eas: {
-        projectId: "33957a49-59c5-49ae-a629-342fb905dad1"
+        projectId: "4733e811-9948-4c96-951b-e89696d450cd",
+        owner: "ha_lvl_za"
       }
     }
   }

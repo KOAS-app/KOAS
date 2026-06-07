@@ -16,9 +16,11 @@
     },
     "production": {
       "autoIncrement": true,
-      "distribution": "store",
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://your-production-backend-url.com"
+        "API_URL": "https://api.arifsource.com"
       }
     }
   },
