@@ -235,7 +235,7 @@ export default function DashboardLayout() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-3.5 px-2.5 overflow-hidden">
+        <nav className="flex-1 py-3.5 px-2.5 overflow-y-auto">
           {sidebarExpanded && (
             <p className="text-[0.5625rem] font-extrabold text-white/25 uppercase tracking-[0.1em] px-2.5 pb-2">
               Management
