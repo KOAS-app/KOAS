@@ -147,7 +147,8 @@ export default function BookingsScreen() {
       setPreviewReceipt(null);
       fetchBookings();
     } catch (err) {
-      console.error('Receipt upload error:', err.response?.data || err.message);
+      const axiosErr = err as any;
+      console.error('Receipt upload error:', axiosErr.response?.data || axiosErr.message);
       Alert.alert('Upload Failed', getApiError(err, 'Failed to upload receipt.'));
     } finally {
       setUploading(false);

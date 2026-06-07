@@ -45,8 +45,8 @@ export default function BookingScreen({ route, navigation }: Props) {
       const res = await api.get(`/stadiums/${stadiumId}`);
       setSlots(res.data.slots || []);
 
-      // Get unique locations from stadium
-      const locations = res.data.locations || [];
+      // Get unique location names from stadium
+      const locations = (res.data.locations || []).map((l: any) => l.name);
       setStadiumLocations(locations);
 
       // Set default location

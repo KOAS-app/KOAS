@@ -1,4 +1,5 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing, typography, radius } from '../theme';
 import StarRating from './StarRating';
@@ -23,7 +24,9 @@ export default function StadiumCard({ stadium, onPress }: Props) {
           <Image
             source={{ uri: `${API_BASE_URL}${stadium.locations[0].images[0]}` }}
             style={styles.cardImage}
-            resizeMode="cover"
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={300}
           />
         ) : (
           <View style={styles.placeholderImage}>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useLayoutEffect, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Image, Dimensions } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import Svg, { Path, Circle, Rect, Line } from 'react-native-svg';
@@ -241,7 +242,10 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
                   key={i}
                   source={{ uri: `${API_BASE_URL}${img}` }}
                   style={[styles.heroImage, { width }]}
-                  resizeMode="cover"
+                  contentFit="cover"
+                  cachePolicy="memory-disk"
+                  transition={300}
+                  priority={i === activeImageIndex ? 'high' : 'low'}
                 />
               ))}
             </ScrollView>
@@ -354,7 +358,10 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
                             borderRadius: radius.md,
                             backgroundColor: colors.dark.surface,
                           }}
-                          resizeMode="cover"
+                          contentFit="cover"
+                          cachePolicy="memory-disk"
+                          transition={300}
+                          priority="low"
                         />
                       ))}
                     </ScrollView>
