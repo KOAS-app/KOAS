@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
@@ -86,46 +87,37 @@ export default function BookingsScreen() {
 
   // ─── Pick and Preview receipt ────────────────────────────────────────────────
   const pickReceiptImage = async (booking: Booking) => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please allow access to your photo library.');
-      return;
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please allow access to your photo library.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: false,
+        quality: 0.8,
+      });
+
+      console.log('ImagePicker result:', result);
+
+      if (result.canceled || !result.assets || !result.assets[0]) {
+        console.log('Image selection cancelled or no asset returned');
+        return;
+      }
+
+      const ext = result.assets[0].mimeType?.split('/')[1] || 'jpg';
+
+      setPreviewReceipt({
+        uri: result.assets[0].uri,
+        mimeType: result.assets[0].mimeType,
+        booking,
+      });
+    } catch (err) {
+      console.error('pickReceiptImage error:', err);
+      Alert.alert('Error', 'Failed to select image. Please try again.');
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 0.8,
-    });
-
-    console.log('ImagePicker result:', result);
-
-    if (result.canceled || !result.assets || !result.assets[0]) {
-      console.log('Image selection cancelled or no asset returned');
-      return;
-    }
-
-    const asset = result.assets[0];
-    console.log('Selected image:', {
-      uri: asset.uri,
-      mimeType: asset.mimeType,
-      fileName: asset.fileName,
-    });
-
-    // Copy to cache dir to avoid content:// URI issues on Android
-    const ext = asset.mimeType?.split('/')[1] || 'jpg';
-    if (!FileSystem.cacheDirectory) {
-      Alert.alert('Error', 'Cannot access cache directory.');
-      return;
-    }
-    const cacheUri = `${FileSystem.cacheDirectory}receipt-${Date.now()}.${ext}`;
-    await FileSystem.copyAsync({ from: asset.uri, to: cacheUri });
-
-    setPreviewReceipt({
-      uri: cacheUri,
-      mimeType: asset.mimeType,
-      booking,
-    });
   };
 
   // ─── Submit Receipt ──────────────────────────────────────────────────────────
@@ -134,32 +126,39 @@ export default function BookingsScreen() {
     setUploading(true);
 
     try {
-      const formData = new FormData();
-      
-      // Extract file extension from URI or MIME type
+      const token = await AsyncStorage.getItem('token');
       const ext = previewReceipt.mimeType?.split('/')[1] || 'jpg';
-      
-      // React Native FormData requires specific format
-      formData.append('receipt', {
-        uri: previewReceipt.uri,
-        type: previewReceipt.mimeType || 'image/jpeg',
-        name: `receipt-${Date.now()}.${ext}`,
-      } as any);
 
-      // CRITICAL: Do NOT set Content-Type header manually
-      // Let axios set it automatically with the correct boundary
-      const uploadRes = await api.post('/upload/receipt', formData);
+      const uploadResult = await FileSystem.uploadAsync(
+        `${API_BASE_URL}/api/upload/receipt`,
+        previewReceipt.uri,
+        {
+          httpMethod: 'POST',
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName: 'receipt',
+          mimeType: previewReceipt.mimeType || 'image/jpeg',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          parameters: {
+            filename: `receipt-${Date.now()}.${ext}`,
+          },
+        }
+      );
 
-      const { imageUrl } = uploadRes.data;
+      const uploadData = JSON.parse(uploadResult.body);
+      if (!uploadData.imageUrl) {
+        throw new Error(uploadData.message || 'Upload failed');
+      }
 
-      await api.patch(`/payments/${previewReceipt.booking.payment!.id}/submit-receipt`, { receiptImageUrl: imageUrl });
+      await api.patch(`/payments/${previewReceipt.booking.payment!.id}/submit-receipt`, { receiptImageUrl: uploadData.imageUrl });
 
       Alert.alert('Receipt Submitted', 'Your payment receipt has been sent to the owner for review.');
       setPreviewReceipt(null);
       fetchBookings();
     } catch (err) {
       const axiosErr = err as any;
-      console.error('Receipt upload error:', axiosErr.response?.data || axiosErr.message);
+      console.error('Receipt upload error:', axiosErr.response?.data || axiosErr.message || axiosErr);
       Alert.alert('Upload Failed', getApiError(err, 'Failed to upload receipt.'));
     } finally {
       setUploading(false);

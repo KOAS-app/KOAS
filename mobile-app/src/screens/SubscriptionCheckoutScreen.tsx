@@ -12,6 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
 import api from '../api/axios';
@@ -145,35 +146,40 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
   };
 
   const handlePickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please allow access to your photo library to upload receipts.');
-      return;
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please allow access to your photo library to upload receipts.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: false,
+        quality: 0.8,
+      });
+
+      console.log('ImagePicker result (subscription):', result);
+
+      if (result.canceled || !result.assets || !result.assets[0]) {
+        console.log('Image selection cancelled or no asset returned');
+        return;
+      }
+
+      console.log('Selected image:', {
+        uri: result.assets[0].uri,
+        mimeType: result.assets[0].mimeType,
+        fileName: result.assets[0].fileName,
+      });
+
+      setReceiptImage({
+        uri: result.assets[0].uri,
+        mimeType: result.assets[0].mimeType,
+      });
+    } catch (err) {
+      console.error('handlePickImage error:', err);
+      Alert.alert('Error', 'Failed to select image. Please try again.');
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 0.8,
-    });
-
-    console.log('ImagePicker result (subscription):', result);
-
-    if (result.canceled || !result.assets || !result.assets[0]) {
-      console.log('Image selection cancelled or no asset returned');
-      return;
-    }
-
-    console.log('Selected image:', {
-      uri: result.assets[0].uri,
-      mimeType: result.assets[0].mimeType,
-      fileName: result.assets[0].fileName,
-    });
-
-    setReceiptImage({
-      uri: result.assets[0].uri,
-      mimeType: result.assets[0].mimeType,
-    });
   };
 
   const toggleSlotSelection = (slotId: string) => {
@@ -289,30 +295,30 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
       const token = await AsyncStorage.getItem('token');
       const ext = receiptImage.mimeType?.split('/')[1]?.replace('jpeg', 'jpg') || 'jpg';
 
-      const formData = new FormData();
-      formData.append('receipt', {
-        uri: receiptImage.uri,
-        type: receiptImage.mimeType || 'image/jpeg',
-        name: `subscription-receipt-${Date.now()}.${ext}`,
-      } as any);
+      console.log('Uploading receipt via FileSystem.uploadAsync...');
 
-      console.log('Uploading receipt via fetch...');
+      const uploadResult = await FileSystem.uploadAsync(
+        `${API_BASE_URL}/api/upload/receipt`,
+        receiptImage.uri,
+        {
+          httpMethod: 'POST',
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName: 'receipt',
+          mimeType: receiptImage.mimeType || 'image/jpeg',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          parameters: {
+            filename: `subscription-receipt-${Date.now()}.${ext}`,
+          },
+        }
+      );
 
-      // ⚠️ Do NOT set Content-Type here — React Native fetch sets it
-      // automatically with the correct multipart boundary.
-      const uploadResponse = await fetch(`${API_BASE_URL}/api/upload/receipt`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const uploadData = await uploadResponse.json();
+      const uploadData = JSON.parse(uploadResult.body);
       console.log('Upload response:', uploadData);
 
-      if (!uploadResponse.ok) {
-        throw new Error(uploadData?.message || `Upload failed with status ${uploadResponse.status}`);
+      if (!uploadResult.status.toString().startsWith('2')) {
+        throw new Error(uploadData?.message || `Upload failed with status ${uploadResult.status}`);
       }
 
       imageUrl = uploadData?.imageUrl;
