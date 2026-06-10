@@ -55,13 +55,13 @@ export default function MembersPage() {
   const locations = [...new Set(members.map(m => m.subscriptionPlan.location).filter(Boolean) as string[])];
 
   const filteredMembers = members.filter(m => {
-    if (filter === 'active') return m.status === 'ACTIVE' && new Date(m.endDate) >= new Date();
-    if (filter === 'expired') return new Date(m.endDate) < new Date();
+    if (filter === 'active') return m.status === 'ACTIVE' && m.endDate && new Date(m.endDate) >= new Date();
+    if (filter === 'expired') return m.endDate && new Date(m.endDate) < new Date();
     return true;
   }).filter(m => selectedLocation === 'all' || m.subscriptionPlan.location === selectedLocation);
 
-  const activeCount = filteredMembers.filter(m => m.status === 'ACTIVE' && new Date(m.endDate) >= new Date()).length;
-  const expiredCount = filteredMembers.filter(m => new Date(m.endDate) < new Date()).length;
+  const activeCount = filteredMembers.filter(m => m.status === 'ACTIVE' && m.endDate && new Date(m.endDate) >= new Date()).length;
+  const expiredCount = filteredMembers.filter(m => m.endDate && new Date(m.endDate) < new Date()).length;
 
   if (loading && !members.length) {
     return (
@@ -236,22 +236,22 @@ export default function MembersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[rgba(22,163,74,0.1)] border border-[rgba(22,163,74,0.2)] rounded-md">
-                        <span className="text-xs font-bold text-[#16a34a]">{member.membershipCode}</span>
+                        <span className="text-xs font-bold text-[#16a34a]">{member.subscriptionCode}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-semibold text-[var(--color-text-secondary)]">
-                        {new Date(member.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {member.startDate ? new Date(member.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-semibold text-[var(--color-text-secondary)]">
-                        {new Date(member.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {member.endDate ? new Date(member.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                       </div>
-                      <div className="text-xs text-[var(--color-text-muted)] mt-0.5">{getDaysRemaining(member.endDate)}</div>
+                      <div className="text-xs text-[var(--color-text-muted)] mt-0.5">{getDaysRemaining(member.endDate || '')}</div>
                     </td>
                     <td className="px-6 py-4">
-                      {getStatusBadge(member.status, member.endDate)}
+                      {getStatusBadge(member.status, member.endDate || '')}
                     </td>
                   </tr>
                 ))

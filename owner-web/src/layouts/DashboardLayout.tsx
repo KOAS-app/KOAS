@@ -55,40 +55,12 @@ const NAV = [
     ),
   },
   {
-    to: '/reviews',
-    label: 'Reviews',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
-    ),
-  },
-  {
-    to: '/locations',
-    label: 'Locations',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-        <circle cx="12" cy="10" r="3" />
-      </svg>
-    ),
-  },
-  {
     to: '/bank-details',
     label: 'Bank Details',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
         <line x1="1" y1="10" x2="23" y2="10" />
-      </svg>
-    ),
-  },
-  {
-    to: '/subscription',
-    label: 'My Subscription',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       </svg>
     ),
   },
@@ -104,7 +76,7 @@ const NAV = [
   },
   {
     to: '/subscription-requests',
-    label: 'Sub Requests',
+    label: 'Subscription Request',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -123,6 +95,15 @@ const NAV = [
       </svg>
     ),
   },
+  {
+    to: '/reviews',
+    label: 'Reviews',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    ),
+  },
 ];
 
 /* ─── Breadcrumb map ─────────────────────────────────────────── */
@@ -133,9 +114,7 @@ function useBreadcrumb() {
   if (pathname.includes('/members')) return ['Members'];
   if (pathname.includes('/slots')) return ['Time Slots'];
   if (pathname.includes('/reviews')) return ['Reviews'];
-  if (pathname.includes('/locations')) return ['Locations'];
   if (pathname.includes('/bank-details')) return ['Bank Details'];
-  if (pathname.includes('/subscription')) return ['My Subscription'];
   if (pathname.includes('/subscription-plans')) return ['Subscription Plans'];
   if (pathname.includes('/subscription-requests')) return ['Subscription Requests'];
   if (pathname.includes('/verify-membership')) return ['Verify Membership'];
@@ -381,7 +360,7 @@ export default function DashboardLayout() {
               </div>
               <div className="flex items-center gap-4">
                 <p className="hidden md:block text-[0.75rem] text-white/60">
-                  Enjoy unlimited locations, auto slot generators, and reviews management!
+                  Enjoy auto slot generators and reviews management!
                 </p>
                 <button
                   onClick={() => navigate('/subscription')}

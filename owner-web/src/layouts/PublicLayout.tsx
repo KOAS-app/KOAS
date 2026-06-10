@@ -4,7 +4,7 @@ import logoOfficial from '../assets/logo/koas_official_logo.png';
 import PublicNavbar from '../components/PublicNavbar';
 
 export default function PublicLayout() {
-  const { user } = useAuth();
+  useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#050a08] via-[#0a1110] to-[#070c0a] text-white font-sans flex flex-col justify-between relative overflow-x-hidden">

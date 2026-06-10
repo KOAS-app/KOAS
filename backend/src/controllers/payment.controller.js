@@ -77,12 +77,21 @@ export const confirmPayment = async (req, res) => {
       return res.status(400).json({ message: 'No receipt submitted yet' });
     }
 
-    const updated = await prisma.payment.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'PAID',
-        ownerConfirmedAt: new Date(),
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      const p = await tx.payment.update({
+        where: { id: req.params.id },
+        data: {
+          status: 'PAID',
+          ownerConfirmedAt: new Date(),
+        },
+      });
+
+      await tx.booking.update({
+        where: { id: payment.bookingId },
+        data: { status: 'CONFIRMED' },
+      });
+
+      return p;
     });
 
     res.json(updated);

@@ -21,7 +21,6 @@ export default function BookingInsights({ insights, stats, bookings }: Props) {
 
   // Starter Limit Restrictions
   const isStarter = activeTier === 'STARTER';
-  const isPro = activeTier === 'PRO';
   const isElite = activeTier === 'ELITE';
 
   // Toggle switcher handler
@@ -39,7 +38,7 @@ export default function BookingInsights({ insights, stats, bookings }: Props) {
     return bookings
       .filter(b => {
         const bDate = new Date(b.slot.startTime).toISOString().split('T')[0];
-        return bDate === dateStr && b.status !== 'CANCELLED' && b.payment?.status === 'PAID';
+        return bDate === dateStr && b.status !== 'CANCELLED' && b.payment?.status === 'PAID' && b.payment?.method !== 'SUBSCRIPTION';
       })
       .reduce((sum, b) => sum + (b.payment?.amount || b.slot.price || 0), 0);
   };
@@ -81,9 +80,9 @@ export default function BookingInsights({ insights, stats, bookings }: Props) {
   const velocityMultiplier = velocityScore > 75 ? 1.25 : velocityScore > 40 ? 1.05 : 0.85;
   const nextWeekForecastedRevenue = Math.round(dailyAverageRevenue * 7 * velocityMultiplier);
 
-  // Navigation to subscription
+  // Navigation to subscription plans
   const handleUpgradeRedirect = () => {
-    navigate('/subscription');
+    navigate('/subscription-plans');
   };
 
   return (

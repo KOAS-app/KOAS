@@ -128,7 +128,7 @@ export default function BookingsPage() {
     cancelled: locationBookings.filter(b => b.status === 'CANCELLED').length,
     paid: locationBookings.filter(b => b.payment?.status === 'PAID').length,
     revenue: locationBookings
-      .filter(b => b.payment?.status === 'PAID')
+      .filter(b => b.payment?.status === 'PAID' && b.payment?.method !== 'SUBSCRIPTION')
       .reduce((sum, b) => sum + (b.payment?.amount || b.slot.price || 0), 0),
   };
 

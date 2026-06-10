@@ -1,12 +1,9 @@
 import { useState, FormEvent } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Link, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
 
 export default function RegisterPage() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const plan = searchParams.get('plan') || 'starter';
   const plansInfo: Record<string, { name: string; price: string }> = {

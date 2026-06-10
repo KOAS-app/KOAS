@@ -365,18 +365,6 @@ export const getOwnerBookings = async (req, res) => {
 
     const { status, search, date } = req.query;
 
-    // Get all active subscription player IDs for this stadium
-    const activeSubscriptions = await prisma.playerSubscription.findMany({
-      where: {
-        subscriptionPlan: { stadiumId: stadium.id },
-        status: 'ACTIVE',
-        endDate: { gte: new Date() }
-      },
-      select: { playerId: true }
-    });
-
-    const subscribedPlayerIds = activeSubscriptions.map(sub => sub.playerId);
-
     // Calculate 7-day window (3 days before, 3 days after) if date is provided
     let dateFilter = {};
     if (date) {
@@ -387,13 +375,12 @@ export const getOwnerBookings = async (req, res) => {
       const endDate = new Date(centerDate);
       endDate.setDate(centerDate.getDate() + 3);
       endDate.setHours(23, 59, 59, 999);
-      dateFilter = { createdAt: { gte: startDate, lte: endDate } };
+      dateFilter = { slot: { startTime: { gte: startDate, lte: endDate } } };
     }
 
     const bookings = await prisma.booking.findMany({
       where: {
         stadiumId: stadium.id,
-        playerId: { notIn: subscribedPlayerIds }, // Exclude subscribed players
         ...dateFilter,
         ...(status && status !== 'all' ? { status: status.toUpperCase() } : {}),
         ...(search ? {
@@ -439,9 +426,11 @@ export const getOwnerStats = async (req, res) => {
       endDate.setHours(23, 59, 59, 999);
       
       dateFilter = {
-        createdAt: {
-          gte: startDate,
-          lte: endDate
+        slot: {
+          startTime: {
+            gte: startDate,
+            lte: endDate
+          }
         }
       };
     }

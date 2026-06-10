@@ -10,9 +10,7 @@ import SlotsPage from './pages/SlotsPage';
 import BookingsPage from './pages/BookingsPage';
 import MembersPage from './pages/MembersPage';
 import ReviewsPage from './pages/ReviewsPage';
-import LocationsPage from './pages/LocationsPage';
 import BankDetailsPage from './pages/BankDetailsPage';
-import SubscriptionPage from './pages/SubscriptionPage';
 import SubscriptionPlansPage from './pages/SubscriptionPlansPage';
 import SubscriptionRequestsPage from './pages/SubscriptionRequestsPage';
 import VerifyMembershipPage from './pages/VerifyMembershipPage';
@@ -66,9 +64,7 @@ export default function App() {
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="members" element={<MembersPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
-        <Route path="locations" element={<LocationsPage />} />
         <Route path="bank-details" element={<BankDetailsPage />} />
-        <Route path="subscription" element={<SubscriptionPage />} />
         <Route path="subscription-plans" element={<SubscriptionPlansPage />} />
         <Route path="subscription-requests" element={<SubscriptionRequestsPage />} />
         <Route path="verify-membership" element={<VerifyMembershipPage />} />

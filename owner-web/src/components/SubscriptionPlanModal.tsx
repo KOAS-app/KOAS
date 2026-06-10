@@ -14,7 +14,6 @@ export default function SubscriptionPlanModal({ plan, onClose, onSuccess }: Prop
   const [step, setStep] = useState<'plan' | 'slots'>('plan');
   const [createdPlanId, setCreatedPlanId] = useState<string | null>(null);
   const [stadiumData, setStadiumData] = useState<{ id: string; locations: string[] } | null>(null);
-  const [loadingStadium, setLoadingStadium] = useState(true);
 
   // Fetch stadium data on mount to get locations
   useEffect(() => {
@@ -25,8 +24,6 @@ export default function SubscriptionPlanModal({ plan, onClose, onSuccess }: Prop
         setStadiumData({ id: stadium.id, locations: (stadium.locations || []).map((l: any) => l.name) });
       } catch (err) {
         console.error('Failed to fetch stadium:', err);
-      } finally {
-        setLoadingStadium(false);
       }
     };
     fetchStadium();

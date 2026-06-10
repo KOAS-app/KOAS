@@ -14,7 +14,6 @@ export default function ReviewsPage() {
   const limits = TIER_LIMITS[activeTier];
   const canReply = limits.reviewReplies;
 
-  const [stadiumId, setStadiumId] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
@@ -35,8 +34,6 @@ export default function ReviewsPage() {
         setLoading(false);
         return;
       }
-
-      setStadiumId(stadium.id);
 
       // Then fetch reviews
       const res = await api.get(`/reviews/stadium/${stadium.id}`);

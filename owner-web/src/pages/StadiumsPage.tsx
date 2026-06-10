@@ -111,7 +111,6 @@ export default function StadiumsPage() {
               onSlots={() => navigate(`/stadiums/${stadium.id}/slots`)}
               onBookings={() => navigate(`/stadiums/${stadium.id}/bookings`)}
               onReviews={() => navigate(`/stadiums/${stadium.id}/reviews`)}
-              onLocations={() => navigate('/locations')}
               onEdit={() => openEdit(stadium)}
               onDelete={() => handleDelete(stadium.id)}
             />
@@ -137,12 +136,11 @@ interface CardProps {
   onSlots: () => void;
   onBookings: () => void;
   onReviews: () => void;
-  onLocations: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-function StadiumCard({ stadium, onSlots, onBookings, onReviews, onLocations, onEdit, onDelete }: CardProps) {
+function StadiumCard({ stadium, onSlots, onBookings, onReviews, onEdit, onDelete }: CardProps) {
   const approved = stadium.isApproved;
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const firstLocationImage = stadium.locations?.[0]?.images?.[0];
@@ -232,7 +230,7 @@ function StadiumCard({ stadium, onSlots, onBookings, onReviews, onLocations, onE
         )}
 
         {/* Action buttons */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <button
             className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0"
             onClick={onSlots}
@@ -259,15 +257,6 @@ function StadiumCard({ stadium, onSlots, onBookings, onReviews, onLocations, onE
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
             Reviews
-          </button>
-          <button
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-base)]"
-            onClick={onLocations}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
-            </svg>
-            Locations
           </button>
         </div>
 

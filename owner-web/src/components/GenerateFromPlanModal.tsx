@@ -10,7 +10,7 @@ interface Props {
   onSuccess: (count: number) => void;
 }
 
-export default function GenerateFromPlanModal({ stadiumId, stadiumLocations, onClose, onSuccess }: Props) {
+export default function GenerateFromPlanModal({ stadiumLocations, onClose, onSuccess }: Props) {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);

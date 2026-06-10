@@ -47,6 +47,7 @@ export interface Booking {
     id: string;
     status: 'PENDING' | 'RECEIPT_SUBMITTED' | 'PAID' | 'REJECTED' | 'DISPUTED';
     amount: number;
+    method?: 'CASH' | 'SUBSCRIPTION';
     receiptImageUrl?: string;
     playerSubmittedAt?: string;
     ownerRejectionReason?: string;
@@ -109,4 +110,30 @@ export interface SubscriptionPlan {
   hoursPerDay: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PlayerSubscription {
+  id: string;
+  playerId: string;
+  subscriptionPlanId: string;
+  status: 'PENDING' | 'RECEIPT_SUBMITTED' | 'ACTIVE' | 'REJECTED' | 'EXPIRED';
+  subscriptionCode: string;
+  pricePaid: number;
+  receiptImageUrl?: string;
+  playerSubmittedAt?: string;
+  selectedSlotIds: string[];
+  ownerConfirmedAt?: string;
+  ownerRejectedAt?: string;
+  ownerRejectionReason?: string;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  player: {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber?: string;
+  };
+  subscriptionPlan: SubscriptionPlan;
 }

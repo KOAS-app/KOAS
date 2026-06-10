@@ -46,13 +46,15 @@ export default function ReceiptModal({ booking, busy, onConfirm, onReject, onClo
         </div>
 
         {/* Receipt image */}
-        <div className="p-4 overflow-y-auto">
-          <img
-            src={`${API_URL}${booking.payment!.receiptImageUrl}`}
-            alt="Payment receipt"
-            className="w-full max-h-[380px] object-contain rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface-muted)]"
-          />
-        </div>
+        {booking.payment?.receiptImageUrl && (
+          <div className="p-4 overflow-y-auto">
+            <img
+              src={`${API_URL}${booking.payment.receiptImageUrl}`}
+              alt="Payment receipt"
+              className="w-full max-h-[380px] object-contain rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface-muted)]"
+            />
+          </div>
+        )}
 
         {/* Player details */}
         <div className="px-4 pb-3 flex items-center gap-3 flex-wrap text-sm">
