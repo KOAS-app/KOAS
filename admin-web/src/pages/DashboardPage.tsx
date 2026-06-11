@@ -1,69 +1,35 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import { getApiError } from '../utils/apiError';
+
 
 interface Stats {
   totalUsers: number;
   totalOwners: number;
   totalPlayers: number;
   totalStadiums: number;
-  pendingStadiums: number;
   totalBookings: number;
   confirmedBookings: number;
   pendingBookings: number;
   starterPlans: number;
   proPlans: number;
   elitePlans: number;
-  openDisputesCount: number;
-}
-
-interface PendingLocation {
-  id: string;
-  name: string;
-  images: string[];
-}
-
-interface PendingStadium {
-  id: string;
-  name: string;
-  locations: PendingLocation[];
-  owner: {
-    id: string;
-    name: string;
-    email: string;
-  };
-}
-
-interface OpenDispute {
-  id: string;
-  amount: number;
-  booking: {
-    stadium: { name: string };
-    player: { name: string };
-  };
 }
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
-  const [pendingStadiumsList, setPendingStadiumsList] = useState<PendingStadium[]>([]);
-  const [openDisputesList, setOpenDisputesList] = useState<OpenDispute[]>([]);
   const [loading, setLoading] = useState(true);
-  const [actionBusy, setActionBusy] = useState<string | null>(null);
 
   const fetchDashboardData = async () => {
     try {
-      const [usersRes, stadiumsRes, bookingsRes, disputesRes] = await Promise.all([
+      const [usersRes, stadiumsRes, bookingsRes] = await Promise.all([
         api.get('/admin/users'),
         api.get('/admin/stadiums'),
         api.get('/admin/bookings'),
-        api.get('/admin/disputes'),
       ]);
 
       const users = usersRes.data as any[];
       const stadiums = stadiumsRes.data as any[];
       const bookings = bookingsRes.data as any[];
-      const disputes = disputesRes.data as any[];
 
       const owners = users.filter((u) => u.role === 'OWNER');
       const players = users.filter((u) => u.role === 'PLAYER');
@@ -77,18 +43,13 @@ export default function DashboardPage() {
         totalOwners:       owners.length,
         totalPlayers:      players.length,
         totalStadiums:     stadiums.length,
-        pendingStadiums:   stadiums.filter((s) => !s.isApproved).length,
         totalBookings:     bookings.length,
         confirmedBookings: bookings.filter((b) => b.status === 'CONFIRMED').length,
         pendingBookings:   bookings.filter((b) => b.status === 'PENDING').length,
         starterPlans:      starterCount,
         proPlans:          proCount,
         elitePlans:        eliteCount,
-        openDisputesCount: disputes.length,
       });
-
-      setPendingStadiumsList(stadiums.filter((s) => !s.isApproved));
-      setOpenDisputesList(disputes.slice(0, 3)); // show top 3 disputes
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
     } finally {
@@ -99,25 +60,6 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
-
-  const handleApproveStadium = async (stadiumId: string, ownerId: string) => {
-    setActionBusy(stadiumId);
-    try {
-      await api.patch(`/admin/users/${ownerId}/approve`);
-      // Update local state immediately
-      setPendingStadiumsList(prev => prev.filter(s => s.id !== stadiumId));
-      if (stats) {
-        setStats({
-          ...stats,
-          pendingStadiums: Math.max(0, stats.pendingStadiums - 1)
-        });
-      }
-    } catch (err) {
-      alert(getApiError(err, 'Failed to approve turf stadium.'));
-    } finally {
-      setActionBusy(null);
-    }
-  };
 
   if (loading) {
     return (
@@ -192,10 +134,8 @@ export default function DashboardPage() {
               <span className="text-3xl font-black text-[var(--color-text-base)] tracking-tight block mt-1">
                 {stats.totalStadiums.toLocaleString()}
               </span>
-              <span className={`text-[11px] font-bold mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded ${
-                stats.pendingStadiums > 0 ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'
-              }`}>
-                {stats.pendingStadiums > 0 ? `⚠ ${stats.pendingStadiums} Pending Review` : '✓ All Approved'}
+              <span className="text-[11px] font-bold mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">
+                ✓ All Registered
               </span>
             </div>
             <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
@@ -227,31 +167,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Card 4: Disputes */}
-          <Link to="/disputes" className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-2xl p-5.5 shadow-sm transition-all hover:shadow-md hover:border-[var(--color-border-strong)] flex items-center justify-between group">
-            <div>
-              <span className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">Open Disputes</span>
-              <span className="text-3xl font-black text-[var(--color-text-base)] tracking-tight block mt-1">
-                {stats.openDisputesCount}
-              </span>
-              <span className={`text-[11px] font-bold mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded ${
-                stats.openDisputesCount > 0 ? 'bg-red-50 text-red-700 animate-pulse' : 'bg-slate-100 text-slate-600'
-              }`}>
-                {stats.openDisputesCount > 0 ? 'Action Required' : 'Dispute Inbox Clear'}
-              </span>
-            </div>
-            <div className={`w-12 h-12 rounded-xl border flex items-center justify-center flex-shrink-0 transition-colors ${
-              stats.openDisputesCount > 0 
-                ? 'bg-red-50 border-red-100 text-red-600 group-hover:bg-red-100'
-                : 'bg-slate-50 border-slate-100 text-slate-600 group-hover:bg-slate-100'
-            }`}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </div>
-          </Link>
         </div>
       )}
 
@@ -327,117 +242,6 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Action Center Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Column 1: Pending Stadiums */}
-        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-2xl p-5 shadow-sm flex flex-col h-full min-h-[300px]">
-          <div className="flex items-center justify-between mb-4 flex-shrink-0">
-            <div>
-              <h3 className="text-base font-extrabold text-[var(--color-text-base)] tracking-tight">
-                Pending Turf Approvals
-              </h3>
-              <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                New turf registrations requiring verification and activation.
-              </p>
-            </div>
-            {pendingStadiumsList.length > 0 && (
-              <span className="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-black tracking-wide">
-                {pendingStadiumsList.length} PENDING
-              </span>
-            )}
-          </div>
-
-          <div className="flex-1 overflow-y-auto max-h-[320px] flex flex-col gap-2.5 pr-1">
-            {pendingStadiumsList.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center p-8 bg-[var(--color-surface-muted)] rounded-xl border border-[var(--color-border)] h-full">
-                <span className="text-4xl opacity-50 mb-2">🎉</span>
-                <p className="text-xs font-bold text-[var(--color-text-base)]">Inbox Clear</p>
-                <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">All stadiums have been approved and activated.</p>
-              </div>
-            ) : (
-              pendingStadiumsList.map((s) => (
-                <div key={s.id} className="p-3.5 bg-[var(--color-surface-muted)] border border-[var(--color-border)] rounded-xl flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-xs font-extrabold text-[var(--color-text-base)] tracking-tight truncate">
-                      {s.name}
-                    </p>
-                    <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5 truncate">
-                      Owner: {s.owner.name} &nbsp;·&nbsp; {(s.locations || []).map((l: any) => l.name).join(', ') || 'No locations'}
-                    </p>
-                  </div>
-                  <button
-                    disabled={actionBusy === s.id}
-                    onClick={() => handleApproveStadium(s.id, s.owner.id)}
-                    className="flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-extrabold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                  >
-                    {actionBusy === s.id ? (
-                      <div className="w-2.5 h-2.5 border-[1.5px] border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : 'Approve'}
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Column 2: Open Disputes */}
-        <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-2xl p-5 shadow-sm flex flex-col h-full min-h-[300px]">
-          <div className="flex items-center justify-between mb-4 flex-shrink-0">
-            <div>
-              <h3 className="text-base font-extrabold text-[var(--color-text-base)] tracking-tight">
-                Disputed Bank Transfers
-              </h3>
-              <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                Flagged manual payment receipts awaiting arbitration.
-              </p>
-            </div>
-            {stats && stats.openDisputesCount > 0 && (
-              <span className="px-2.5 py-1 rounded-full bg-red-50 border border-red-200 text-red-700 text-[10px] font-black tracking-wide">
-                {stats.openDisputesCount} ACTION
-              </span>
-            )}
-          </div>
-
-          <div className="flex-1 overflow-y-auto max-h-[320px] flex flex-col gap-2.5 pr-1">
-            {openDisputesList.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center p-8 bg-[var(--color-surface-muted)] rounded-xl border border-[var(--color-border)] h-full">
-                <span className="text-4xl opacity-50 mb-2">🛡️</span>
-                <p className="text-xs font-bold text-[var(--color-text-base)]">All Resolved</p>
-                <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">No disputes or payment arguments reported.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2.5">
-                {openDisputesList.map((d) => (
-                  <div key={d.id} className="p-3.5 bg-[var(--color-surface-muted)] border border-[var(--color-border)] rounded-xl flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-xs font-extrabold text-[var(--color-text-base)] tracking-tight truncate">
-                        {d.booking.stadium.name}
-                      </p>
-                      <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5 truncate">
-                        Player: {d.booking.player.name} &nbsp;·&nbsp; {d.amount.toLocaleString()} ETB
-                      </p>
-                    </div>
-                    <Link
-                      to="/disputes"
-                      className="flex-shrink-0 inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-[11px] font-extrabold text-[#7e22ce] bg-[#fdf4ff] border border-[#e9d5ff] hover:bg-[#f5e3ff] transition-all whitespace-nowrap"
-                    >
-                      Arbitrate
-                    </Link>
-                  </div>
-                ))}
-                {stats && stats.openDisputesCount > 3 && (
-                  <Link
-                    to="/disputes"
-                    className="text-xs text-center font-bold text-[var(--color-primary)] hover:underline mt-1"
-                  >
-                    View remaining {stats.openDisputesCount - 3} disputes →
-                  </Link>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

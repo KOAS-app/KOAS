@@ -23,6 +23,7 @@ export const createStadium = async (req, res) => {
         description,
         amenities: amenities || [],
         ownerId: req.user.id,
+        isApproved: true,
       },
       include: { locations: true },
     });
@@ -40,7 +41,7 @@ export const createStadium = async (req, res) => {
 export const getStadiums = async (req, res) => {
   try {
     const stadiums = await prisma.stadium.findMany({
-      where: { isApproved: true },
+      where: { isBlocked: false },
       include: {
         owner: { select: { id: true, name: true } },
         reviews: { select: { rating: true } },

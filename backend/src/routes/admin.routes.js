@@ -3,14 +3,12 @@ import {
   getAllUsers,
   deleteUser,
   getAllStadiums,
-  approveStadium,
-  rejectStadium,
   approveUser,
   rejectUser,
+  blockStadium,
+  unblockStadium,
   getAllBookings,
-  getAllDisputes,
-  resolveForPlayer,
-  resolveForOwner,
+
   updateUserPlan,
 } from '../controllers/admin.controller.js';
 import { authenticate, authorizeRoles } from '../middlewares/auth.middleware.js';
@@ -27,14 +25,9 @@ router.patch('/users/:id/reject', rejectUser);
 router.patch('/users/:id/subscription', updateUserPlan);
 
 router.get('/stadiums', getAllStadiums);
-router.patch('/stadiums/:id/approve', approveStadium);
-router.patch('/stadiums/:id/reject', rejectStadium);
+router.patch('/stadiums/:id/block', blockStadium);
+router.patch('/stadiums/:id/unblock', unblockStadium);
 
 router.get('/bookings', getAllBookings);
-
-// Dispute resolution
-router.get('/disputes', getAllDisputes);
-router.patch('/disputes/:paymentId/resolve-for-player', resolveForPlayer);
-router.patch('/disputes/:paymentId/resolve-for-owner',  resolveForOwner);
 
 export default router;

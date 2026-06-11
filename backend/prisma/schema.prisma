@@ -38,6 +38,8 @@ model Stadium {
   amenities         String[]  @default([]) // Stadium amenities/features
   ownerId           String    @unique // One stadium per owner
   isApproved        Boolean   @default(false)
+  isBlocked         Boolean   @default(false)
+  blockedReason     String?
   createdAt         DateTime  @default(now())
 
   owner         User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -123,11 +125,6 @@ model Payment {
   ownerRejectedAt     DateTime?     // When owner rejected
   ownerRejectionReason String?      // Reason for rejection
 
-  // Dispute
-  isDisputed          Boolean       @default(false)
-  disputeReason       String?
-  disputedAt          DateTime?
-
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -145,7 +142,7 @@ enum PaymentStatus {
   RECEIPT_SUBMITTED // Player uploaded receipt, waiting for owner
   PAID              // Owner confirmed payment
   REJECTED          // Owner rejected receipt
-  DISPUTED          // Player disputed rejection
+
 }
 
 model Review {

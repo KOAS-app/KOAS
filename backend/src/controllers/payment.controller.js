@@ -133,36 +133,4 @@ export const rejectPayment = async (req, res) => {
   }
 };
 
-// PATCH /api/payments/:id/dispute — player disputes a rejection
-export const disputePayment = async (req, res) => {
-  try {
-    const { reason } = req.body;
 
-    const payment = await prisma.payment.findUnique({
-      where: { id: req.params.id },
-      include: { booking: true },
-    });
-
-    if (!payment) return res.status(404).json({ message: 'Payment not found' });
-    if (payment.booking.playerId !== req.user.id) {
-      return res.status(403).json({ message: 'Not your booking' });
-    }
-    if (payment.status !== 'REJECTED') {
-      return res.status(400).json({ message: 'Can only dispute rejected payments' });
-    }
-
-    const updated = await prisma.payment.update({
-      where: { id: req.params.id },
-      data: {
-        status: 'DISPUTED',
-        isDisputed: true,
-        disputeReason: reason || 'Player disputes rejection',
-        disputedAt: new Date(),
-      },
-    });
-
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};

@@ -142,6 +142,7 @@ interface CardProps {
 
 function StadiumCard({ stadium, onSlots, onBookings, onReviews, onEdit, onDelete }: CardProps) {
   const approved = stadium.isApproved;
+  const blocked = stadium.isBlocked;
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const firstLocationImage = stadium.locations?.[0]?.images?.[0];
   const imageUrl = firstLocationImage ? `${apiUrl}${firstLocationImage}` : null;
@@ -162,11 +163,13 @@ function StadiumCard({ stadium, onSlots, onBookings, onReviews, onEdit, onDelete
           />
           {/* Status badge overlay */}
           <span className={`absolute top-3 right-3 inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border backdrop-blur-sm ${
-            approved 
-              ? 'bg-[rgba(34,197,94,0.9)] text-white border-[rgba(255,255,255,0.3)]' 
-              : 'bg-[rgba(245,158,11,0.9)] text-white border-[rgba(255,255,255,0.3)]'
+            blocked
+              ? 'bg-[rgba(220,38,38,0.9)] text-white border-[rgba(255,255,255,0.3)]'
+              : approved
+                ? 'bg-[rgba(34,197,94,0.9)] text-white border-[rgba(255,255,255,0.3)]'
+                : 'bg-[rgba(245,158,11,0.9)] text-white border-[rgba(255,255,255,0.3)]'
           }`}>
-            {approved ? 'Live' : 'Pending'}
+            {blocked ? 'Blocked' : approved ? 'Live' : 'Pending'}
           </span>
         </div>
       ) : (
@@ -194,14 +197,29 @@ function StadiumCard({ stadium, onSlots, onBookings, onReviews, onEdit, onDelete
           {/* Show status badge only if no image */}
           {!imageUrl && (
             <span className={`inline-flex items-center px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border flex-shrink-0 ${
-              approved 
-                ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]' 
-                : 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]'
+              blocked
+                ? 'bg-red-50 text-red-700 border-red-200'
+                : approved
+                  ? 'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]'
+                  : 'bg-[var(--color-warning-bg)] text-[#b45309] border-[#fde68a]'
             }`}>
-              {approved ? 'Live' : 'Pending'}
+              {blocked ? 'Blocked' : approved ? 'Live' : 'Pending'}
             </span>
           )}
         </div>
+
+        {/* Blocked message */}
+        {blocked && (
+          <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-[10px] bg-red-50 border border-red-200">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 flex-shrink-0 mt-0.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <div>
+              <p className="text-[0.75rem] font-extrabold text-red-800">Stadium Blocked</p>
+              <p className="text-[0.6875rem] text-red-700 mt-0.5">{stadium.blockedReason || 'No reason provided.'}</p>
+            </div>
+          </div>
+        )}
 
         {/* Description */}
         {stadium.description && (

@@ -20,7 +20,6 @@ export function PaymentBadge({ status }: { status?: NonNullable<Booking['payment
     RECEIPT_SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)] border-[var(--color-info)]/20',
     PAID: 'bg-[var(--color-success-bg)] text-[var(--color-success)] border-[var(--color-success)]/20',
     REJECTED: 'bg-[var(--color-danger-bg)] text-[var(--color-danger)] border-[var(--color-danger)]/20',
-    DISPUTED: 'bg-[var(--color-warning-bg)] text-[var(--color-warning)] border-[var(--color-warning)]/20',
   };
   
   const labels: Record<string, string> = {
@@ -28,7 +27,6 @@ export function PaymentBadge({ status }: { status?: NonNullable<Booking['payment
     RECEIPT_SUBMITTED: 'Review Receipt',
     PAID: 'Paid',
     REJECTED: 'Payment Rejected',
-    DISPUTED: 'Payment Disputed'
   };
 
   const currentStyle = styles[status] || styles.PENDING;

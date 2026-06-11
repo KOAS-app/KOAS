@@ -36,13 +36,6 @@ export const approveUser = async (req, res) => {
           rejectionReason: null, // Clear rejection reason on approval
         },
       });
-      // Cascade to their stadiums
-      if (u.role === 'OWNER') {
-        await tx.stadium.updateMany({
-          where: { ownerId: u.id },
-          data: { isApproved: true },
-        });
-      }
       return u;
     });
     res.json(user);
@@ -64,13 +57,6 @@ export const rejectUser = async (req, res) => {
           rejectionReason: reason || null,
         },
       });
-      // Cascade to their stadiums
-      if (u.role === 'OWNER') {
-        await tx.stadium.updateMany({
-          where: { ownerId: u.id },
-          data: { isApproved: false },
-        });
-      }
       return u;
     });
     res.json(user);
@@ -93,12 +79,14 @@ export const getAllStadiums = async (req, res) => {
   }
 };
 
-// PATCH /api/admin/stadiums/:id/approve — approve a stadium
-export const approveStadium = async (req, res) => {
+// PATCH /api/admin/stadiums/:id/block — block a stadium
+export const blockStadium = async (req, res) => {
   try {
+    const { reason } = req.body;
     const stadium = await prisma.stadium.update({
       where: { id: req.params.id },
-      data: { isApproved: true },
+      data: { isBlocked: true, blockedReason: reason || 'Blocked by admin' },
+      include: { owner: { select: { id: true, name: true } } },
     });
 
     res.json(stadium);
@@ -107,12 +95,13 @@ export const approveStadium = async (req, res) => {
   }
 };
 
-// PATCH /api/admin/stadiums/:id/reject — reject (unapprove) a stadium
-export const rejectStadium = async (req, res) => {
+// PATCH /api/admin/stadiums/:id/unblock — unblock a stadium
+export const unblockStadium = async (req, res) => {
   try {
     const stadium = await prisma.stadium.update({
       where: { id: req.params.id },
-      data: { isApproved: false },
+      data: { isBlocked: false, blockedReason: null },
+      include: { owner: { select: { id: true, name: true } } },
     });
 
     res.json(stadium);
@@ -135,67 +124,6 @@ export const getAllBookings = async (req, res) => {
     });
 
     res.json(bookings);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// GET /api/admin/disputes — list all disputed payments
-export const getAllDisputes = async (req, res) => {
-  try {
-    const disputes = await prisma.payment.findMany({
-      where: { isDisputed: true },
-      include: {
-        booking: {
-          include: {
-            player: { select: { id: true, name: true, email: true, phoneNumber: true } },
-            stadium: { select: { id: true, name: true, owner: { select: { id: true, name: true, email: true } } } },
-            slot: true,
-          },
-        },
-      },
-      orderBy: { disputedAt: 'desc' },
-    });
-
-    res.json(disputes);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// PATCH /api/admin/disputes/:paymentId/resolve-for-player — admin rules in player's favour
-export const resolveForPlayer = async (req, res) => {
-  try {
-    const { resolution } = req.body;
-
-    const payment = await prisma.payment.update({
-      where: { id: req.params.paymentId },
-      data: {
-        status: 'PAID',
-        isDisputed: false,
-      },
-    });
-
-    res.json({ payment, resolution });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// PATCH /api/admin/disputes/:paymentId/resolve-for-owner — admin rules in owner's favour
-export const resolveForOwner = async (req, res) => {
-  try {
-    const { resolution } = req.body;
-
-    const payment = await prisma.payment.update({
-      where: { id: req.params.paymentId },
-      data: {
-        status: 'REJECTED',
-        isDisputed: false,
-      },
-    });
-
-    res.json({ payment, resolution });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

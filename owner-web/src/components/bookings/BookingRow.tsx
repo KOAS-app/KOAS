@@ -17,7 +17,6 @@ export const PAYMENT_BADGE: Record<string, string> = {
   RECEIPT_SUBMITTED: 'bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]',
   PAID:              'bg-[var(--color-success-bg)] text-[#15803d] border-[#bbf7d0]',
   REJECTED:          'bg-[var(--color-danger-bg)] text-[#b91c1c] border-[#fecaca]',
-  DISPUTED:          'bg-[#fdf4ff] text-[#7e22ce] border-[#e9d5ff]',
 };
 
 export const PAYMENT_LABEL: Record<string, string> = {
@@ -25,7 +24,6 @@ export const PAYMENT_LABEL: Record<string, string> = {
   RECEIPT_SUBMITTED: '📎 Receipt Submitted',
   PAID:              '✓ Paid',
   REJECTED:          '✗ Rejected',
-  DISPUTED:          '⚠ Disputed',
 };
 
 interface Props {

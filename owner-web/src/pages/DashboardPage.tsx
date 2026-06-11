@@ -187,6 +187,24 @@ export default function DashboardPage() {
 
   return (
     <div>
+      {stadium.isBlocked && (
+        <div className="flex items-start gap-3 px-5 py-4 mb-6 rounded-[12px] bg-red-50 border border-red-200">
+          <div className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-red-600">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-extrabold text-red-800">Your stadium has been blocked</p>
+            <p className="text-[0.8125rem] text-red-700 mt-0.5 leading-relaxed">
+              {stadium.blockedReason || 'No reason provided.'}
+            </p>
+            <p className="text-[0.75rem] text-red-500 mt-1.5 font-medium">
+              Your stadium is currently hidden from players. Contact support if you believe this is an error.
+            </p>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
@@ -299,23 +317,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 mb-10">
-        <QuickActionCard
-          icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>}
-          title="Manage Time Slots"
-          description="Create and manage available booking slots"
-          buttonText="Go to Slots"
-          onClick={() => navigate('/slots')}
-        />
-        <QuickActionCard
-          icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>}
-          title="View Bookings"
-          description="Review and manage player bookings"
-          buttonText="Go to Bookings"
-          onClick={() => navigate('/bookings')}
-        />
-      </div>
+
 
       {/* Trial Countdown or Active Banner */}
       {isTrial ? (
@@ -553,37 +555,3 @@ function StatCard({ icon, label, value, subtext, onClick }: {
   );
 }
 
-function QuickActionCard({ icon, title, description, buttonText, onClick }: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  buttonText: string;
-  onClick: () => void;
-}) {
-  return (
-    <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] p-6 shadow-sm">
-      <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 rounded-lg bg-[var(--color-primary-bg)] border border-[#bbf7d0] flex items-center justify-center text-[var(--color-primary)] flex-shrink-0">
-          {icon}
-        </div>
-        <div>
-          <h3 className="text-base font-bold text-[var(--color-text-base)] mb-1">
-            {title}
-          </h3>
-          <p className="text-[0.8125rem] text-[var(--color-text-muted)]">
-            {description}
-          </p>
-        </div>
-      </div>
-      <button
-        onClick={onClick}
-        className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:shadow-[0_3px_8px_rgba(22,163,74,0.25)] hover:-translate-y-px active:translate-y-0"
-      >
-        {buttonText}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
-      </button>
-    </div>
-  );
-}

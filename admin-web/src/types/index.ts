@@ -1,4 +1,4 @@
-export type { User, Stadium, Location, Slot, Booking, Payment, Dispute, Review };
+export type { User, Stadium, Location, Slot, Booking, Payment, Review };
 
 interface User {
   id: string;
@@ -30,8 +30,9 @@ interface Stadium {
   bankName?: string;
   accountNumber?: string;
   accountHolderName?: string;
-  isApproved: boolean;
   createdAt: string;
+  isBlocked?: boolean;
+  blockedReason?: string;
   owner: { id: string; name: string; email: string; phoneNumber?: string; subscriptionPlan?: string };
 }
 
@@ -47,15 +48,12 @@ interface Slot {
 interface Payment {
   id: string;
   amount: number;
-  status: 'PENDING' | 'RECEIPT_SUBMITTED' | 'PAID' | 'REJECTED' | 'DISPUTED';
+  status: 'PENDING' | 'RECEIPT_SUBMITTED' | 'PAID' | 'REJECTED';
   receiptImageUrl?: string;
   playerSubmittedAt?: string;
   ownerConfirmedAt?: string;
   ownerRejectedAt?: string;
   ownerRejectionReason?: string;
-  isDisputed: boolean;
-  disputeReason?: string;
-  disputedAt?: string;
   createdAt: string;
 }
 
@@ -67,30 +65,6 @@ interface Booking {
   player: { id: string; name: string; email: string; phoneNumber?: string };
   stadium: { id: string; name: string };
   payment?: Payment;
-}
-
-// A dispute is a Payment with its full booking context
-interface Dispute {
-  id: string;
-  amount: number;
-  status: 'DISPUTED';
-  receiptImageUrl?: string;
-  playerSubmittedAt?: string;
-  ownerRejectedAt?: string;
-  ownerRejectionReason?: string;
-  disputeReason?: string;
-  disputedAt?: string;
-  booking: {
-    id: string;
-    status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
-    slot: Slot;
-    player: { id: string; name: string; email: string; phoneNumber?: string };
-    stadium: {
-      id: string;
-      name: string;
-      owner: { id: string; name: string; email: string };
-    };
-  };
 }
 
 interface Review {

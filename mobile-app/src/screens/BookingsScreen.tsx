@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, FlatList, StyleSheet, ActivityIndicator,
   RefreshControl, TouchableOpacity, Alert, Modal, Image,
-  ScrollView, TextInput,
+  ScrollView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -30,7 +30,7 @@ const paymentStyle: Record<string, { bg: string; text: string; border: string; l
   RECEIPT_SUBMITTED: { bg: colors.infoBg, text: colors.info, border: 'rgba(59, 130, 246, 0.35)', label: 'Receipt Submitted' },
   PAID:              { bg: colors.successBg, text: colors.success, border: colors.successBg, label: 'Paid ✓' },
   REJECTED:          { bg: colors.dangerBg, text: colors.danger, border: 'rgba(239, 68, 68, 0.3)', label: 'Receipt Rejected' },
-  DISPUTED:          { bg: 'rgba(168, 85, 247, 0.15)', text: '#A855F7', border: 'rgba(168, 85, 247, 0.3)', label: 'Disputed' },
+
 };
 
 export default function BookingsScreen() {
@@ -43,9 +43,6 @@ export default function BookingsScreen() {
   // Receipt modal state
   const [receiptModal, setReceiptModal]   = useState<Booking | null>(null);
   const [uploading, setUploading]         = useState(false);
-  const [rejectModal, setRejectModal]     = useState<Booking | null>(null);
-  const [disputeReason, setDisputeReason] = useState('');
-  const [disputing, setDisputing]         = useState(false);
   const [previewReceipt, setPreviewReceipt] = useState<{ uri: string; mimeType?: string; booking: Booking } | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null); // For viewing booking pass
 
@@ -162,26 +159,6 @@ export default function BookingsScreen() {
       Alert.alert('Upload Failed', getApiError(err, 'Failed to upload receipt.'));
     } finally {
       setUploading(false);
-    }
-  };
-
-  // ─── Dispute rejection ───────────────────────────────────────────────────────
-  const handleDispute = async (booking: Booking) => {
-    if (!disputeReason.trim()) {
-      Alert.alert('Reason Required', 'Please explain why you are disputing this rejection.');
-      return;
-    }
-    setDisputing(true);
-    try {
-      await api.patch(`/payments/${booking.payment!.id}/dispute`, { reason: disputeReason });
-      Alert.alert('Dispute Submitted', 'Your dispute has been sent to the admin for review.');
-      setRejectModal(null);
-      setDisputeReason('');
-      fetchBookings();
-    } catch (err) {
-      Alert.alert('Error', getApiError(err, 'Failed to submit dispute.'));
-    } finally {
-      setDisputing(false);
     }
   };
 
@@ -404,15 +381,6 @@ export default function BookingsScreen() {
                       </TouchableOpacity>
                     )}
 
-                    {isRejected && item.payment?.status !== 'DISPUTED' && (
-                      <TouchableOpacity
-                        style={styles.disputeBtn}
-                        onPress={() => setRejectModal(item)}
-                      >
-                        <Text style={styles.disputeBtnText}>Dispute Rejection</Text>
-                      </TouchableOpacity>
-                    )}
-
                     {item.payment?.status === 'RECEIPT_SUBMITTED' && (
                       <TouchableOpacity
                         style={styles.viewReceiptBtn}
@@ -493,43 +461,6 @@ export default function BookingsScreen() {
                 )}
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Dispute Modal */}
-      <Modal visible={!!rejectModal} transparent animationType="slide" onRequestClose={() => setRejectModal(null)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Dispute Rejection</Text>
-              <TouchableOpacity onPress={() => setRejectModal(null)} style={styles.modalClose}>
-                <Text style={styles.modalCloseText}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.disputeInfo}>
-              Explain why you believe your receipt was incorrectly rejected. An admin will review your case.
-            </Text>
-            <TextInput
-              style={styles.disputeInput}
-              placeholder="e.g. I transferred the correct amount on May 15..."
-              placeholderTextColor={colors.text.muted}
-              value={disputeReason}
-              onChangeText={setDisputeReason}
-              multiline
-              numberOfLines={4}
-            />
-            <TouchableOpacity
-              style={[styles.uploadBtn, disputing && styles.btnDisabled]}
-              onPress={() => rejectModal && handleDispute(rejectModal)}
-              disabled={disputing}
-            >
-              {disputing ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.uploadBtnText}>Submit Dispute</Text>
-              )}
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -832,15 +763,6 @@ const styles = StyleSheet.create({
   cancelBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   uploadBtn:  { backgroundColor: colors.secondary, borderRadius: 12, padding: 12, alignItems: 'center' },
   uploadBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  disputeBtn: {
-    backgroundColor: 'transparent',
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.text.secondary,
-  },
-  disputeBtnText: { color: colors.text.secondary, fontSize: 14, fontWeight: '700' },
   viewReceiptBtn: {
     backgroundColor: 'transparent',
     borderRadius: 12,
@@ -891,20 +813,6 @@ const styles = StyleSheet.create({
   modalCloseText: { fontSize: 16, color: colors.text.secondary, fontWeight: '700' },
   receiptImage: { width: '100%', height: 300, borderRadius: 12 },
   receiptNote:  { fontSize: 13, color: colors.text.secondary, textAlign: 'center', fontWeight: '500' },
-
-  // Dispute
-  disputeInfo:  { fontSize: 14, color: colors.text.secondary, lineHeight: 20 },
-  disputeInput: {
-    backgroundColor: colors.input.bg,
-    borderRadius: 12,
-    padding: 12,
-    color: colors.text.primary,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: colors.input.border,
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
 
   // Booking Pass Modal
   passModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },

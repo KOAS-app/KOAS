@@ -12,9 +12,9 @@ export default function UsersPage() {
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
   const [approvingUser, setApprovingUser] = useState<string | null>(null);
-  const [rejectingUser, setRejectingUser] = useState<string | null>(null);
-  const [rejectModalUser, setRejectModalUser] = useState<User | null>(null);
-  const [rejectReason, setRejectReason] = useState('');
+  const [blockingUser, setBlockingUser] = useState<string | null>(null);
+  const [blockModalUser, setBlockModalUser] = useState<User | null>(null);
+  const [blockReason, setBlockReason] = useState('');
   
   // Plan Change States
   const [selectedOwnerForPlan, setSelectedOwnerForPlan] = useState<User | null>(null);
@@ -55,24 +55,24 @@ export default function UsersPage() {
     }
   };
 
-  const handleRejectUser = async (id: string, _name: string) => {
-    if (!rejectReason.trim()) {
-      alert('Please provide a reason for rejecting this owner.');
+  const handleBlockUser = async (id: string, _name: string) => {
+    if (!blockReason.trim()) {
+      alert('Please provide a reason for blocking this owner.');
       return;
     }
     
-    setRejectingUser(id);
+    setBlockingUser(id);
     try {
-      await api.patch(`/admin/users/${id}/reject`, { reason: rejectReason.trim() });
+      await api.patch(`/admin/users/${id}/reject`, { reason: blockReason.trim() });
       setUsers((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, isApproved: false, rejectionReason: rejectReason.trim() } : u))
+        prev.map((u) => (u.id === id ? { ...u, isApproved: false, rejectionReason: blockReason.trim() } : u))
       );
-      setRejectModalUser(null);
-      setRejectReason('');
+      setBlockModalUser(null);
+      setBlockReason('');
     } catch (err) {
-      alert(getApiError(err, 'Failed to reject user.'));
+      alert(getApiError(err, 'Failed to block user.'));
     } finally {
-      setRejectingUser(null);
+      setBlockingUser(null);
     }
   };
 
@@ -304,11 +304,11 @@ export default function UsersPage() {
                     <button
                       className="px-3 py-1.5 text-xs font-bold text-[var(--color-danger)] bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                       onClick={() => {
-                        setRejectModalUser(user);
-                        setRejectReason('');
+                        setBlockModalUser(user);
+                        setBlockReason('');
                       }}
-                      title="Reject owner">
-                      ✕ Deny
+                      title="Block owner">
+                      ✕ Block
                     </button>
                   </>
                 )}
@@ -316,11 +316,11 @@ export default function UsersPage() {
                   <button
                     className="px-3 py-1.5 text-xs font-bold text-[var(--color-danger)] bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     onClick={() => {
-                      setRejectModalUser(user);
-                      setRejectReason('');
-                    }}
-                    title="Reject approval">
-                    ✕ Reject
+                        setBlockModalUser(user);
+                        setBlockReason('');
+                      }}
+                      title="Block owner">
+                      ✕ Block
                   </button>
                 )}
                 <button
@@ -485,24 +485,24 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* Rejection Reason Modal */}
-      {rejectModalUser && (
+      {/* Block Reason Modal */}
+      {blockModalUser && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.5)] backdrop-blur-sm"
-          onClick={(e) => { if (e.target === e.currentTarget) setRejectModalUser(null); }}
+          onClick={(e) => { if (e.target === e.currentTarget) setBlockModalUser(null); }}
         >
           <div className="w-full max-w-md bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] shadow-xl overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
               <div>
                 <h2 className="text-base font-bold text-[var(--color-text-base)]">
-                  {rejectModalUser.isApproved ? 'Revoke Owner Approval' : 'Reject Owner Registration'}
+                  Block Owner
                 </h2>
                 <p className="text-[0.8125rem] text-[var(--color-text-muted)] mt-0.5">
-                  Provide a reason for {rejectModalUser.name}
+                  Provide a reason for blocking {blockModalUser.name}
                 </p>
               </div>
               <button
-                onClick={() => setRejectModalUser(null)}
+                onClick={() => setBlockModalUser(null)}
                 className="w-8 h-8 rounded-lg border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] transition-all"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -513,45 +513,43 @@ export default function UsersPage() {
 
             <div className="p-6">
               <label className="block text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-muted)] mb-2.5">
-                Rejection Reason
+                Block Reason
               </label>
               <textarea
                 className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.875rem] outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-danger)] focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)] focus:bg-white resize-y min-h-[100px]"
-                placeholder="e.g., Incomplete documentation, Invalid business license, etc."
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="e.g., Violation of terms of service..."
+                value={blockReason}
+                onChange={(e) => setBlockReason(e.target.value)}
                 maxLength={500}
                 autoFocus
               />
               <p className="text-xs text-[var(--color-text-muted)] mt-1.5">
-                This message will be visible to the owner when they try to log in.
+                This message will be shown to the owner.
               </p>
             </div>
 
             <div className="flex gap-2.5 px-6 pb-6 pt-2 border-t border-[var(--color-border)] bg-[var(--color-surface-muted)]">
               <button
                 type="button"
-                onClick={() => setRejectModalUser(null)}
+                onClick={() => setBlockModalUser(null)}
                 className="w-full py-2.5 rounded-[10px] text-sm font-bold text-[var(--color-text-secondary)] bg-white border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] hover:border-[var(--color-border-strong)] transition-all"
-                disabled={rejectingUser === rejectModalUser.id}
+                disabled={blockingUser === blockModalUser.id}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                onClick={() => handleRejectUser(rejectModalUser.id, rejectModalUser.name)}
-                disabled={rejectingUser === rejectModalUser.id || !rejectReason.trim()}
+                onClick={() => handleBlockUser(blockModalUser.id, blockModalUser.name)}
+                disabled={blockingUser === blockModalUser.id || !blockReason.trim()}
                 className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-sm font-bold text-white bg-[var(--color-danger)] border border-[var(--color-danger)] transition-all hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {rejectingUser === rejectModalUser.id ? (
+                {blockingUser === blockModalUser.id ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Rejecting...
+                    Blocking...
                   </>
                 ) : (
-                  <>
-                    ✕ {rejectModalUser.isApproved ? 'Revoke Approval' : 'Reject Owner'}
-                  </>
+                  '✕ Block Owner'
                 )}
               </button>
             </div>

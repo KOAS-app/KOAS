@@ -18,6 +18,8 @@ export interface Stadium {
   accountNumber?: string;
   accountHolderName?: string;
   isApproved: boolean;
+  isBlocked?: boolean;
+  blockedReason?: string;
   createdAt: string;
 }
 
@@ -45,7 +47,7 @@ export interface Booking {
   };
   payment?: {
     id: string;
-    status: 'PENDING' | 'RECEIPT_SUBMITTED' | 'PAID' | 'REJECTED' | 'DISPUTED';
+    status: 'PENDING' | 'RECEIPT_SUBMITTED' | 'PAID' | 'REJECTED';
     amount: number;
     method?: 'CASH' | 'SUBSCRIPTION';
     receiptImageUrl?: string;
