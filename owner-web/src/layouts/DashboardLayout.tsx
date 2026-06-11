@@ -363,7 +363,7 @@ export default function DashboardLayout() {
                   Enjoy auto slot generators and reviews management!
                 </p>
                 <button
-                  onClick={() => navigate('/subscription')}
+                  onClick={() => navigate('/subscription-plans')}
                   className="px-3 py-1 rounded-[6px] text-[0.75rem] font-black text-white bg-[#16a34a] border border-[#16a34a] transition-all hover:bg-[#15803d] hover:shadow-[0_2px_8px_rgba(22,163,74,0.3)] active:translate-y-0 hover:-translate-y-px"
                 >
                   Upgrade Now

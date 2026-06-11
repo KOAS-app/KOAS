@@ -32,8 +32,8 @@ export default function EditSlotModal({ slot, stadiumLocations, onClose, onSucce
 
     const body: Record<string, unknown> = {};
     if (form.location !== slot.location) body.location = form.location;
-    if (form.startTime !== slot.startTime.slice(0, 16)) body.startTime = form.startTime;
-    if (form.endTime !== slot.endTime.slice(0, 16)) body.endTime = form.endTime;
+    if (form.startTime !== slot.startTime.slice(0, 16)) body.startTime = form.startTime + ':00Z';
+    if (form.endTime !== slot.endTime.slice(0, 16)) body.endTime = form.endTime + ':00Z';
     if (form.price !== slot.price.toString()) body.price = form.price;
 
     if (Object.keys(body).length === 0) {

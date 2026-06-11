@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Slot } from '../types';
@@ -13,8 +13,11 @@ type Tab = 'bulk' | 'single';
 interface BulkForm  { location: string; date: string; openHour: string; closeHour: string; duration: string; price: string; }
 interface SingleForm { location: string; startTime: string; endTime: string; price: string; }
 
-const fmt     = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' });
-const fmtDate = (iso: string) => new Date(iso).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' });
+const fmt = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' });
+const toLocalDatetime = (d: Date) => {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
 
 
 export default function SlotsPage() {
@@ -37,15 +40,47 @@ export default function SlotsPage() {
 
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'booked'>('all');
-  const [dateFilter, setDateFilter] = useState<string>('');
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null);
   const [selectedSlotIds, setSelectedSlotIds] = useState<Set<string>>(new Set());
 
   const [single, setSingle] = useState<SingleForm>({ location: '', startTime: '', endTime: '', price: '' });
   const [bulk, setBulk]     = useState<BulkForm>({
     location: '',
-    date: new Date().toISOString().slice(0, 10),
+    date: toLocalDatetime(new Date()).slice(0, 10),
     openHour: '08:00', closeHour: '22:00', duration: '1', price: '',
+  });
+
+  const getMonday = (d: Date) => {
+    const date = new Date(d);
+    const day = date.getDay();
+    date.setDate(date.getDate() - ((day + 6) % 7));
+    date.setHours(0, 0, 0, 0);
+    return date;
+  };
+
+  const [weekStart, setWeekStart] = useState<Date>(() => getMonday(new Date()));
+
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    return d;
+  });
+
+  const weekEnd = new Date(weekDays[6]);
+  weekEnd.setHours(23, 59, 59, 999);
+
+  const MIN_HOUR = 5;
+  const MAX_HOUR = 23;
+  const HALF_HOUR_COUNT = (MAX_HOUR - MIN_HOUR) * 2;
+  const halfHourSlots = Array.from({ length: HALF_HOUR_COUNT }, (_, i) => {
+    const totalMinutes = MIN_HOUR * 60 + i * 30;
+    const h = Math.floor(totalMinutes / 60);
+    return {
+      hour: h,
+      minutes: totalMinutes % 60,
+      isHour: totalMinutes % 60 === 0,
+      label: h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h - 12} PM`,
+    };
   });
 
   const fetchStadiumAndSlots = async () => {
@@ -135,7 +170,12 @@ export default function SlotsPage() {
     }
 
     try {
-      await api.post('/slots', { stadiumId, ...single });
+      await api.post('/slots', {
+        stadiumId, location: single.location,
+        startTime: single.startTime + ':00Z',
+        endTime: single.endTime + ':00Z',
+        price: single.price,
+      });
       setSingle({ location: stadiumLocations[0] || '', startTime: '', endTime: '', price: '' });
       flash('Slot created.');
       fetchStadiumAndSlots();
@@ -158,17 +198,10 @@ export default function SlotsPage() {
     .filter(s => locationFilter === 'all' || s.location === locationFilter)
     .filter(s => statusFilter === 'all' || (statusFilter === 'available' && !s.isBooked) || (statusFilter === 'booked' && s.isBooked));
 
-  // Date filter: if dateFilter is set, only show slots for that date
-  const dateFilteredSlots = dateFilter
-    ? filteredSlots.filter(s => new Date(s.startTime).toDateString() === new Date(dateFilter).toDateString())
-    : filteredSlots;
-
-  const grouped = dateFilteredSlots.reduce<Record<string, Slot[]>>((acc, slot) => {
-    const day = new Date(slot.startTime).toDateString();
-    if (!acc[day]) acc[day] = [];
-    acc[day].push(slot);
-    return acc;
-  }, {});
+  const weekSlots = filteredSlots.filter(s => {
+    const sd = new Date(s.startTime);
+    return sd >= weekStart && sd <= weekEnd;
+  });
 
   return (
     <div>
@@ -288,7 +321,7 @@ export default function SlotsPage() {
 
                   <button
                     type="button"
-                    onClick={() => navigate('/subscription')}
+                    onClick={() => navigate('/subscription-plans')}
                     className="w-full inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-[10px] text-xs font-bold text-white bg-gradient-to-r from-[#16a34a] to-[#15803d] border border-transparent shadow-[0_4px_12px_rgba(22,163,74,0.3)] transition-all hover:from-[#15803d] hover:to-[#16a34a] hover:-translate-y-px active:translate-y-0"
                   >
                     Upgrade to PRO
@@ -317,7 +350,7 @@ export default function SlotsPage() {
                       type="date"
                       className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
                       value={bulk.date}
-                      min={new Date().toISOString().slice(0, 10)}
+                      min={toLocalDatetime(new Date()).slice(0, 10)}
                       onChange={e => setBulk(p => ({ ...p, date: e.target.value }))}
                       required
                     />
@@ -421,7 +454,7 @@ export default function SlotsPage() {
                     type="datetime-local"
                     className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
                     value={single.startTime}
-                    min={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                    min={toLocalDatetime(new Date())}
                     onChange={e => setSingle(p => ({ ...p, startTime: e.target.value }))}
                     required
                   />
@@ -432,7 +465,7 @@ export default function SlotsPage() {
                     type="datetime-local"
                     className="w-full px-3.5 py-2.5 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.9375rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)] focus:bg-white disabled:bg-[var(--color-surface-muted)] disabled:opacity-60 disabled:cursor-not-allowed"
                     value={single.endTime}
-                    min={single.startTime || new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                    min={single.startTime || toLocalDatetime(new Date())}
                     onChange={e => setSingle(p => ({ ...p, endTime: e.target.value }))}
                     required
                   />
@@ -478,19 +511,19 @@ export default function SlotsPage() {
             <div className="flex items-center gap-4 px-5 py-3 bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm">
               <div className="flex items-center gap-2">
                 <span className="text-[0.8125rem] font-semibold text-[var(--color-text-secondary)]">Total</span>
-                <span className="text-[1.0625rem] font-black text-[var(--color-text-base)]">{dateFilteredSlots.length}</span>
+                <span className="text-[1.0625rem] font-black text-[var(--color-text-base)]">{weekSlots.length}</span>
               </div>
               <div className="w-px h-6 bg-[var(--color-border)]" />
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-[var(--color-success)] shadow-[0_0_6px_var(--color-success)]" />
                 <span className="text-[0.8125rem] font-semibold text-[var(--color-text-secondary)]">Available</span>
-                <span className="text-[1.0625rem] font-black text-[var(--color-success)]">{dateFilteredSlots.filter(s => !s.isBooked).length}</span>
+                <span className="text-[1.0625rem] font-black text-[var(--color-success)]">{weekSlots.filter(s => !s.isBooked).length}</span>
               </div>
               <div className="w-px h-6 bg-[var(--color-border)]" />
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-[var(--color-danger)]" />
                 <span className="text-[0.8125rem] font-semibold text-[var(--color-text-secondary)]">Booked</span>
-                <span className="text-[1.0625rem] font-black text-[var(--color-danger)]">{dateFilteredSlots.filter(s => s.isBooked).length}</span>
+                <span className="text-[1.0625rem] font-black text-[var(--color-danger)]">{weekSlots.filter(s => s.isBooked).length}</span>
               </div>
             </div>
           )}
@@ -534,23 +567,35 @@ export default function SlotsPage() {
               </div>
             </div>
 
-            {/* Date filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-[0.75rem] font-semibold text-[var(--color-text-muted)] tracking-tight uppercase">Date:</span>
-              <input
-                type="date"
-                className="px-3 py-2 border-[1.5px] border-[var(--color-border)] rounded-[10px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.8125rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)]"
-                value={dateFilter}
-                onChange={e => setDateFilter(e.target.value)}
-              />
-              {dateFilter && (
-                <button
-                  onClick={() => setDateFilter('')}
-                  className="px-2 py-1.5 rounded-lg text-[0.75rem] font-semibold text-[var(--color-text-muted)] bg-transparent border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]"
-                >
-                  Clear
-                </button>
-              )}
+            {/* Week navigation */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setWeekStart(prev => { const d = new Date(prev); d.setDate(d.getDate() - 7); return d; })}
+                className="w-8 h-8 rounded-lg border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] transition-all"
+                title="Previous week"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <span className="px-3 py-1.5 text-[0.8125rem] font-bold text-[var(--color-text-secondary)] whitespace-nowrap select-none">
+                {weekDays[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – {weekDays[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => setWeekStart(prev => { const d = new Date(prev); d.setDate(d.getDate() + 7); return d; })}
+                className="w-8 h-8 rounded-lg border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] transition-all"
+                title="Next week"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setWeekStart(getMonday(new Date()))}
+                className="ml-1 px-2.5 py-1.5 rounded-lg text-[0.75rem] font-bold text-[var(--color-primary)] bg-transparent border border-[var(--color-primary)] hover:bg-[var(--color-primary-bg)] transition-all"
+              >
+                Today
+              </button>
             </div>
 
             {/* Bulk delete */}
@@ -621,119 +666,167 @@ export default function SlotsPage() {
                 </>
               ) : (
                 <>
-                  <p className="text-base font-bold text-[var(--color-text-base)] mb-2">No slots for this location</p>
-                  <p className="text-sm text-[var(--color-text-muted)] max-w-md mx-auto">Try selecting a different location.</p>
+                  <p className="text-base font-bold text-[var(--color-text-base)] mb-2">No slots in this week</p>
+                  <p className="text-sm text-[var(--color-text-muted)] max-w-md mx-auto">Try a different week or location.</p>
                 </>
               )}
             </div>
           )}
 
-          {!loading && Object.entries(grouped).map(([day, daySlots]) => (
-            <div key={day}>
-              {/* Day header */}
-              <div className="flex items-center gap-3.5 mb-3">
-                <h3 className="text-[0.8125rem] font-bold text-[var(--color-text-secondary)] tracking-tight whitespace-nowrap">
-                  {fmtDate(daySlots[0].startTime)}
-                </h3>
-                <div className="flex-1 h-px bg-[var(--color-border)]" />
-                <span className="text-xs font-semibold text-[var(--color-text-muted)] whitespace-nowrap">
-                  {daySlots.length} slot{daySlots.length !== 1 ? 's' : ''}
-                </span>
-              </div>
+          {!loading && weekSlots.length > 0 && (() => {
+            const gridSlots = weekSlots.map(s => {
+                const start = new Date(s.startTime);
+                const end = new Date(s.endTime);
+                const dayCol = (start.getUTCDay() + 6) % 7 + 2;
+                const durHours = Math.max(0.5, (end.getTime() - start.getTime()) / (1000 * 60 * 60));
+                const halfHourIndex = (start.getUTCHours() - MIN_HOUR) * 2 + (start.getUTCMinutes() >= 30 ? 1 : 0);
+                const gridStartRow = halfHourIndex + 2;
+                return { ...s, _dayCol: dayCol, _startRow: gridStartRow, _rowSpan: Math.max(1, Math.round(durHours * 2)) };
+              });
 
-              {/* Slot items */}
-              <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[12px] shadow-sm overflow-hidden">
-                {daySlots.map((slot, i) => (
+            return (
+              <div className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[14px] shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
                   <div
-                    key={slot.id}
-                    className={`flex flex-col sm:flex-row sm:items-center justify-between px-5 py-3.5 transition-all hover:bg-[var(--color-surface-muted)] ${
-                      i < daySlots.length - 1 ? 'border-b border-[var(--color-border)]' : ''
-                    } ${slot.isBooked ? 'bg-[var(--color-surface-muted)] opacity-75' : 'bg-transparent'} ${
-                      selectedSlotIds.has(slot.id) ? 'ring-2 ring-inset ring-[var(--color-primary)] bg-[var(--color-primary-bg)]' : ''
-                    }`}
+                    className="grid min-w-[700px]"
+                    style={{
+                      gridTemplateColumns: `56px repeat(7, 1fr)`,
+                      gridTemplateRows: `40px repeat(${HALF_HOUR_COUNT}, 24px)`,
+                    }}
                   >
-                    {/* Checkbox + Status dot + time + location */}
-                    <div className="flex items-start sm:items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={selectedSlotIds.has(slot.id)}
-                        onChange={() => {
-                          const next = new Set(selectedSlotIds);
-                          if (next.has(slot.id)) next.delete(slot.id); else next.add(slot.id);
-                          setSelectedSlotIds(next);
-                        }}
-                        className="mt-1 sm:mt-0 w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] cursor-pointer"
-                      />
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 sm:mt-0 ${
-                        slot.isBooked 
-                          ? 'bg-[var(--color-danger)]' 
-                          : 'bg-[var(--color-success)] shadow-[0_0_6px_var(--color-success)]'
-                      }`} />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[0.9375rem] font-bold text-[var(--color-text-base)] tracking-tight">
-                            {fmt(slot.startTime)} – {fmt(slot.endTime)}
-                          </span>
-                          <span className={`ml-1 px-2 py-0.5 rounded-md text-[0.6875rem] font-bold tracking-wide ${
-                            slot.isBooked 
-                              ? 'bg-[var(--color-danger-bg)] text-[var(--color-danger)] border border-[#fecaca]' 
-                              : 'bg-[var(--color-success-bg)] text-[var(--color-success)] border border-[#bbf7d0]'
-                          }`}>
-                            {slot.isBooked ? 'Reserved' : 'Available'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-text-muted)]">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                          </svg>
-                          <span className="text-[0.75rem] text-[var(--color-text-muted)] font-medium">
-                            {slot.location}
-                          </span>
-                        </div>
-                      </div>
+                    {/* Corner */}
+                    <div className="sticky top-0 z-10 bg-[var(--color-surface-card)] border-b border-r border-[var(--color-border)] flex items-center justify-center"
+                         style={{ gridColumn: 1, gridRow: 1 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-text-muted)]">
+                        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                      </svg>
                     </div>
 
-                    {/* Price + actions */}
-                    <div className="flex items-center gap-3 sm:gap-4 mt-3 sm:mt-0">
-                      <div className="text-right">
-                        <span className="text-[1rem] font-black text-[var(--color-primary)] tracking-tight">
-                          {slot.price.toLocaleString()}
+                    {/* Day headers */}
+                    {weekDays.map((d, i) => (
+                      <div
+                        key={i}
+                        className="sticky top-0 z-10 bg-[var(--color-surface-card)] border-b border-r border-[var(--color-border)] flex flex-col items-center justify-center px-2 py-1.5"
+                        style={{ gridColumn: i + 2, gridRow: 1 }}
+                      >
+                        <span className="text-[0.6875rem] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
+                          {d.toLocaleDateString('en-US', { weekday: 'short' })}
                         </span>
-                        <span className="text-[0.6875rem] font-bold text-[var(--color-text-muted)] uppercase tracking-wide ml-1.5">
-                          ETB
+                        <span className={`text-[0.8125rem] font-black ${d.toDateString() === new Date().toDateString() ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-base)]'}`}>
+                          {d.getDate()}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        {!slot.isBooked && (
+                    ))}
+
+                    {/* Half-hour rows */}
+                    {halfHourSlots.map((hh, hi) => {
+                      const row = hi + 2;
+                      return (
+                        <Fragment key={hi}>
+                          {hh.isHour ? (
+                            <div className="border-b border-r border-[var(--color-border)] bg-[var(--color-surface-muted)]/50 flex items-center justify-center text-[0.6875rem] font-bold text-[var(--color-text-muted)]"
+                                 style={{ gridColumn: 1, gridRow: `${row} / span 2` }}>
+                              {hh.label}
+                            </div>
+                          ) : (
+                            <div className="border-b border-r border-[var(--color-border)]"
+                                 style={{ gridColumn: 1, gridRow: row }} />
+                          )}
+                          {weekDays.map((_, di) => {
+                            const cellDate = new Date(weekStart);
+                            cellDate.setDate(weekStart.getDate() + di);
+                            cellDate.setHours(hh.hour, hh.minutes, 0, 0);
+                            const isPast = cellDate < new Date();
+                            return (
+                              <div
+                                key={di}
+                                onClick={() => {
+                                  const endDate = new Date(cellDate);
+                                  endDate.setMinutes(cellDate.getMinutes() + 60);
+                                  setSingle({
+                                    location: locationFilter !== 'all' ? locationFilter : (stadiumLocations[0] || ''),
+                                    startTime: toLocalDatetime(cellDate),
+                                    endTime: toLocalDatetime(endDate),
+                                    price: '',
+                                  });
+                                  setTab('single');
+                                }}
+                                className={`border-b border-r border-[var(--color-border)] relative cursor-pointer transition-colors hover:bg-[var(--color-primary-bg)] ${isPast ? 'bg-[var(--color-surface-muted)]/30' : ''}`}
+                                style={{ gridColumn: di + 2, gridRow: row }}
+                              />
+                            );
+                          })}
+                        </Fragment>
+                      );
+                    })}
+
+                    {/* Slot overlays */}
+                    {gridSlots.map(slot => {
+                      const isBooked = slot.isBooked;
+                      return (
+                        <div
+                          key={slot.id}
+                          className="relative group cursor-pointer"
+                          style={{
+                            gridColumn: `${slot._dayCol}`,
+                            gridRow: `${slot._startRow} / span ${slot._rowSpan}`,
+                            margin: '1px',
+                          }}
+                          onClick={() => { if (!isBooked) setEditingSlot(slot); }}
+                        >
+                          <div className={`h-full rounded-md p-1 flex flex-col justify-between transition-all group-hover:shadow-md ${isBooked ? 'bg-[#fef2f2] border border-[#fecaca] text-[#dc2626]' : 'bg-[#f0fdf4] border border-[#bbf7d0] text-[#16a34a]'}`}>
+                            <div className="flex items-center justify-between gap-0.5">
+                              <span className={`text-[0.6875rem] font-bold leading-tight truncate ${isBooked ? 'text-[#dc2626]' : 'text-[#16a34a]'}`}>
+                                {fmt(slot.startTime)} – {fmt(slot.endTime)}
+                              </span>
+                              {isBooked && (
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                </svg>
+                              )}
+                            </div>
+                            {slot._rowSpan >= 2 && (
+                              <div className="flex items-center justify-between gap-0.5">
+                                <span className={`text-[0.625rem] font-extrabold ${isBooked ? 'text-[#fca5a5]' : 'text-[#86efac]'}`}>
+                                  {slot.price.toLocaleString()} ETB
+                                </span>
+                                {!isBooked && (
+                                  <button
+                                    onClick={e => { e.stopPropagation(); setEditingSlot(slot); }}
+                                    className="w-4 h-4 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/50"
+                                    title="Edit"
+                                  >
+                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                            {slot._rowSpan === 1 && (
+                              <span className={`text-[0.625rem] font-extrabold ${isBooked ? 'text-[#fca5a5]' : 'text-[#86efac]'}`}>
+                                {slot.price.toLocaleString()} ETB
+                              </span>
+                            )}
+                          </div>
                           <button
-                            onClick={() => setEditingSlot(slot)}
-                            title="Edit slot"
-                            className="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-transparent flex items-center justify-center text-[var(--color-text-muted)] transition-all hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-bg)] hover:border-[#bbf7d0]"
+                            onClick={e => { e.stopPropagation(); handleDelete(slot.id, isBooked); }}
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-white border border-[var(--color-border)] shadow-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] z-20"
+                            title="Delete"
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                             </svg>
                           </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(slot.id, slot.isBooked)}
-                          title="Delete slot"
-                          className="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-transparent flex items-center justify-center text-[var(--color-text-muted)] transition-all hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca]"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })()}
         </div>
       </div>
 

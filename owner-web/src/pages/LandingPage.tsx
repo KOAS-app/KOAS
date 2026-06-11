@@ -128,7 +128,7 @@ export default function LandingPage() {
 
   const handleSelectPlan = (planId: string) => {
     if (user) {
-      navigate('/subscription');
+      navigate('/subscription-plans');
     } else {
       navigate(`/register?plan=${planId}&billing=monthly`);
     }

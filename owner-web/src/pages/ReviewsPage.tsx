@@ -195,7 +195,7 @@ export default function ReviewsPage() {
                 </div>
               </div>
               <button
-                onClick={() => navigate('/subscription')}
+                onClick={() => navigate('/subscription-plans')}
                 className="w-full sm:w-auto px-4 py-2 text-xs font-bold text-[#064e3b] bg-[#34d399] rounded-lg shadow-[0_4px_12px_rgba(52,211,153,0.3)] hover:bg-[#6ee7b7] hover:shadow-[0_6px_16px_rgba(52,211,153,0.4)] transition-all whitespace-nowrap"
               >
                 Upgrade Now
@@ -341,7 +341,7 @@ export default function ReviewsPage() {
                     </button>
                   ) : (
                     <button
-                      onClick={() => navigate('/subscription')}
+                      onClick={() => navigate('/subscription-plans')}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#64748b] bg-[#f1f5f9] border border-[#e2e8f0] transition-all hover:bg-[#e2e8f0] hover:text-[#475569] dark:bg-[#1e293b] dark:border-[#334155] dark:text-[#94a3b8] dark:hover:bg-[#334155] dark:hover:text-white"
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

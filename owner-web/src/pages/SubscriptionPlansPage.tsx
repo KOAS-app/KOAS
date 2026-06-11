@@ -190,7 +190,7 @@ export default function SubscriptionPlansPage() {
               Your {activeTier} subscription allows up to {maxPlans} active player subscription plan{maxPlans > 1 ? 's' : ''}. Upgrade to create more package options for your customers.
             </p>
             <button
-              onClick={() => navigate('/subscription')}
+              onClick={() => navigate('/subscription-plans')}
               className="mt-2.5 px-3 py-1.5 rounded-[6px] text-[0.75rem] font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] inline-flex items-center gap-1 transition-all group"
             >
               Upgrade Your Plan
