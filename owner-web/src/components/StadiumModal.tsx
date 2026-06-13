@@ -49,6 +49,7 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
     amenities: [] as string[]
   });
   const [locations, setLocations] = useState<LocationInput[]>([]);
+  const [deletedLocationIds, setDeletedLocationIds] = useState<string[]>([]);
   const [addingLocation, setAddingLocation] = useState(false);
   const [locationForm, setLocationForm] = useState<LocationInput>({ name: '', address: '', images: [] });
   const [editingLocIdx, setEditingLocIdx] = useState<number | null>(null);
@@ -146,6 +147,10 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
 
   const handleDeleteLocation = (idx: number) => {
     if (!confirm('Delete this location?')) return;
+    const loc = locations[idx];
+    if (loc.id) {
+      setDeletedLocationIds(prev => [...prev, loc.id!]);
+    }
     setLocations(prev => prev.filter((_, i) => i !== idx));
   };
 
@@ -168,6 +173,14 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
 
       if (isEdit) {
         await api.put(`/stadiums/${stadium.id}`, stadiumData);
+        // Delete locations that were removed
+        for (const locId of deletedLocationIds) {
+          try {
+            await api.delete(`/locations/${locId}`);
+          } catch (err) {
+            console.error('Failed to delete location:', locId, err);
+          }
+        }
         for (const loc of locations) {
           const locData: Record<string, unknown> = { name: loc.name.trim(), images: loc.images };
           if (loc.address.trim()) locData.address = loc.address.trim();
