@@ -65,7 +65,9 @@ export default function HomeScreen({ navigation }: Props) {
 
       let matchesPill = true;
       if (selectedFilter !== 'All' && selectedFilter !== 'Top Rated') {
-        matchesPill = stadium.locations.some(loc => loc.name === selectedFilter);
+        matchesPill = stadium.locations.some(
+          loc => loc.name.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) === selectedFilter
+        );
       }
 
       return matchesSearch && matchesPill;
@@ -75,7 +77,15 @@ export default function HomeScreen({ navigation }: Props) {
     filteredStadiums.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
   }
 
-  const availableLocations = Array.from(new Set(stadiums.flatMap(s => (s.locations || []).map(l => l.name))));
+  const availableLocations = Array.from(
+    new Set(
+      stadiums.flatMap(s => 
+        (s.locations || []).map(l => 
+          l.name.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase())
+        )
+      )
+    )
+  );
 
   return (
     <View style={styles.container}>

@@ -266,7 +266,7 @@ export default function StadiumDetailScreen({ route, navigation }: Props) {
           
           {/* Back Button */}
           <TouchableOpacity 
-            style={styles.backButton} 
+            style={[styles.backButton, { top: insets.top + 12 }]} 
             onPress={() => navigation.goBack()}
             activeOpacity={0.8}
           >
@@ -590,6 +590,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
+    // top is set dynamically via insets in the component
     top: 56,
     left: 20,
     width: 44,

@@ -10,6 +10,7 @@ import {
   Modal,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import api from '../api/axios';
@@ -28,6 +29,7 @@ const statusColors: Record<string, { bg: string; text: string; border: string; l
 
 export default function MyMembershipsScreen() {
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
   
   // Subscription States
   const [subscriptions, setSubscriptions] = useState<PlayerSubscription[]>([]);
@@ -93,12 +95,12 @@ export default function MyMembershipsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>My Memberships</Text>
         <Text style={styles.headerSubtitle}>View and manage your digital check-in passes</Text>
       </View>
 
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}>
         {loadingSubscriptions ? (
           <ActivityIndicator size="large" color={colors.secondary} style={{ marginTop: 40 }} />
         ) : subscriptions.length === 0 ? (
@@ -185,14 +187,13 @@ export default function MyMembershipsScreen() {
       <Modal
         visible={!!selectedSub}
         transparent
-        animationType="slide"
+        statusBarTranslucent={true}
+        navigationBarTranslucent={true}
+        animationType="fade"
         onRequestClose={() => setSelectedSub(null)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            
-            {/* Modal Drag handle visual */}
-            <View style={styles.dragHandle} />
 
             {/* Close Button */}
             <TouchableOpacity style={styles.closeModalBtn} onPress={() => setSelectedSub(null)}>
@@ -274,11 +275,11 @@ export default function MyMembershipsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.dark.bg },
-  header: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 },
+  header: { paddingHorizontal: 20, paddingBottom: 16 },
   headerTitle: { fontSize: 28, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.5 },
   headerSubtitle: { fontSize: 13, color: colors.text.secondary, marginTop: 4, fontWeight: '500' },
   scrollContainer: { flex: 1 },
-  scrollContent: { padding: 20, paddingBottom: 40 },
+  scrollContent: { padding: 20 },
   emptyCard: {
     backgroundColor: colors.dark.surface,
     borderRadius: radius.lg,
@@ -322,24 +323,17 @@ const styles = StyleSheet.create({
   passPromptText: { fontSize: 12, color: colors.secondary, fontWeight: '700' },
   footerNote: { fontSize: 12, color: colors.text.secondary, fontWeight: '500' },
   rejectionTextHighlight: { fontSize: 12, color: colors.danger, fontWeight: '700' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   modalContent: {
     backgroundColor: colors.dark.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
+    borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.dark.border,
     padding: 24,
-    paddingTop: 16,
+    paddingTop: 48,
+    width: '100%',
+    maxWidth: 400,
     maxHeight: '90%',
-  },
-  dragHandle: {
-    width: 36,
-    height: 4,
-    backgroundColor: colors.dark.border,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 16,
   },
   closeModalBtn: {
     position: 'absolute',
@@ -454,7 +448,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 3,
-    marginBottom: Platform.OS === 'ios' ? 16 : 0,
+    marginBottom: 0,
   },
   doneBtnText: { color: '#FFFFFF', fontSize: 14, fontWeight: '800' },
 });

@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import api from '../api/axios';
@@ -17,6 +18,7 @@ import { colors, radius, spacing } from '../theme';
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const [deleting, setDeleting] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -51,11 +53,11 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>Profile</Text>
       </View>
 
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}>
         {/* Profile Info Card */}
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
@@ -111,10 +113,10 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.dark.bg },
-  header: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 },
+  header: { paddingHorizontal: 20, paddingBottom: 16 },
   headerTitle: { fontSize: 28, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.5 },
   scrollContainer: { flex: 1 },
-  scrollContent: { padding: 20, gap: 24, paddingBottom: 60 },
+  scrollContent: { padding: 20, gap: 24 },
   
   profileCard: {
     backgroundColor: colors.dark.surface,

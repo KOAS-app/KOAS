@@ -16,6 +16,30 @@ interface LocationInput {
   images: string[];
 }
 
+const ADDIS_ABABA_LOCATIONS = [
+  'Bole',
+  'Yeka',
+  'Kirkos',
+  'Lideta',
+  'Arada',
+  'Addis Ketema',
+  'Gullele',
+  'Kolfe Keranio',
+  'Nifas Silk-Lafto',
+  'Akaki Kality',
+  'Lemi Kura',
+  'Mexico',
+  'Sarbet',
+  'Megenagna',
+  'Piazza',
+  'Jemma',
+  'Haya Hulet',
+  'CMC',
+  'Summit',
+  'Jemo',
+  'Gerji'
+];
+
 export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
   const isEdit = stadium !== null;
 
@@ -104,10 +128,12 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
 
   const handleAddLocation = () => {
     if (!locationForm.name.trim()) { setError('Location name is required.'); return; }
+    const formattedName = locationForm.name.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    const formattedLocation = { ...locationForm, name: formattedName, address: locationForm.address.trim() };
     if (editingLocIdx !== null) {
-      setLocations(prev => prev.map((l, i) => i === editingLocIdx ? { ...locationForm } : l));
+      setLocations(prev => prev.map((l, i) => i === editingLocIdx ? formattedLocation : l));
     } else {
-      setLocations(prev => [...prev, { ...locationForm }]);
+      setLocations(prev => [...prev, formattedLocation]);
     }
     resetLocationForm();
   };
@@ -332,14 +358,23 @@ export default function StadiumModal({ stadium, onClose, onSaved }: Props) {
                 <div className="border border-[var(--color-border)] rounded-[10px] p-4 bg-[var(--color-surface-muted)] space-y-3 mb-3">
                   <div>
                     <label className="block text-[0.75rem] font-semibold text-[var(--color-text-secondary)] mb-1 tracking-tight">Location Name</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border-[1.5px] border-[var(--color-border)] rounded-[8px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.875rem] outline-none transition-all placeholder:text-[var(--color-text-muted)] hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)]"
-                      placeholder="e.g. Bole Branch"
+                    <select
+                      className="w-full px-3 py-2 border-[1.5px] border-[var(--color-border)] rounded-[8px] bg-[var(--color-surface-card)] text-[var(--color-text-base)] text-[0.875rem] outline-none transition-all hover:border-[var(--color-border-strong)] focus:border-[var(--color-primary)] focus:shadow-[0_0_0_3px_rgba(22,163,74,0.12)]"
                       value={locationForm.name}
                       onChange={e => setLocationForm(prev => ({ ...prev, name: e.target.value }))}
                       required
-                    />
+                    >
+                      <option value="">-- Select Location --</option>
+                      {(() => {
+                        const options = [...ADDIS_ABABA_LOCATIONS];
+                        if (locationForm.name && !options.includes(locationForm.name)) {
+                          options.unshift(locationForm.name);
+                        }
+                        return options.map(loc => (
+                          <option key={loc} value={loc}>{loc}</option>
+                        ));
+                      })()}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-[0.75rem] font-semibold text-[var(--color-text-secondary)] mb-1 tracking-tight">

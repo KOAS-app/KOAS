@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useState, useRef } from 'react';
+import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { findNodeHandle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -14,9 +16,31 @@ type Props = StackScreenProps<AuthStackParamList, 'Register'>;
 
 export default function RegisterScreen({ navigation }: Props) {
   const { login } = useAuth();
+  const insets = useSafeAreaInsets();
   const [form, setForm] = useState({ name: '', password: '', confirm: '', phoneNumber: '' });
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const scrollRef = useRef<ScrollView | null>(null);
+  const inputPositions = useRef<Record<string, number>>({});
+  const inputRefs = useRef<Record<string, any>>({});
+
+  const scrollToInput = (key: string) => {
+    setTimeout(() => {
+      const input = inputRefs.current[key];
+      if (!input || !scrollRef.current) return;
+      try {
+        input.measureLayout(
+          scrollRef.current,
+          (x: number, y: number) => {
+            scrollRef.current?.scrollTo({ y: Math.max(y - 24, 0), animated: true });
+          },
+          () => {}
+        );
+      } catch (e) {
+        // fallback
+      }
+    }, 100);
+  };
 
   const validatePassword = (password: string) => {
     if (password.length < 8) return 'Password must be at least 8 characters.';
@@ -77,17 +101,19 @@ export default function RegisterScreen({ navigation }: Props) {
       {/* Subtle Accent Glow */}
       <View style={styles.accentGlow} />
 
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          bounces={false}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <KeyboardAvoidingView
+          style={styles.keyboardView}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
         >
+          <ScrollView
+            ref={(r) => { scrollRef.current = r; }}
+            contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + spacing.xxl }]}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+          >
           {/* Brand Header */}
           <View style={styles.header}>
             <Image 
@@ -108,7 +134,10 @@ export default function RegisterScreen({ navigation }: Props) {
             {/* Form */}
             <View style={styles.form}>
               {/* Name Input */}
-              <View style={styles.inputGroup}>
+              <View 
+                style={styles.inputGroup}
+                ref={(r) => { inputRefs.current['name'] = r; }}
+              >
                 <Text style={styles.label}>Full Name</Text>
                 <View style={[
                   styles.inputWrapper,
@@ -120,7 +149,10 @@ export default function RegisterScreen({ navigation }: Props) {
                     placeholderTextColor={colors.input.placeholder}
                     value={form.name}
                     onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
-                    onFocus={() => setFocusedField('name')}
+                    onFocus={() => {
+                      setFocusedField('name');
+                      scrollToInput('name');
+                    }}
                     onBlur={() => setFocusedField(null)}
                     autoCapitalize="words"
                     editable={!loading}
@@ -130,7 +162,10 @@ export default function RegisterScreen({ navigation }: Props) {
               </View>
 
               {/* Phone Number Input */}
-              <View style={styles.inputGroup}>
+              <View 
+                style={styles.inputGroup}
+                ref={(r) => { inputRefs.current['phoneNumber'] = r; }}
+              >
                 <Text style={styles.label}>Phone Number</Text>
                 <View style={[
                   styles.inputWrapper,
@@ -142,7 +177,10 @@ export default function RegisterScreen({ navigation }: Props) {
                     placeholderTextColor={colors.input.placeholder}
                     value={form.phoneNumber}
                     onChangeText={(v) => setForm((p) => ({ ...p, phoneNumber: v }))}
-                    onFocus={() => setFocusedField('phoneNumber')}
+                    onFocus={() => {
+                      setFocusedField('phoneNumber');
+                      scrollToInput('phoneNumber');
+                    }}
                     onBlur={() => setFocusedField(null)}
                     keyboardType="phone-pad"
                     autoCapitalize="none"
@@ -154,7 +192,10 @@ export default function RegisterScreen({ navigation }: Props) {
               </View>
 
               {/* Password Input */}
-              <View style={styles.inputGroup}>
+              <View 
+                style={styles.inputGroup}
+                ref={(r) => { inputRefs.current['password'] = r; }}
+              >
                 <Text style={styles.label}>Password</Text>
                 <View style={[
                   styles.inputWrapper,
@@ -166,7 +207,10 @@ export default function RegisterScreen({ navigation }: Props) {
                     placeholderTextColor={colors.input.placeholder}
                     value={form.password}
                     onChangeText={(v) => setForm((p) => ({ ...p, password: v }))}
-                    onFocus={() => setFocusedField('password')}
+                    onFocus={() => {
+                      setFocusedField('password');
+                      scrollToInput('password');
+                    }}
                     onBlur={() => setFocusedField(null)}
                     secureTextEntry
                     editable={!loading}
@@ -176,7 +220,10 @@ export default function RegisterScreen({ navigation }: Props) {
               </View>
 
               {/* Confirm Password Input */}
-              <View style={styles.inputGroup}>
+              <View 
+                style={styles.inputGroup}
+                ref={(r) => { inputRefs.current['confirm'] = r; }}
+              >
                 <Text style={styles.label}>Confirm Password</Text>
                 <View style={[
                   styles.inputWrapper,
@@ -188,7 +235,10 @@ export default function RegisterScreen({ navigation }: Props) {
                     placeholderTextColor={colors.input.placeholder}
                     value={form.confirm}
                     onChangeText={(v) => setForm((p) => ({ ...p, confirm: v }))}
-                    onFocus={() => setFocusedField('confirm')}
+                    onFocus={() => {
+                      setFocusedField('confirm');
+                      scrollToInput('confirm');
+                    }}
                     onBlur={() => setFocusedField(null)}
                     secureTextEntry
                     editable={!loading}
@@ -256,8 +306,9 @@ export default function RegisterScreen({ navigation }: Props) {
               <Text style={styles.trustText}>Secure · Trusted by 10,000+ players</Text>
             </View>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
     </View>
   );
 }
@@ -292,6 +343,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xxxl,
+    // paddingTop is set dynamically from insets in the component
   },
 
   // ─── Header ────────────────────────────────────────────────

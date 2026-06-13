@@ -4,6 +4,7 @@ import {
   RefreshControl, TouchableOpacity, Alert, Modal, Image,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -39,6 +40,7 @@ export default function BookingsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [cancelling, setCancelling] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const insets = useSafeAreaInsets();
 
   // Receipt modal state
   const [receiptModal, setReceiptModal]   = useState<Booking | null>(null);
@@ -177,7 +179,7 @@ export default function BookingsScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>My Bookings</Text>
         <Text style={styles.headerSubtitle}>View and manage your upcoming bookings</Text>
       </View>
@@ -227,7 +229,7 @@ export default function BookingsScreen() {
       <FlatList
         data={filteredBookings}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 24 }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.secondary} />}
         ListEmptyComponent={
           <View style={styles.empty}>
@@ -398,7 +400,14 @@ export default function BookingsScreen() {
       />
 
       {/* Receipt Viewer Modal */}
-      <Modal visible={!!receiptModal} transparent animationType="fade" onRequestClose={() => setReceiptModal(null)}>
+      <Modal
+        visible={!!receiptModal}
+        transparent
+        statusBarTranslucent={true}
+        navigationBarTranslucent={true}
+        animationType="fade"
+        onRequestClose={() => setReceiptModal(null)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
@@ -422,7 +431,14 @@ export default function BookingsScreen() {
       </Modal>
 
       {/* Receipt Preview Modal */}
-      <Modal visible={!!previewReceipt} transparent animationType="fade" onRequestClose={() => !uploading && setPreviewReceipt(null)}>
+      <Modal
+        visible={!!previewReceipt}
+        transparent
+        statusBarTranslucent={true}
+        navigationBarTranslucent={true}
+        animationType="fade"
+        onRequestClose={() => !uploading && setPreviewReceipt(null)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
@@ -469,14 +485,13 @@ export default function BookingsScreen() {
       <Modal
         visible={!!selectedBooking}
         transparent
-        animationType="slide"
+        statusBarTranslucent={true}
+        navigationBarTranslucent={true}
+        animationType="fade"
         onRequestClose={() => setSelectedBooking(null)}
       >
         <View style={styles.passModalOverlay}>
           <View style={styles.passModalContent}>
-            {/* Drag handle */}
-            <View style={styles.dragHandle} />
-
             {/* Close Button */}
             <TouchableOpacity style={styles.closePassBtn} onPress={() => setSelectedBooking(null)}>
                 <Feather name="x" size={20} color={colors.text.secondary} />
@@ -576,7 +591,7 @@ export default function BookingsScreen() {
 const styles = StyleSheet.create({
   container:  { flex: 1, backgroundColor: colors.dark.bg },
   center:     { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.dark.bg },
-  header:     { backgroundColor: colors.dark.bg, paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 },
+  header:     { backgroundColor: colors.dark.bg, paddingHorizontal: 20, paddingBottom: 16 },
   headerTitle:{ fontSize: 28, fontWeight: '800', color: colors.text.primary, letterSpacing: -0.5, marginBottom: 4 },
   headerSubtitle: { fontSize: 14, color: colors.text.secondary, fontWeight: '500' },
   
@@ -606,7 +621,7 @@ const styles = StyleSheet.create({
     color: colors.secondary,
   },
 
-  list: { padding: 20, paddingBottom: 100, gap: 16 },
+  list: { padding: 20, gap: 16 },
 
   card: {
     backgroundColor: colors.dark.card,
@@ -762,6 +777,8 @@ const styles = StyleSheet.create({
   cancelBtn:  { backgroundColor: colors.danger, borderRadius: 12, padding: 12, alignItems: 'center' },
   cancelBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   uploadBtn:  { backgroundColor: colors.secondary, borderRadius: 12, padding: 12, alignItems: 'center' },
+  disputeBtn: { backgroundColor: 'transparent', borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1.5, borderColor: colors.dark.border },
+  disputeBtnText: { fontSize: 14, fontWeight: '700' },
   uploadBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   viewReceiptBtn: {
     backgroundColor: 'transparent',
@@ -815,23 +832,17 @@ const styles = StyleSheet.create({
   receiptNote:  { fontSize: 13, color: colors.text.secondary, textAlign: 'center', fontWeight: '500' },
 
   // Booking Pass Modal
-  passModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
+  passModalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   passModalContent: {
     backgroundColor: colors.dark.surface,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 24,
     padding: 24,
-    paddingBottom: 40,
+    paddingTop: 48,
     borderWidth: 1,
     borderColor: colors.dark.border,
-  },
-  dragHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: colors.dark.border,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 16,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '90%',
   },
   closePassBtn: {
     position: 'absolute',

@@ -11,6 +11,7 @@ import {
   Clipboard,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,6 +28,7 @@ type Props = StackScreenProps<RootStackParamList, 'SubscriptionCheckout'>;
 
 export default function SubscriptionCheckoutScreen({ route, navigation }: Props) {
   const { planId, planName, price, stadiumId, stadiumName } = route.params;
+  const insets = useSafeAreaInsets();
 
   const [stadium, setStadium] = useState<Stadium | null>(null);
   const [plan, setPlan] = useState<SubscriptionPlan | null>(null);
@@ -467,7 +469,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
     ];
 
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 60 }]}>
         {/* Plan Info Header */}
         <View style={styles.planCard}>
           <View style={styles.badgeRow}>
@@ -659,7 +661,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
   // Step 2: Review Selected Slots
   if (currentStep === 2) {
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 60 }]}>
         {/* Plan Info Header */}
         <View style={styles.planCard}>
           <View style={styles.badgeRow}>
@@ -779,7 +781,7 @@ export default function SubscriptionCheckoutScreen({ route, navigation }: Props)
 
   // Step 3 & 4: Payment and Receipt Upload
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 60 }]}>
       {/* Progress Indicator */}
       <View style={styles.progressBar}>
         <View style={[styles.progressStep, styles.progressStepComplete]}>
@@ -954,6 +956,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: 60,
     gap: spacing.lg,
+    // paddingBottom is augmented dynamically via insets in the component
   },
   center: {
     flex: 1,

@@ -7,9 +7,9 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
-  SafeAreaView,
   Dimensions
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
@@ -26,6 +26,7 @@ const DAY_SIZE = (width - CALENDAR_PADDING * 2) / 7;
 
 export default function BookingScreen({ route, navigation }: Props) {
   const { stadiumId, stadiumName } = route.params;
+  const insets = useSafeAreaInsets();
   const [slots, setSlots] = useState<Slot[]>([]);
   const [stadiumLocations, setStadiumLocations] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<string>('');
@@ -366,7 +367,7 @@ export default function BookingScreen({ route, navigation }: Props) {
       </ScrollView>
 
       {/* Continue Button */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>
         <TouchableOpacity
           style={[
             styles.continueButton,
@@ -405,7 +406,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
-    paddingTop: 36,
+    paddingTop: 12,
     paddingBottom: spacing.xs,
     backgroundColor: '#fff',
   },
@@ -506,7 +507,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
-    paddingBottom: 120,
+    paddingBottom: 100,
   },
   slotsTitle: {
     fontSize: 17,
@@ -652,7 +653,8 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: '#fff',
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: '#e5e5e5',
   },

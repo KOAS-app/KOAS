@@ -7,6 +7,8 @@ export const createLocation = async (req, res) => {
     const { name, address, images } = req.body;
     const { stadiumId } = req.params;
 
+    const cleanName = name ? name.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : 'Main Branch';
+
     // Verify the stadium belongs to this owner
     const stadium = await prisma.stadium.findUnique({
       where: { id: stadiumId },
@@ -34,7 +36,7 @@ export const createLocation = async (req, res) => {
 
     const location = await prisma.location.create({
       data: {
-        name,
+        name: cleanName,
         address: address || null,
         images: images || [],
         stadiumId,
@@ -95,11 +97,12 @@ export const updateLocation = async (req, res) => {
     }
 
     const { name, address, images } = req.body;
+    const cleanName = name !== undefined ? name.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : undefined;
 
     const updated = await prisma.location.update({
       where: { id: req.params.id },
       data: {
-        ...(name !== undefined && { name }),
+        ...(cleanName !== undefined && { name: cleanName }),
         ...(address !== undefined && { address }),
         ...(images !== undefined && { images }),
       },

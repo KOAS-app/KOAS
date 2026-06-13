@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from '../theme';
 
 interface Props {
@@ -7,9 +8,10 @@ interface Props {
 
 export default function GreetingHeader({ userName }: Props) {
   const firstName = userName ? userName.split(' ')[0] : 'Guest';
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
       <View style={styles.greetingContainer}>
         <View style={{ flex: 1 }}>
           <Text style={styles.greeting}>Hey, {firstName}</Text>
@@ -26,7 +28,7 @@ export default function GreetingHeader({ userName }: Props) {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.dark.bg,
-    paddingTop: 48,
+    // paddingTop is set dynamically via insets in the component
     paddingBottom: spacing.md,
   },
   greetingContainer: {
