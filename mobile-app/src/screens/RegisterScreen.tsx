@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
+import { Feather } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows } from '../theme';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { AuthStackParamList } from '../navigation/types';
@@ -20,6 +21,8 @@ export default function RegisterScreen({ navigation }: Props) {
   const [form, setForm] = useState({ name: '', password: '', confirm: '', phoneNumber: '' });
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const scrollRef = useRef<ScrollView | null>(null);
   const inputPositions = useRef<Record<string, number>>({});
   const inputRefs = useRef<Record<string, any>>({});
@@ -201,21 +204,29 @@ export default function RegisterScreen({ navigation }: Props) {
                   styles.inputWrapper,
                   focusedField === 'password' && styles.inputWrapperFocused,
                 ]}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="At least 6 characters"
-                    placeholderTextColor={colors.input.placeholder}
-                    value={form.password}
-                    onChangeText={(v) => setForm((p) => ({ ...p, password: v }))}
-                    onFocus={() => {
-                      setFocusedField('password');
-                      scrollToInput('password');
-                    }}
-                    onBlur={() => setFocusedField(null)}
-                    secureTextEntry
-                    editable={!loading}
-                    returnKeyType="next"
-                  />
+                  <View style={styles.passwordRow}>
+                    <TextInput
+                      style={styles.passwordInput}
+                      placeholder="At least 6 characters"
+                      placeholderTextColor={colors.input.placeholder}
+                      value={form.password}
+                      onChangeText={(v) => setForm((p) => ({ ...p, password: v }))}
+                      onFocus={() => {
+                        setFocusedField('password');
+                        scrollToInput('password');
+                      }}
+                      onBlur={() => setFocusedField(null)}
+                      secureTextEntry={!showPassword}
+                      editable={!loading}
+                      returnKeyType="next"
+                    />
+                    <TouchableOpacity
+                      style={styles.eyeBtn}
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#000" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
 
@@ -229,22 +240,30 @@ export default function RegisterScreen({ navigation }: Props) {
                   styles.inputWrapper,
                   focusedField === 'confirm' && styles.inputWrapperFocused,
                 ]}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Re-enter your password"
-                    placeholderTextColor={colors.input.placeholder}
-                    value={form.confirm}
-                    onChangeText={(v) => setForm((p) => ({ ...p, confirm: v }))}
-                    onFocus={() => {
-                      setFocusedField('confirm');
-                      scrollToInput('confirm');
-                    }}
-                    onBlur={() => setFocusedField(null)}
-                    secureTextEntry
-                    editable={!loading}
-                    returnKeyType="go"
-                    onSubmitEditing={handleRegister}
-                  />
+                  <View style={styles.passwordRow}>
+                    <TextInput
+                      style={styles.passwordInput}
+                      placeholder="Re-enter your password"
+                      placeholderTextColor={colors.input.placeholder}
+                      value={form.confirm}
+                      onChangeText={(v) => setForm((p) => ({ ...p, confirm: v }))}
+                      onFocus={() => {
+                        setFocusedField('confirm');
+                        scrollToInput('confirm');
+                      }}
+                      onBlur={() => setFocusedField(null)}
+                      secureTextEntry={!showConfirm}
+                      editable={!loading}
+                      returnKeyType="go"
+                      onSubmitEditing={handleRegister}
+                    />
+                    <TouchableOpacity
+                      style={styles.eyeBtn}
+                      onPress={() => setShowConfirm(!showConfirm)}
+                    >
+                      <Feather name={showConfirm ? 'eye' : 'eye-off'} size={20} color="#000" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
 
@@ -418,6 +437,22 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.base,
     color: colors.text.primary,
     fontWeight: typography.weights.medium,
+  },
+  passwordRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md + 2,
+    fontSize: typography.sizes.base,
+    color: colors.text.primary,
+    fontWeight: typography.weights.medium,
+  },
+  eyeBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
   },
   hint: {
     fontSize: typography.sizes.xs,

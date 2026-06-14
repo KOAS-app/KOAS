@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
+import { Feather } from '@expo/vector-icons';
 import { colors, spacing, radius, typography, shadows, animation } from '../theme';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { AuthStackParamList } from '../navigation/types';
@@ -21,6 +22,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [phoneFocused, setPhoneFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!phoneNumber || !password) {
@@ -123,19 +125,27 @@ export default function LoginScreen({ navigation }: Props) {
                   styles.inputWrapper,
                   passwordFocused && styles.inputWrapperFocused,
                 ]}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your password"
-                    placeholderTextColor={colors.input.placeholder}
-                    value={password}
-                    onChangeText={setPassword}
-                    onFocus={() => setPasswordFocused(true)}
-                    onBlur={() => setPasswordFocused(false)}
-                    secureTextEntry
-                    editable={!loading}
-                    returnKeyType="go"
-                    onSubmitEditing={handleLogin}
-                  />
+                  <View style={styles.passwordRow}>
+                    <TextInput
+                      style={styles.passwordInput}
+                      placeholder="Enter your password"
+                      placeholderTextColor={colors.input.placeholder}
+                      value={password}
+                      onChangeText={setPassword}
+                      onFocus={() => setPasswordFocused(true)}
+                      onBlur={() => setPasswordFocused(false)}
+                      secureTextEntry={!showPassword}
+                      editable={!loading}
+                      returnKeyType="go"
+                      onSubmitEditing={handleLogin}
+                    />
+                    <TouchableOpacity
+                      style={styles.eyeBtn}
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#000" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
 
@@ -311,7 +321,25 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontWeight: typography.weights.medium,
   },
-  
+  passwordRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md + 2,
+    fontSize: typography.sizes.base,
+    color: colors.text.primary,
+    fontWeight: typography.weights.medium,
+  },
+  eyeBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderRadius: 8,
+    marginRight: spacing.xs,
+  },
+
   // ─── Button ────────────────────────────────────────────────
   btn: {
     marginTop: spacing.sm,

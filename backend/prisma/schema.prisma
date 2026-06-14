@@ -21,7 +21,9 @@ model User {
   role             Role
   phoneNumber      String?   // Phone number for contact (required for players)
   isApproved       Boolean   @default(false)
-  rejectionReason  String?   // Admin's reason for rejecting owner registration
+  rejectionReason  String?   // Admin's reason for blocking/rejecting a user
+  isBlocked        Boolean   @default(false)
+  blockedReason    String?   // Admin's reason for blocking a user
   subscriptionPlan String    @default("STARTER") // STARTER, PRO, ELITE
   createdAt        DateTime  @default(now())
 

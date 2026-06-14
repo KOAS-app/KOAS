@@ -57,7 +57,7 @@ export default function UsersPage() {
 
   const handleBlockUser = async (id: string, _name: string) => {
     if (!blockReason.trim()) {
-      alert('Please provide a reason for blocking this owner.');
+      alert('Please provide a reason for blocking this user.');
       return;
     }
     
@@ -65,12 +65,26 @@ export default function UsersPage() {
     try {
       await api.patch(`/admin/users/${id}/reject`, { reason: blockReason.trim() });
       setUsers((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, isApproved: false, rejectionReason: blockReason.trim() } : u))
+        prev.map((u) => (u.id === id ? { ...u, isApproved: false, isBlocked: true, rejectionReason: blockReason.trim(), blockedReason: blockReason.trim() } : u))
       );
       setBlockModalUser(null);
       setBlockReason('');
     } catch (err) {
       alert(getApiError(err, 'Failed to block user.'));
+    } finally {
+      setBlockingUser(null);
+    }
+  };
+
+  const handleUnblockUser = async (id: string) => {
+    setBlockingUser(id);
+    try {
+      await api.patch(`/admin/users/${id}/unblock`);
+      setUsers((prev) =>
+        prev.map((u) => (u.id === id ? { ...u, isApproved: true, isBlocked: false, rejectionReason: null, blockedReason: null } : u))
+      );
+    } catch (err) {
+      alert(getApiError(err, 'Failed to unblock user.'));
     } finally {
       setBlockingUser(null);
     }
@@ -253,16 +267,22 @@ export default function UsersPage() {
 
               {/* Approval Status (Desktop only) */}
               <div className="hidden sm:block">
-                {user.role === 'OWNER' ? (
-                  <span className={`inline-flex items-center w-fit px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border ${
-                    user.isApproved
-                      ? 'bg-[#dcfce7] text-[#166534] border-[#bbf7d0]'
-                      : 'bg-[#fef2f2] text-[#dc2626] border-[#fecaca]'
-                  }`}>
-                    {user.isApproved ? '✓ Approved' : '⏳ Pending'}
+                {user.isBlocked ? (
+                  <span className="inline-flex items-center w-fit px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border bg-[#fef2f2] text-[#dc2626] border-[#fecaca]">
+                    ✕ Blocked
+                  </span>
+                ) : user.role === 'OWNER' && !user.isApproved ? (
+                  <span className="inline-flex items-center w-fit px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border bg-[#fef2f2] text-[#dc2626] border-[#fecaca]">
+                    ⏳ Pending
+                  </span>
+                ) : user.role === 'OWNER' && user.isApproved ? (
+                  <span className="inline-flex items-center w-fit px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border bg-[#dcfce7] text-[#166534] border-[#bbf7d0]">
+                    ✓ Approved
                   </span>
                 ) : (
-                  <span className="text-xs text-[var(--color-text-muted)] font-medium">—</span>
+                  <span className="inline-flex items-center w-fit px-2.5 py-1.5 rounded-lg text-[0.6875rem] font-bold tracking-wide border bg-[#dcfce7] text-[#166534] border-[#bbf7d0]">
+                    ✓ Active
+                  </span>
                 )}
               </div>
 
@@ -290,37 +310,60 @@ export default function UsersPage() {
 
               {/* Delete action (Self aligned or right aligned) */}
               <div className="flex justify-end sm:justify-end gap-2">
-                {user.role === 'OWNER' && !user.isApproved && (
-                  <>
-                    <button
-                      className="px-3 py-1.5 text-xs font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] border border-[var(--color-primary)] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                      disabled={approvingUser === user.id}
-                      onClick={() => handleApproveUser(user.id, user.name)}
-                      title="Approve owner">
-                      {approvingUser === user.id ? (
-                        <div className="inline-block w-3 h-3 border-[1.5px] border-white border-t-transparent rounded-full animate-spin" />
-                      ) : '✓ Approve'}
-                    </button>
+                {user.role === 'OWNER' && !user.isBlocked && (
+                  user.isApproved ? (
                     <button
                       className="px-3 py-1.5 text-xs font-bold text-[var(--color-danger)] bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                       onClick={() => {
                         setBlockModalUser(user);
                         setBlockReason('');
                       }}
-                      title="Block owner">
+                      title="Block user">
                       ✕ Block
                     </button>
-                  </>
+                  ) : (
+                    <>
+                      <button
+                        className="px-3 py-1.5 text-xs font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] border border-[var(--color-primary)] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        disabled={approvingUser === user.id}
+                        onClick={() => handleApproveUser(user.id, user.name)}
+                        title="Approve owner">
+                        {approvingUser === user.id ? (
+                          <div className="inline-block w-3 h-3 border-[1.5px] border-white border-t-transparent rounded-full animate-spin" />
+                        ) : '✓ Approve'}
+                      </button>
+                      <button
+                        className="px-3 py-1.5 text-xs font-bold text-[var(--color-danger)] bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        onClick={() => {
+                          setBlockModalUser(user);
+                          setBlockReason('');
+                        }}
+                        title="Block user">
+                        ✕ Block
+                      </button>
+                    </>
+                  )
                 )}
-                {user.role === 'OWNER' && user.isApproved && (
+                {user.isBlocked && (
+                  <button
+                    className="px-3 py-1.5 text-xs font-bold text-[var(--color-primary)] bg-[var(--color-primary-bg)] border border-[var(--color-primary)] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    disabled={blockingUser === user.id}
+                    onClick={() => handleUnblockUser(user.id)}
+                    title="Unblock user">
+                    {blockingUser === user.id ? (
+                      <div className="inline-block w-3 h-3 border-[1.5px] border-[var(--color-primary)] border-t-transparent rounded-full animate-spin" />
+                    ) : '✓ Unblock'}
+                  </button>
+                )}
+                {user.role === 'PLAYER' && !user.isBlocked && (
                   <button
                     className="px-3 py-1.5 text-xs font-bold text-[var(--color-danger)] bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     onClick={() => {
-                        setBlockModalUser(user);
-                        setBlockReason('');
-                      }}
-                      title="Block owner">
-                      ✕ Block
+                      setBlockModalUser(user);
+                      setBlockReason('');
+                    }}
+                    title="Block user">
+                    ✕ Block
                   </button>
                 )}
                 <button
@@ -495,7 +538,7 @@ export default function UsersPage() {
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
               <div>
                 <h2 className="text-base font-bold text-[var(--color-text-base)]">
-                  Block Owner
+                  Block User
                 </h2>
                 <p className="text-[0.8125rem] text-[var(--color-text-muted)] mt-0.5">
                   Provide a reason for blocking {blockModalUser.name}
@@ -524,7 +567,7 @@ export default function UsersPage() {
                 autoFocus
               />
               <p className="text-xs text-[var(--color-text-muted)] mt-1.5">
-                This message will be shown to the owner.
+                This message will be shown to the user.
               </p>
             </div>
 
@@ -549,7 +592,7 @@ export default function UsersPage() {
                     Blocking...
                   </>
                 ) : (
-                  '✕ Block Owner'
+                  '✕ Block User'
                 )}
               </button>
             </div>

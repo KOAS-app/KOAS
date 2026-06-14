@@ -72,6 +72,10 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    if (user.isBlocked) {
+      return res.status(403).json({ message: user.blockedReason || 'Your account has been blocked. Please contact support.' });
+    }
+
     if (user.role === 'OWNER' && !user.isApproved) {
       return res.status(403).json({ message: 'Your account is pending admin approval.' });
     }

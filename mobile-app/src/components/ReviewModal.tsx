@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { colors, spacing, radius, typography } from '../theme';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
@@ -55,11 +55,17 @@ export default function ReviewModal({ visible, stadiumId, stadiumName, existingR
     <Modal
       visible={visible}
       transparent
+      statusBarTranslucent={true}
+      navigationBarTranslucent={true}
       animationType="fade"
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={styles.modal}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ width: '100%', maxWidth: 420, alignItems: 'center' }}
+        >
+          <View style={styles.modal}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerText}>
@@ -73,8 +79,27 @@ export default function ReviewModal({ visible, stadiumId, stadiumName, existingR
             </TouchableOpacity>
           </View>
 
-          {/* Star Rating */}
+          {/* Comment */}
           <View style={styles.section}>
+            <Text style={styles.label}>
+              Comment <Text style={styles.optional}>(optional)</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Share your experience..."
+              placeholderTextColor={colors.text.muted}
+              value={comment}
+              onChangeText={setComment}
+              multiline
+              numberOfLines={4}
+              maxLength={500}
+              textAlignVertical="top"
+            />
+            <Text style={styles.charCount}>{comment.length}/500</Text>
+          </View>
+
+          {/* Star Rating */}
+          <View style={[styles.section, { paddingTop: 0 }]}>
             <Text style={styles.label}>Your Rating</Text>
             <View style={styles.stars}>
               {[1, 2, 3, 4, 5].map((star) => (
@@ -101,25 +126,6 @@ export default function ReviewModal({ visible, stadiumId, stadiumName, existingR
             )}
           </View>
 
-          {/* Comment */}
-          <View style={styles.section}>
-            <Text style={styles.label}>
-              Comment <Text style={styles.optional}>(optional)</Text>
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Share your experience..."
-              placeholderTextColor={colors.text.muted}
-              value={comment}
-              onChangeText={setComment}
-              multiline
-              numberOfLines={4}
-              maxLength={500}
-              textAlignVertical="top"
-            />
-            <Text style={styles.charCount}>{comment.length}/500</Text>
-          </View>
-
           {/* Actions */}
           <View style={styles.actions}>
             <TouchableOpacity
@@ -144,8 +150,9 @@ export default function ReviewModal({ visible, stadiumId, stadiumName, existingR
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </Modal>
+      </KeyboardAvoidingView>
+    </View>
+  </Modal>
   );
 }
 

@@ -5,7 +5,7 @@ export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       where: { role: { not: 'ADMIN' } },
-      select: { id: true, name: true, email: true, role: true, phoneNumber: true, isApproved: true, subscriptionPlan: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, phoneNumber: true, isApproved: true, isBlocked: true, rejectionReason: true, blockedReason: true, subscriptionPlan: true, createdAt: true },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -33,7 +33,9 @@ export const approveUser = async (req, res) => {
         where: { id: req.params.id },
         data: { 
           isApproved: true,
-          rejectionReason: null, // Clear rejection reason on approval
+          isBlocked: false,
+          rejectionReason: null,
+          blockedReason: null,
         },
       });
       return u;
@@ -44,7 +46,7 @@ export const approveUser = async (req, res) => {
   }
 };
 
-// PATCH /api/admin/users/:id/reject — reject (unapprove) a user (owner)
+// PATCH /api/admin/users/:id/reject — block a user (sets isApproved=false + isBlocked=true)
 export const rejectUser = async (req, res) => {
   try {
     const { reason } = req.body;
@@ -54,7 +56,30 @@ export const rejectUser = async (req, res) => {
         where: { id: req.params.id },
         data: { 
           isApproved: false,
+          isBlocked: true,
           rejectionReason: reason || null,
+          blockedReason: reason || null,
+        },
+      });
+      return u;
+    });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// PATCH /api/admin/users/:id/unblock — unblock a user
+export const unblockUser = async (req, res) => {
+  try {
+    const user = await prisma.$transaction(async (tx) => {
+      const u = await tx.user.update({
+        where: { id: req.params.id },
+        data: { 
+          isApproved: true,
+          isBlocked: false,
+          rejectionReason: null,
+          blockedReason: null,
         },
       });
       return u;

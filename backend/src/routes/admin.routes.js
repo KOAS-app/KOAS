@@ -5,6 +5,7 @@ import {
   getAllStadiums,
   approveUser,
   rejectUser,
+  unblockUser,
   blockStadium,
   unblockStadium,
   getAllBookings,
@@ -22,6 +23,7 @@ router.get('/users', getAllUsers);
 router.delete('/users/:id', deleteUser);
 router.patch('/users/:id/approve', approveUser);
 router.patch('/users/:id/reject', rejectUser);
+router.patch('/users/:id/unblock', unblockUser);
 router.patch('/users/:id/subscription', updateUserPlan);
 
 router.get('/stadiums', getAllStadiums);

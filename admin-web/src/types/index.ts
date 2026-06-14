@@ -7,6 +7,9 @@ interface User {
   role: 'PLAYER' | 'OWNER' | 'ADMIN';
   phoneNumber?: string;
   isApproved?: boolean;
+  rejectionReason?: string;
+  isBlocked?: boolean;
+  blockedReason?: string;
   subscriptionPlan?: string;
   createdAt: string;
 }
