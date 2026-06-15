@@ -36,6 +36,7 @@ export default function MyMembershipsScreen() {
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(true);
   const [selectedSub, setSelectedSub] = useState<PlayerSubscription | null>(null);
   const [detailSub, setDetailSub] = useState<PlayerSubscription | null>(null);
+  const [slotsSub, setSlotsSub] = useState<PlayerSubscription | null>(null);
 
   // Fetch subscriptions every time screen comes to focus
   useFocusEffect(
@@ -98,23 +99,18 @@ export default function MyMembershipsScreen() {
     setDetailSub(sub);
   };
 
+  const handleViewSlots = (sub: PlayerSubscription) => {
+    setSlotsSub(sub);
+  };
+
   const formatSlotDateTime = (dateStr: string) => {
     const d = new Date(dateStr);
-    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
   };
 
   const formatSlotTime = (dateStr: string) => {
     const d = new Date(dateStr);
-    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const formatSlotDayTime = (startStr: string, endStr: string) => {
-    const start = new Date(startStr);
-    const end = new Date(endStr);
-    const day = start.toLocaleDateString('en-US', { weekday: 'long' });
-    const startTime = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
-    const endTime = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
-    return `${day} @${startTime} - ${endTime}`;
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   };
 
   return (
@@ -174,10 +170,6 @@ export default function MyMembershipsScreen() {
                           {daysLeft} days remaining
                         </Text>
                       </View>
-                      <View style={styles.passPrompt}>
-                        <Text style={styles.passPromptText}>View Pass</Text>
-                        <Feather name="arrow-right" size={12} color={colors.secondary} style={{ marginLeft: 2 }} />
-                      </View>
                     </View>
                   )}
 
@@ -201,10 +193,24 @@ export default function MyMembershipsScreen() {
                     </View>
                   )}
 
-                  <TouchableOpacity style={styles.detailsBtn} onPress={() => handleViewDetails(sub)}>
-                    <Feather name="info" size={12} color={colors.secondary} style={{ marginRight: 4 }} />
-                    <Text style={styles.detailsBtnText}>View Details</Text>
-                  </TouchableOpacity>
+                  <View style={styles.cardActions}>
+                    {sub.status === 'ACTIVE' && (
+                      <TouchableOpacity style={[styles.detailsBtn, { flex: 1 }]} onPress={() => handleSubPress(sub)}>
+                        <Feather name="credit-card" size={12} color={colors.secondary} style={{ marginRight: 4 }} />
+                        <Text style={styles.detailsBtnText}>View Pass</Text>
+                      </TouchableOpacity>
+                    )}
+                    <TouchableOpacity style={[styles.detailsBtn, { flex: 1 }]} onPress={() => handleViewDetails(sub)}>
+                      <Feather name="info" size={12} color={colors.secondary} style={{ marginRight: 4 }} />
+                      <Text style={styles.detailsBtnText}>View Details</Text>
+                    </TouchableOpacity>
+                    {sub.slots && sub.slots.length > 0 && (
+                      <TouchableOpacity style={[styles.detailsBtn, { flex: 1 }]} onPress={() => handleViewSlots(sub)}>
+                        <Feather name="calendar" size={12} color={colors.secondary} style={{ marginRight: 4 }} />
+                        <Text style={styles.detailsBtnText}>View Slots</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </TouchableOpacity>
               );
             })}
@@ -387,11 +393,41 @@ export default function MyMembershipsScreen() {
                   </View>
                 )}
 
-                {/* Selected Slots */}
-                {detailSub.slots && detailSub.slots.length > 0 && (
+
+              </>
+            )}
+
+            <TouchableOpacity style={styles.doneBtn} onPress={() => setDetailSub(null)}>
+              <Text style={styles.doneBtnText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Slots Modal */}
+      <Modal
+        visible={!!slotsSub}
+        transparent
+        statusBarTranslucent={true}
+        navigationBarTranslucent={true}
+        animationType="fade"
+        onRequestClose={() => setSlotsSub(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.closeModalBtn} onPress={() => setSlotsSub(null)}>
+              <Feather name="x" size={20} color={colors.text.secondary} />
+            </TouchableOpacity>
+
+            {slotsSub && (
+              <ScrollView style={{ maxHeight: 400 }} showsVerticalScrollIndicator={false}>
+                <Text style={styles.modalHeading}>Booked Slots</Text>
+                <Text style={styles.modalSubheading}>{slotsSub.subscriptionPlan.stadium.name} — {slotsSub.subscriptionPlan.name}</Text>
+
+                {slotsSub.slots && slotsSub.slots.length > 0 ? (
                   <View style={{ marginBottom: 16 }}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.text.secondary, letterSpacing: 0.5, marginBottom: 8 }}>BOOKED SLOTS ({detailSub.slots.length})</Text>
-                    {detailSub.slots.map((slot, idx) => (
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.text.secondary, letterSpacing: 0.5, marginBottom: 8 }}>{slotsSub.slots.length} SLOT{slotsSub.slots.length > 1 ? 'S' : ''} BOOKED</Text>
+                    {slotsSub.slots.map((slot, idx) => (
                       <View key={slot.id} style={{ flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: colors.dark.card, borderRadius: 8, borderWidth: 1, borderColor: colors.dark.border, marginBottom: 6, gap: 10 }}>
                         <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#1e293b', alignItems: 'center', justifyContent: 'center' }}>
                           <Text style={{ fontSize: 11, fontWeight: '700', color: '#94a3b8' }}>{idx + 1}</Text>
@@ -401,24 +437,22 @@ export default function MyMembershipsScreen() {
                           <Text style={{ fontSize: 11, color: colors.text.secondary }}>{formatSlotDateTime(slot.startTime)}</Text>
                         </View>
                         <View style={{ alignItems: 'flex-end' }}>
-                          <Text style={{ fontSize: 12, fontWeight: '600', color: colors.secondary }}>{formatSlotTime(slot.startTime)}</Text>
+                          <Text style={{ fontSize: 12, fontWeight: '600', color: colors.secondary }}>{formatSlotTime(slot.startTime)} - {formatSlotTime(slot.endTime)}</Text>
                           <Text style={{ fontSize: 11, color: colors.text.muted }}>{slot.price.toLocaleString()} ETB</Text>
                         </View>
                       </View>
                     ))}
                   </View>
-                )}
-
-                {(!detailSub.slots || detailSub.slots.length === 0) && (
+                ) : (
                   <View style={styles.noSlotsNotice}>
                     <Feather name="calendar" size={16} color={colors.text.muted} />
-                    <Text style={styles.noSlotsText}>No slots selected yet</Text>
+                    <Text style={styles.noSlotsText}>No slots booked for this plan</Text>
                   </View>
                 )}
-              </>
+              </ScrollView>
             )}
 
-            <TouchableOpacity style={styles.doneBtn} onPress={() => setDetailSub(null)}>
+            <TouchableOpacity style={styles.doneBtn} onPress={() => setSlotsSub(null)}>
               <Text style={styles.doneBtnText}>Close</Text>
             </TouchableOpacity>
           </View>
@@ -474,8 +508,6 @@ const styles = StyleSheet.create({
   },
   countdownWrapper: { flexDirection: 'row', alignItems: 'center' },
   countdownText: { fontSize: 12, color: colors.secondary, fontWeight: '700' },
-  passPrompt: { flexDirection: 'row', alignItems: 'center' },
-  passPromptText: { fontSize: 12, color: colors.secondary, fontWeight: '700' },
   footerNote: { fontSize: 12, color: colors.text.secondary, fontWeight: '500' },
   rejectionTextHighlight: { fontSize: 12, color: colors.danger, fontWeight: '700' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
@@ -593,11 +625,15 @@ const styles = StyleSheet.create({
   gridLabel: { fontSize: 9, fontWeight: '700', color: colors.text.secondary, letterSpacing: 0.5 },
   gridValue: { fontSize: 14, fontWeight: '800', color: colors.text.primary, marginTop: 4 },
   gridValueSub: { fontSize: 13, fontWeight: '600', color: colors.text.secondary, marginTop: 4 },
+  cardActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
   detailsBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
     paddingVertical: 8,
     borderRadius: radius.sm,
     borderWidth: 1,

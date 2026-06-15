@@ -263,7 +263,7 @@ export const createBooking = async (req, res) => {
             stadiumId: slot.stadiumId,
             slotId: id,
             bookingCode,
-            status: 'CONFIRMED',
+            status: 'PENDING',
           },
           include: { slot: true, stadium: true },
         });

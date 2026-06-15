@@ -1,13 +1,11 @@
 import { useState, useRef } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { findNodeHandle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getApiError } from '../utils/apiError';
 import { Feather } from '@expo/vector-icons';
-import { colors, spacing, radius, typography, shadows } from '../theme';
+import { colors, spacing, radius, typography } from '../theme';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { AuthStackParamList } from '../navigation/types';
 
@@ -15,65 +13,67 @@ const koasLogo = require('../../assets/logo/koas_official_logo.png');
 
 type Props = StackScreenProps<AuthStackParamList, 'Register'>;
 
+const TOTAL_STEPS = 4;
+
 export default function RegisterScreen({ navigation }: Props) {
   const { login } = useAuth();
   const insets = useSafeAreaInsets();
-  const [form, setForm] = useState({ name: '', password: '', confirm: '', phoneNumber: '' });
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({ name: '', phoneNumber: '', password: '', confirm: '' });
   const [loading, setLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView | null>(null);
-  const inputPositions = useRef<Record<string, number>>({});
-  const inputRefs = useRef<Record<string, any>>({});
-
-  const scrollToInput = (key: string) => {
-    setTimeout(() => {
-      const input = inputRefs.current[key];
-      if (!input || !scrollRef.current) return;
-      try {
-        input.measureLayout(
-          scrollRef.current,
-          (x: number, y: number) => {
-            scrollRef.current?.scrollTo({ y: Math.max(y - 24, 0), animated: true });
-          },
-          () => {}
-        );
-      } catch (e) {
-        // fallback
-      }
-    }, 100);
-  };
 
   const validatePassword = (password: string) => {
-    if (password.length < 8) return 'Password must be at least 8 characters.';
-    if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter.';
-    if (!/[a-z]/.test(password)) return 'Password must contain at least one lowercase letter.';
-    if (!/[0-9]/.test(password)) return 'Password must contain at least one number.';
-    if (!/[^A-Za-z0-9]/.test(password)) return 'Password must contain at least one special character.';
+    if (password.length < 8) return 'At least 8 characters';
+    if (!/[A-Z]/.test(password)) return 'One uppercase letter';
+    if (!/[a-z]/.test(password)) return 'One lowercase letter';
+    if (!/[0-9]/.test(password)) return 'One number';
+    if (!/[^A-Za-z0-9]/.test(password)) return 'One special character';
     return null;
   };
 
+  const handleNext = () => {
+    if (step === 1) {
+      if (!form.name.trim()) {
+        Alert.alert('Required', 'Enter your name.');
+        return;
+      }
+    }
+    if (step === 2) {
+      if (!/^\+251[79]\d{8}$/.test(form.phoneNumber)) {
+        Alert.alert('Invalid', 'Use Ethiopian format: +251XXXXXXXXX');
+        return;
+      }
+    }
+    if (step === 3) {
+      if (!form.password) {
+        Alert.alert('Required', 'Enter a password.');
+        return;
+      }
+      const err = validatePassword(form.password);
+      if (err) {
+        Alert.alert('Weak Password', err);
+        return;
+      }
+      if (form.password !== form.confirm) {
+        Alert.alert('Mismatch', 'Passwords do not match');
+        return;
+      }
+    }
+    if (step < TOTAL_STEPS) {
+      setStep(step + 1);
+      setPasswordError(null);
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
   const handleRegister = async () => {
-    if (!form.name || !form.password || !form.confirm || !form.phoneNumber) {
-      Alert.alert('Required Fields', 'Please fill in all fields');
-      return;
-    }
-
-    const passwordError = validatePassword(form.password);
-    if (passwordError) {
-      Alert.alert('Invalid Password', passwordError);
-      return;
-    }
-
-    if (form.password !== form.confirm) {
-      Alert.alert('Password Mismatch', 'Passwords do not match');
-      return;
-    }
-    if (!/^\+251[79]\d{8}$/.test(form.phoneNumber)) {
-      Alert.alert('Invalid Phone Number', 'Phone number must be in Ethiopian format: +251XXXXXXXXX');
-      return;
-    }
     setLoading(true);
     try {
       const res = await api.post('/auth/register', {
@@ -91,240 +91,171 @@ export default function RegisterScreen({ navigation }: Props) {
     }
   };
 
+  const onPasswordChange = (v: string) => {
+    setForm((p) => ({ ...p, password: v }));
+    if (v.length === 0) {
+      setPasswordError(null);
+    } else {
+      setPasswordError(validatePassword(v));
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {/* Gradient Background */}
-      <LinearGradient
-        colors={[colors.dark.bg, colors.dark.surface, colors.dark.bg]}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
-
-      {/* Subtle Accent Glow */}
-      <View style={styles.accentGlow} />
-
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <KeyboardAvoidingView
-          style={styles.keyboardView}
+          style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
         >
           <ScrollView
             ref={(r) => { scrollRef.current = r; }}
-            contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + spacing.xxl }]}
+            contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 48 }]}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            bounces={false}
           >
-          {/* Brand Header */}
-          <View style={styles.header}>
-            <Image 
-              source={koasLogo} 
-              style={styles.logo} 
-              resizeMode="contain"
-            />
-            <Text style={styles.tagline}>Join thousands of players</Text>
-          </View>
-
-          {/* Auth Card */}
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Create account</Text>
-              <Text style={styles.cardSubtitle}>Start booking your games today</Text>
+            {/* Logo */}
+            <View style={styles.logoWrap}>
+              <Image source={koasLogo} style={styles.logo} resizeMode="contain" />
             </View>
 
-            {/* Form */}
-            <View style={styles.form}>
-              {/* Name Input */}
-              <View 
-                style={styles.inputGroup}
-                ref={(r) => { inputRefs.current['name'] = r; }}
-              >
-                <Text style={styles.label}>Full Name</Text>
-                <View style={[
-                  styles.inputWrapper,
-                  focusedField === 'name' && styles.inputWrapperFocused,
-                ]}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="John Doe"
-                    placeholderTextColor={colors.input.placeholder}
-                    value={form.name}
-                    onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
-                    onFocus={() => {
-                      setFocusedField('name');
-                      scrollToInput('name');
-                    }}
-                    onBlur={() => setFocusedField(null)}
-                    autoCapitalize="words"
-                    editable={!loading}
-                    returnKeyType="next"
-                  />
-                </View>
-              </View>
+            {/* Progress bar */}
+            <View style={styles.progressBg}>
+              <View style={[styles.progressFill, { width: `${(step / TOTAL_STEPS) * 100}%` }]} />
+            </View>
 
-              {/* Phone Number Input */}
-              <View 
-                style={styles.inputGroup}
-                ref={(r) => { inputRefs.current['phoneNumber'] = r; }}
-              >
-                <Text style={styles.label}>Phone Number</Text>
-                <View style={[
-                  styles.inputWrapper,
-                  focusedField === 'phoneNumber' && styles.inputWrapperFocused,
-                ]}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="+251912345678"
-                    placeholderTextColor={colors.input.placeholder}
-                    value={form.phoneNumber}
-                    onChangeText={(v) => setForm((p) => ({ ...p, phoneNumber: v }))}
-                    onFocus={() => {
-                      setFocusedField('phoneNumber');
-                      scrollToInput('phoneNumber');
-                    }}
-                    onBlur={() => setFocusedField(null)}
-                    keyboardType="phone-pad"
-                    autoCapitalize="none"
-                    editable={!loading}
-                    returnKeyType="next"
-                  />
-                </View>
+            {/* Step 1: Name */}
+            {step === 1 && (
+              <View style={styles.stepContent}>
+                <Text style={styles.question}>What's your name?</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Full name"
+                  placeholderTextColor="#999"
+                  value={form.name}
+                  onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
+                  autoCapitalize="words"
+                  editable={!loading}
+                  autoFocus
+                  returnKeyType="next"
+                  onSubmitEditing={handleNext}
+                />
+              </View>
+            )}
+
+            {/* Step 2: Phone */}
+            {step === 2 && (
+              <View style={styles.stepContent}>
+                <Text style={styles.question}>Your phone number?</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="+251912345678"
+                  placeholderTextColor="#999"
+                  value={form.phoneNumber}
+                  onChangeText={(v) => setForm((p) => ({ ...p, phoneNumber: v }))}
+                  keyboardType="phone-pad"
+                  autoCapitalize="none"
+                  editable={!loading}
+                  autoFocus
+                  returnKeyType="next"
+                  onSubmitEditing={handleNext}
+                />
                 <Text style={styles.hint}>Ethiopian format: +251XXXXXXXXX</Text>
               </View>
+            )}
 
-              {/* Password Input */}
-              <View 
-                style={styles.inputGroup}
-                ref={(r) => { inputRefs.current['password'] = r; }}
-              >
-                <Text style={styles.label}>Password</Text>
-                <View style={[
-                  styles.inputWrapper,
-                  focusedField === 'password' && styles.inputWrapperFocused,
-                ]}>
-                  <View style={styles.passwordRow}>
-                    <TextInput
-                      style={styles.passwordInput}
-                      placeholder="At least 6 characters"
-                      placeholderTextColor={colors.input.placeholder}
-                      value={form.password}
-                      onChangeText={(v) => setForm((p) => ({ ...p, password: v }))}
-                      onFocus={() => {
-                        setFocusedField('password');
-                        scrollToInput('password');
-                      }}
-                      onBlur={() => setFocusedField(null)}
-                      secureTextEntry={!showPassword}
-                      editable={!loading}
-                      returnKeyType="next"
-                    />
-                    <TouchableOpacity
-                      style={styles.eyeBtn}
-                      onPress={() => setShowPassword(!showPassword)}
-                    >
-                      <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#000" />
-                    </TouchableOpacity>
+            {/* Step 3: Password */}
+            {step === 3 && (
+              <View style={styles.stepContent}>
+                <Text style={styles.question}>Create a password</Text>
+                <View style={styles.passwordRow}>
+                  <TextInput
+                    style={[styles.input, styles.passwordInput]}
+                    placeholder="Enter password"
+                    placeholderTextColor="#999"
+                    value={form.password}
+                    onChangeText={onPasswordChange}
+                    secureTextEntry={!showPassword}
+                    editable={!loading}
+                    autoFocus
+                    returnKeyType="next"
+                  />
+                  <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPassword(!showPassword)}>
+                    <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#666" />
+                  </TouchableOpacity>
+                </View>
+                {passwordError && <Text style={styles.passwordHint}>{passwordError}</Text>}
+                <View style={[styles.passwordRow, { marginTop: 12 }]}>
+                  <TextInput
+                    style={[styles.input, styles.passwordInput]}
+                    placeholder="Confirm password"
+                    placeholderTextColor="#999"
+                    value={form.confirm}
+                    onChangeText={(v) => setForm((p) => ({ ...p, confirm: v }))}
+                    secureTextEntry={!showConfirm}
+                    editable={!loading}
+                    returnKeyType="done"
+                    onSubmitEditing={handleNext}
+                  />
+                  <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowConfirm(!showConfirm)}>
+                    <Feather name={showConfirm ? 'eye' : 'eye-off'} size={20} color="#666" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {/* Step 4: Review */}
+            {step === 4 && (
+              <View style={styles.stepContent}>
+                <Text style={styles.question}>Review your info</Text>
+                <View style={styles.reviewCard}>
+                  <View style={styles.reviewRow}>
+                    <Text style={styles.reviewLabel}>Name</Text>
+                    <Text style={styles.reviewValue}>{form.name}</Text>
+                  </View>
+                  <View style={styles.reviewDivider} />
+                  <View style={styles.reviewRow}>
+                    <Text style={styles.reviewLabel}>Phone</Text>
+                    <Text style={styles.reviewValue}>{form.phoneNumber}</Text>
+                  </View>
+                  <View style={styles.reviewDivider} />
+                  <View style={styles.reviewRow}>
+                    <Text style={styles.reviewLabel}>Password</Text>
+                    <Text style={styles.reviewValue}>••••••••</Text>
                   </View>
                 </View>
               </View>
+            )}
 
-              {/* Confirm Password Input */}
-              <View 
-                style={styles.inputGroup}
-                ref={(r) => { inputRefs.current['confirm'] = r; }}
-              >
-                <Text style={styles.label}>Confirm Password</Text>
-                <View style={[
-                  styles.inputWrapper,
-                  focusedField === 'confirm' && styles.inputWrapperFocused,
-                ]}>
-                  <View style={styles.passwordRow}>
-                    <TextInput
-                      style={styles.passwordInput}
-                      placeholder="Re-enter your password"
-                      placeholderTextColor={colors.input.placeholder}
-                      value={form.confirm}
-                      onChangeText={(v) => setForm((p) => ({ ...p, confirm: v }))}
-                      onFocus={() => {
-                        setFocusedField('confirm');
-                        scrollToInput('confirm');
-                      }}
-                      onBlur={() => setFocusedField(null)}
-                      secureTextEntry={!showConfirm}
-                      editable={!loading}
-                      returnKeyType="go"
-                      onSubmitEditing={handleRegister}
-                    />
-                    <TouchableOpacity
-                      style={styles.eyeBtn}
-                      onPress={() => setShowConfirm(!showConfirm)}
-                    >
-                      <Feather name={showConfirm ? 'eye' : 'eye-off'} size={20} color="#000" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-
-              {/* Create Account Button */}
-              <TouchableOpacity
-                style={[styles.btn, loading && styles.btnDisabled]}
-                onPress={handleRegister}
-                disabled={loading}
-                activeOpacity={0.85}
-              >
-                <LinearGradient
-                  colors={[colors.secondary, colors.secondary]}
-                  style={styles.btnGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                >
+            {/* Navigation */}
+            <View style={styles.navRow}>
+              {step > 1 ? (
+                <TouchableOpacity onPress={handleBack} disabled={loading} style={styles.navBack}>
+                  <Text style={styles.navBackText}>Back</Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.navBack} />
+              )}
+              {step < TOTAL_STEPS ? (
+                <TouchableOpacity onPress={handleNext} disabled={loading} style={styles.navNext}>
+                  <Text style={styles.navNextText}>Next</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={handleRegister} disabled={loading} style={styles.navNext}>
                   {loading ? (
-                    <ActivityIndicator size="small" color="#ffffff" />
+                    <ActivityIndicator size="small" color="#fff" />
                   ) : (
-                    <Text style={styles.btnText}>Create Account</Text>
+                    <Text style={styles.navNextText}>Create Account</Text>
                   )}
-                </LinearGradient>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              )}
             </View>
 
-            {/* Terms */}
-            <Text style={styles.terms}>
-              By creating an account, you agree to our{' '}
-              <Text style={styles.termsLink}>Terms of Service</Text>
-              {' '}and{' '}
-              <Text style={styles.termsLink}>Privacy Policy</Text>
-            </Text>
-
-            {/* Divider */}
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            {/* Sign In Link */}
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              disabled={loading}
-              style={styles.signinButton}
-              activeOpacity={0.7}
-            >
+            {/* Sign in link */}
+            <TouchableOpacity onPress={() => navigation.goBack()} disabled={loading} style={styles.signinWrap}>
               <Text style={styles.signinText}>
-                Already have an account?{' '}
-                <Text style={styles.signinLink}>Sign in</Text>
+                Already have an account? <Text style={styles.signinLink}>Sign in</Text>
               </Text>
             </TouchableOpacity>
-          </View>
-
-          {/* Trust Badge */}
-          <View style={styles.footer}>
-            <View style={styles.trustBadge}>
-              <View style={styles.trustDot} />
-              <Text style={styles.trustText}>Secure · Trusted by 10,000+ players</Text>
-            </View>
-          </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -333,231 +264,63 @@ export default function RegisterScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.dark.bg,
-  },
-  gradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  },
-  accentGlow: {
-    position: 'absolute',
-    top: -100,
-    left: -50,
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: colors.secondary,
-    opacity: 0.03,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xxxl,
-    // paddingTop is set dynamically from insets in the component
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  flex: { flex: 1 },
+  scrollContent: { flexGrow: 1, paddingHorizontal: 24 },
 
-  // ─── Header ────────────────────────────────────────────────
-  header: {
-    alignItems: 'center',
-    marginBottom: spacing.xxl + spacing.sm,
-  },
-  logo: {
-    width: 180,
-    height: 60,
-    marginBottom: spacing.md,
-  },
-  tagline: {
-    fontSize: typography.sizes.base,
-    color: colors.text.muted,
-    fontWeight: typography.weights.medium,
-    letterSpacing: 0.2,
-  },
+  // Logo
+  logoWrap: { alignItems: 'center', marginBottom: 40 },
+  logo: { width: 120, height: 40 },
 
-  // ─── Card ──────────────────────────────────────────────────
-  card: {
-    backgroundColor: colors.dark.card,
-    borderRadius: radius.xl,
-    padding: spacing.xxl,
-    borderWidth: 1,
-    borderColor: colors.dark.border,
-    ...shadows.lg,
-  },
-  cardHeader: {
-    marginBottom: spacing.xl,
-  },
-  cardTitle: {
-    fontSize: typography.sizes.xxl,
-    fontWeight: typography.weights.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-    letterSpacing: -0.5,
-  },
-  cardSubtitle: {
-    fontSize: typography.sizes.sm,
-    color: colors.text.muted,
-    fontWeight: typography.weights.medium,
-  },
+  // Progress bar
+  progressBg: { height: 4, backgroundColor: '#e0e0e0', borderRadius: 2, marginBottom: 48 },
+  progressFill: { height: 4, backgroundColor: '#215630', borderRadius: 2 },
 
-  // ─── Form ──────────────────────────────────────────────────
-  form: {
-    gap: spacing.lg,
-  },
-  inputGroup: {
-    gap: spacing.sm,
-  },
-  label: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.semibold,
-    color: colors.text.secondary,
-    letterSpacing: 0.1,
-  },
-  inputWrapper: {
-    backgroundColor: colors.input.bg,
-    borderWidth: 1.5,
-    borderColor: colors.input.border,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-  },
-  inputWrapperFocused: {
-    borderColor: colors.input.borderFocus,
-    backgroundColor: colors.dark.elevated,
-  },
+  // Step content
+  stepContent: { marginBottom: 32 },
+  question: { fontSize: 22, fontWeight: '600', color: '#111', marginBottom: 24 },
   input: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md + 2,
-    fontSize: typography.sizes.base,
-    color: colors.text.primary,
-    fontWeight: typography.weights.medium,
+    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#111',
   },
-  passwordRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  passwordInput: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md + 2,
-    fontSize: typography.sizes.base,
-    color: colors.text.primary,
-    fontWeight: typography.weights.medium,
-  },
-  eyeBtn: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  hint: {
-    fontSize: typography.sizes.xs,
-    color: colors.text.muted,
-    marginTop: spacing.xs,
-    fontWeight: typography.weights.medium,
-  },
+  hint: { fontSize: 12, color: '#888', marginTop: 8 },
 
-  // ─── Button ────────────────────────────────────────────────
-  btn: {
-    marginTop: spacing.sm,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    ...shadows.md,
-  },
-  btnGradient: {
-    paddingVertical: spacing.lg,
+  // Password
+  passwordRow: { flexDirection: 'row', alignItems: 'center' },
+  passwordInput: { flex: 1 },
+  eyeBtn: { position: 'absolute', right: 12, padding: 4 },
+  passwordHint: { fontSize: 12, color: '#888', marginTop: 6 },
+
+  // Review
+  reviewCard: { backgroundColor: '#f9f9f9', borderRadius: 8, padding: 16, borderWidth: 1, borderColor: '#eee' },
+  reviewRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10 },
+  reviewDivider: { height: 1, backgroundColor: '#eee' },
+  reviewLabel: { fontSize: 14, color: '#666' },
+  reviewValue: { fontSize: 14, color: '#111', fontWeight: '600' },
+
+  // Navigation
+  navRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  navBack: { width: 80 },
+  navBackText: { fontSize: 16, color: '#666' },
+  navNext: {
+    backgroundColor: '#215630',
+    borderRadius: 100,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 120,
   },
-  btnDisabled: {
-    opacity: 0.5,
-  },
-  btnText: {
-    color: '#ffffff',
-    fontSize: typography.sizes.md,
-    fontWeight: typography.weights.bold,
-    letterSpacing: 0.2,
-  },
+  navNextText: { fontSize: 16, fontWeight: '600', color: '#fff' },
 
-  // ─── Terms ─────────────────────────────────────────────────
-  terms: {
-    marginTop: spacing.lg,
-    fontSize: typography.sizes.xs,
-    color: colors.text.muted,
-    textAlign: 'center',
-    lineHeight: typography.lineHeights.relaxed * typography.sizes.xs,
-  },
-  termsLink: {
-    color: colors.secondary,
-    fontWeight: typography.weights.semibold,
-  },
-
-  // ─── Divider ───────────────────────────────────────────────
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: spacing.lg,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.dark.border,
-  },
-  dividerText: {
-    marginHorizontal: spacing.md,
-    fontSize: typography.sizes.xs,
-    color: colors.text.muted,
-    fontWeight: typography.weights.medium,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-
-  // ─── Sign In Link ──────────────────────────────────────────
-  signinButton: {
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-  },
-  signinText: {
-    fontSize: typography.sizes.sm,
-    color: colors.text.muted,
-    fontWeight: typography.weights.medium,
-  },
-  signinLink: {
-    color: colors.secondary,
-    fontWeight: typography.weights.semibold,
-  },
-
-  // ─── Footer ────────────────────────────────────────────────
-  footer: {
-    alignItems: 'center',
-    marginTop: spacing.xl,
-  },
-  trustBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.secondaryMuted,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(22, 163, 74, 0.2)',
-  },
-  trustDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.secondary,
-  },
-  trustText: {
-    fontSize: typography.sizes.xs,
-    color: colors.text.muted,
-    fontWeight: typography.weights.medium,
-    letterSpacing: 0.2,
-  },
+  // Sign in
+  signinWrap: { alignItems: 'center', marginTop: 40 },
+  signinText: { fontSize: 14, color: '#666' },
+  signinLink: { color: '#215630', fontWeight: '600' },
 });
-
