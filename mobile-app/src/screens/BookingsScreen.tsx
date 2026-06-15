@@ -245,9 +245,8 @@ export default function BookingsScreen() {
           const sStyle = statusStyle[item.status];
           const canUploadReceipt = item.payment &&
             (item.payment.status === 'PENDING' || item.payment.status === 'REJECTED') &&
-            item.status === 'CONFIRMED';
+            item.status !== 'CANCELLED';
           const isRejected = item.payment?.status === 'REJECTED';
-          const isPendingApproval = item.status === 'PENDING';
 
           return (
             <View style={styles.card}>
@@ -294,7 +293,7 @@ export default function BookingsScreen() {
                 </View>
 
                 {/* Bank account info (shown when payment is PENDING) */}
-                {item.payment?.status === 'PENDING' && item.status === 'CONFIRMED' && (
+                {item.payment?.status === 'PENDING' && item.status !== 'CANCELLED' && (
                   item.stadium.bankName ? (
                     <View style={styles.bankInfo}>
                       <Text style={styles.bankInfoTitle}>💳 Transfer Payment To:</Text>
@@ -324,14 +323,6 @@ export default function BookingsScreen() {
                       </Text>
                     </View>
                   )
-                )}
-
-                {/* Pending owner approval */}
-                {isPendingApproval && (
-                  <View style={styles.pendingApprovalBox}>
-                    <Feather name="clock" size={14} color={colors.warning} style={{ marginRight: 6 }} />
-                    <Text style={styles.pendingApprovalText}>Awaiting owner approval</Text>
-                  </View>
                 )}
 
                 {/* Rejection reason */}
@@ -366,7 +357,7 @@ export default function BookingsScreen() {
                       </TouchableOpacity>
                     )}
 
-                    {(item.status === 'PENDING' || ((item.payment?.status === 'PENDING' || item.payment?.status === 'REJECTED') && item.status === 'CONFIRMED')) && (
+                    {(item.status === 'PENDING' || item.status === 'CONFIRMED') && (item.payment?.status === 'PENDING' || item.payment?.status === 'REJECTED') && (
                       <TouchableOpacity
                         style={[styles.cancelBtn, cancelling === item.id && styles.btnDisabled]}
                         onPress={() => handleCancel(item.id)}
@@ -767,19 +758,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   bankInfoMissingText: { fontSize: 12, color: colors.warning, fontWeight: '600' },
-
-  // Pending approval
-  pendingApprovalBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.warningBg,
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
-    marginBottom: 16,
-  },
-  pendingApprovalText: { fontSize: 13, color: colors.warning, fontWeight: '700' },
 
   // Rejection
   rejectionBox: {

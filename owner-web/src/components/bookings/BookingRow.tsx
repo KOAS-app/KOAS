@@ -116,21 +116,19 @@ export default function BookingRow({ booking, busy, onConfirm, onCancel, onViewR
 
       {/* Actions */}
       <div className="flex gap-2 flex-shrink-0 ml-auto flex-wrap">
-        {booking.status === 'PENDING' && (
+        {booking.status === 'PENDING' && hasReceipt && (
           <>
             <button
-              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-white bg-[var(--color-primary)] border border-[var(--color-primary)] shadow-[0_1px_2px_rgba(22,163,74,0.2)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={busy} onClick={onConfirm}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[#1d4ed8] bg-[#eff6ff] border border-[#bfdbfe] transition-all hover:bg-[#dbeafe] disabled:opacity-50"
+              disabled={busy} onClick={onViewReceipt}
             >
-              {busy ? <div className="w-3 h-3 border-[1.5px] border-white/30 border-t-white rounded-full animate-spin" /> : '✓ Accept'}
-            </button>
-            <button
-              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[0.8125rem] font-bold text-[var(--color-danger)] bg-transparent border border-[var(--color-border)] transition-all hover:bg-[var(--color-danger-bg)] hover:border-[#fecaca] disabled:opacity-50"
-              disabled={busy} onClick={onCancel}
-            >
-              Decline
+              📎 Review Receipt
             </button>
           </>
+        )}
+
+        {booking.status === 'PENDING' && !hasReceipt && (
+          <span className="text-[0.8125rem] font-bold text-[var(--color-text-muted)]">Awaiting receipt</span>
         )}
 
         {booking.status === 'CONFIRMED' && (

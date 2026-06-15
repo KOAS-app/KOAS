@@ -105,34 +105,28 @@ export default function BookingTable({
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {booking.status === 'PENDING' ? (
-                        <>
-                          <button 
-                            onClick={() => doAction(booking.id, 'confirm')}
-                            disabled={!!actionLoading}
-                            className="px-3 py-1.5 bg-[var(--color-primary)] text-white text-[11px] font-black rounded-lg hover:bg-[var(--color-primary-hover)] transition-all shadow-sm"
-                          >
-                            Accept
-                          </button>
-                          <button 
-                            onClick={() => doAction(booking.id, 'owner-cancel')}
-                            disabled={!!actionLoading}
-                            className="px-3 py-1.5 bg-white border border-[var(--color-danger)] text-[var(--color-danger)] text-[11px] font-black rounded-lg hover:bg-[var(--color-danger-bg)] transition-all"
-                          >
-                            Decline
-                          </button>
-                        </>
-                      ) : (
+                      {booking.status === 'PENDING' && booking.payment?.status === 'RECEIPT_SUBMITTED' ? (
+                        <button 
+                          onClick={() => setReceiptBooking(booking)}
+                          className="px-3 py-1.5 bg-[var(--color-info-bg)] text-[var(--color-info)] text-[11px] font-black rounded-lg border border-[var(--color-info)]/20 hover:bg-[var(--color-info)] hover:text-white transition-all"
+                        >
+                          Review Receipt
+                        </button>
+                      ) : booking.status === 'CONFIRMED' ? (
                         <button 
                           onClick={() => booking.payment ? setReceiptBooking(booking) : null}
                           className="px-3 py-1.5 bg-white border border-[var(--color-border)] text-[var(--color-text-secondary)] text-[11px] font-black rounded-lg hover:bg-[var(--color-surface-muted)] transition-all"
                         >
-                          View Details
+                          {booking.payment?.status === 'RECEIPT_SUBMITTED' ? 'Review Receipt' : 'View Details'}
+                        </button>
+                      ) : booking.status === 'PENDING' ? (
+                        <span className="text-[11px] font-bold text-[var(--color-text-muted)]">Awaiting receipt</span>
+                      ) : null}
+                      {booking.status !== 'PENDING' && (
+                        <button className="p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-base)]">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></svg>
                         </button>
                       )}
-                      <button className="p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-base)]">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></svg>
-                      </button>
                     </div>
                   </td>
                 </tr>
