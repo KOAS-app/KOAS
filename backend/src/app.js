@@ -15,7 +15,7 @@ import bankAccountRoutes from './routes/bankAccount.routes.js';
 import subscriptionPlanRoutes from './routes/subscriptionPlan.routes.js';
 import playerSubscriptionRoutes from './routes/playerSubscription.routes.js';
 import locationRoutes from './routes/location.routes.js';
-import prisma from './prisma.js';
+import prisma from './config/prisma.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
