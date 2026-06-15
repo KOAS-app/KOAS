@@ -154,7 +154,20 @@ export const getMySubscriptions = async (req, res) => {
 
     // Check and update expiry on all returned subscriptions
     const processed = await Promise.all(
-      subscriptions.map(sub => checkAndExpireSubscription(sub))
+      subscriptions.map(async (sub) => {
+        const expired = await checkAndExpireSubscription(sub);
+
+        // Fetch slot details for selectedSlotIds
+        let slots = [];
+        if (expired.selectedSlotIds && expired.selectedSlotIds.length > 0) {
+          slots = await prisma.slot.findMany({
+            where: { id: { in: expired.selectedSlotIds } },
+            orderBy: { startTime: 'asc' }
+          });
+        }
+
+        return { ...expired, slots };
+      })
     );
 
     res.json(processed);

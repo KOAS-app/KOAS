@@ -123,6 +123,8 @@ export interface PlayerSubscription {
   ownerConfirmedAt?: string;
   ownerRejectedAt?: string;
   ownerRejectionReason?: string;
+  selectedSlotIds: string[];
+  slots: Slot[];
   startDate?: string;
   endDate?: string;
   createdAt: string;

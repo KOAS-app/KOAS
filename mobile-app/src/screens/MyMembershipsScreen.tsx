@@ -35,6 +35,7 @@ export default function MyMembershipsScreen() {
   const [subscriptions, setSubscriptions] = useState<PlayerSubscription[]>([]);
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(true);
   const [selectedSub, setSelectedSub] = useState<PlayerSubscription | null>(null);
+  const [detailSub, setDetailSub] = useState<PlayerSubscription | null>(null);
 
   // Fetch subscriptions every time screen comes to focus
   useFocusEffect(
@@ -91,6 +92,29 @@ export default function MyMembershipsScreen() {
         'This membership is expired. You can purchase a new plan by navigating to the stadium details page.'
       );
     }
+  };
+
+  const handleViewDetails = (sub: PlayerSubscription) => {
+    setDetailSub(sub);
+  };
+
+  const formatSlotDateTime = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const formatSlotTime = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatSlotDayTime = (startStr: string, endStr: string) => {
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    const day = start.toLocaleDateString('en-US', { weekday: 'long' });
+    const startTime = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
+    const endTime = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
+    return `${day} @${startTime} - ${endTime}`;
   };
 
   return (
@@ -176,6 +200,11 @@ export default function MyMembershipsScreen() {
                       <Text style={styles.footerNote}>Ended on {sub.endDate ? new Date(sub.endDate).toLocaleDateString() : ''}</Text>
                     </View>
                   )}
+
+                  <TouchableOpacity style={styles.detailsBtn} onPress={() => handleViewDetails(sub)}>
+                    <Feather name="info" size={12} color={colors.secondary} style={{ marginRight: 4 }} />
+                    <Text style={styles.detailsBtnText}>View Details</Text>
+                  </TouchableOpacity>
                 </TouchableOpacity>
               );
             })}
@@ -265,6 +294,132 @@ export default function MyMembershipsScreen() {
 
             <TouchableOpacity style={styles.doneBtn} onPress={() => setSelectedSub(null)}>
               <Text style={styles.doneBtnText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Plan Details Modal */}
+      <Modal
+        visible={!!detailSub}
+        transparent
+        statusBarTranslucent={true}
+        navigationBarTranslucent={true}
+        animationType="fade"
+        onRequestClose={() => setDetailSub(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.closeModalBtn} onPress={() => setDetailSub(null)}>
+              <Feather name="x" size={20} color={colors.text.secondary} />
+            </TouchableOpacity>
+
+            {detailSub && (
+              <>
+                <Text style={styles.modalHeading}>Plan Details</Text>
+                <Text style={styles.modalSubheading}>{detailSub.subscriptionPlan.stadium.name}</Text>
+
+                {/* Access Schedule */}
+                <View style={{ marginBottom: 16, padding: 14, backgroundColor: colors.dark.card, borderRadius: 10, borderWidth: 1, borderColor: colors.dark.border }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: colors.text.secondary, letterSpacing: 0.5, marginBottom: 10 }}>ACCESS SCHEDULE</Text>
+                  <View style={{ gap: 6 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 12, color: colors.text.secondary }}>Play Days</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.primary }}>{detailSub.subscriptionPlan.openingDay} - {detailSub.subscriptionPlan.closingDay}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 12, color: colors.text.secondary }}>Play Hours</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.primary }}>{detailSub.subscriptionPlan.openingTime} - {detailSub.subscriptionPlan.closingTime}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 12, color: colors.text.secondary }}>Hours per Day</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.primary }}>{detailSub.subscriptionPlan.hoursPerDay}h</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 12, color: colors.text.secondary }}>Days per Week</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.primary }}>{detailSub.subscriptionPlan.weeklyAllowedDays} day{detailSub.subscriptionPlan.weeklyAllowedDays > 1 ? 's' : ''}</Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Validity Period */}
+                <View style={{ marginBottom: 16, padding: 14, backgroundColor: colors.dark.card, borderRadius: 10, borderWidth: 1, borderColor: colors.dark.border }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: colors.text.secondary, letterSpacing: 0.5, marginBottom: 10 }}>VALIDITY</Text>
+                  <View style={{ gap: 6 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 12, color: colors.text.secondary }}>Started</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.primary }}>{detailSub.startDate ? new Date(detailSub.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 12, color: colors.text.secondary }}>Expires</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.primary }}>{detailSub.endDate ? new Date(detailSub.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</Text>
+                    </View>
+                    {detailSub.status === 'ACTIVE' && (
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text style={{ fontSize: 12, color: colors.text.secondary }}>Days Left</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#22c55e' }}>{getDaysRemaining(detailSub.endDate)} days</Text>
+                      </View>
+                    )}
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 12, color: colors.text.secondary }}>Plan Duration</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: colors.text.primary }}>{detailSub.subscriptionPlan.duration} days</Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Price Paid */}
+                <View style={{ marginBottom: 16, padding: 14, backgroundColor: colors.dark.card, borderRadius: 10, borderWidth: 1, borderColor: colors.dark.border }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 12, color: colors.text.secondary }}>Price Paid</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: colors.secondary }}>{detailSub.pricePaid.toLocaleString()} ETB</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+                    <Text style={{ fontSize: 12, color: colors.text.secondary }}>Payment Status</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: colors.success }}>Paid ✓</Text>
+                  </View>
+                </View>
+
+                {/* Rejection Reason */}
+                {detailSub.status === 'REJECTED' && detailSub.ownerRejectionReason && (
+                  <View style={{ marginBottom: 16, padding: 14, backgroundColor: colors.dangerBg, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(239,68,68,0.3)' }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: colors.danger, marginBottom: 4 }}>Rejection Reason</Text>
+                    <Text style={{ fontSize: 12, color: '#FCA5A5' }}>{detailSub.ownerRejectionReason}</Text>
+                  </View>
+                )}
+
+                {/* Selected Slots */}
+                {detailSub.slots && detailSub.slots.length > 0 && (
+                  <View style={{ marginBottom: 16 }}>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.text.secondary, letterSpacing: 0.5, marginBottom: 8 }}>BOOKED SLOTS ({detailSub.slots.length})</Text>
+                    {detailSub.slots.map((slot, idx) => (
+                      <View key={slot.id} style={{ flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: colors.dark.card, borderRadius: 8, borderWidth: 1, borderColor: colors.dark.border, marginBottom: 6, gap: 10 }}>
+                        <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#1e293b', alignItems: 'center', justifyContent: 'center' }}>
+                          <Text style={{ fontSize: 11, fontWeight: '700', color: '#94a3b8' }}>{idx + 1}</Text>
+                        </View>
+                        <View style={{ flex: 1, gap: 2 }}>
+                          <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text.primary }}>{slot.location}</Text>
+                          <Text style={{ fontSize: 11, color: colors.text.secondary }}>{formatSlotDateTime(slot.startTime)}</Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end' }}>
+                          <Text style={{ fontSize: 12, fontWeight: '600', color: colors.secondary }}>{formatSlotTime(slot.startTime)}</Text>
+                          <Text style={{ fontSize: 11, color: colors.text.muted }}>{slot.price.toLocaleString()} ETB</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )}
+
+                {(!detailSub.slots || detailSub.slots.length === 0) && (
+                  <View style={styles.noSlotsNotice}>
+                    <Feather name="calendar" size={16} color={colors.text.muted} />
+                    <Text style={styles.noSlotsText}>No slots selected yet</Text>
+                  </View>
+                )}
+              </>
+            )}
+
+            <TouchableOpacity style={styles.doneBtn} onPress={() => setDetailSub(null)}>
+              <Text style={styles.doneBtnText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -438,6 +593,30 @@ const styles = StyleSheet.create({
   gridLabel: { fontSize: 9, fontWeight: '700', color: colors.text.secondary, letterSpacing: 0.5 },
   gridValue: { fontSize: 14, fontWeight: '800', color: colors.text.primary, marginTop: 4 },
   gridValueSub: { fontSize: 13, fontWeight: '600', color: colors.text.secondary, marginTop: 4 },
+  detailsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    paddingVertical: 8,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    backgroundColor: colors.dark.card,
+  },
+  detailsBtnText: { fontSize: 12, color: colors.secondary, fontWeight: '700' },
+  noSlotsNotice: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+    gap: 8,
+    backgroundColor: colors.dark.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    marginBottom: spacing.md,
+  },
+  noSlotsText: { fontSize: 13, color: colors.text.secondary, fontWeight: '500' },
   doneBtn: {
     backgroundColor: colors.secondary,
     paddingVertical: spacing.md,

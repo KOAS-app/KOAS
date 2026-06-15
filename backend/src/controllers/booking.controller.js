@@ -263,7 +263,7 @@ export const createBooking = async (req, res) => {
             stadiumId: slot.stadiumId,
             slotId: id,
             bookingCode,
-            status: isSubscriptionBooking ? 'CONFIRMED' : 'PENDING',
+            status: 'CONFIRMED',
           },
           include: { slot: true, stadium: true },
         });
@@ -290,11 +290,16 @@ export const createBooking = async (req, res) => {
   }
 };
 
-// GET /api/bookings/my — player sees their bookings
+// GET /api/bookings/my — player sees their bookings (excluding subscription bookings)
 export const getMyBookings = async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
-      where: { playerId: req.user.id },
+      where: { 
+        playerId: req.user.id,
+        payment: {
+          method: { not: 'SUBSCRIPTION' }
+        }
+      },
       include: {
         slot: true,
         stadium: {

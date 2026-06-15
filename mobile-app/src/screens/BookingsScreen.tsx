@@ -357,7 +357,7 @@ export default function BookingsScreen() {
                       </TouchableOpacity>
                     )}
 
-                    {item.status === 'PENDING' && (
+                    {(item.payment?.status === 'PENDING' || item.payment?.status === 'REJECTED') && item.status === 'CONFIRMED' && (
                       <TouchableOpacity
                         style={[styles.cancelBtn, cancelling === item.id && styles.btnDisabled]}
                         onPress={() => handleCancel(item.id)}
