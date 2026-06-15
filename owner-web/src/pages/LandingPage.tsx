@@ -32,7 +32,7 @@ export default function LandingPage() {
   const plans = [
     {
       id: 'starter',
-      name: 'Kickoff Starter',
+      name: 'Basic',
       description: 'Ideal for independent local turfs managing a single stadium with basic manual scheduling.',
       priceETB: 1000,
       priceUSD: 6.67,
@@ -57,7 +57,7 @@ export default function LandingPage() {
     },
     {
       id: 'pro',
-      name: 'Pro Turf Master',
+      name: 'Standard',
       description: 'Our most popular plan. Outfitted with automatic scheduling, receipt verification, and advanced metrics.',
       priceETB: 2500,
       priceUSD: 16.67,
@@ -82,7 +82,7 @@ export default function LandingPage() {
     },
     {
       id: 'elite',
-      name: 'Elite Arena Complex',
+      name: 'Premium',
       description: 'Designed for large multi-turf complex networks and franchises seeking ultimate limits.',
       priceETB: 5000,
       priceUSD: 33.33,
@@ -118,7 +118,7 @@ export default function LandingPage() {
     },
     {
       question: 'Do you offer a free trial?',
-      answer: 'Yes! All new accounts begin with a 14-day free trial. During the trial period, your account is automatically upgraded to the Elite Arena Complex tier, giving you unrestricted access to try all platform features (such as automated slot generation, review replies, bank integrations, and player membership plans) completely free.'
+      answer: 'Yes! All new accounts begin with a 14-day free trial. During the trial period, your account is automatically upgraded to the Premium tier, giving you unrestricted access to try all platform features (such as automated slot generation, review replies, bank integrations, and player membership plans) completely free.'
     },
     {
       question: 'Are there any hidden transaction fees?',
@@ -332,45 +332,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature Comparison Matrix */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 border-t border-[#1f2d2a]/30 hidden md:block">
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-          <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white">Compare Plan Specifications</h3>
-          <p className="text-xs sm:text-sm text-[#9ca3af] mt-2">Find the exact operational features right for your turf complexity.</p>
-        </div>
 
-        <div className="overflow-x-auto rounded-xl border border-[#1f2d2a] bg-[#0c1210]/60 backdrop-blur-md">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-[#1f2d2a] bg-[#111819]/50 text-xs font-bold text-[#4ade80] tracking-widest uppercase">
-                <th className="p-4 sm:p-6">Feature Details</th>
-                <th className="p-4 sm:p-6">Kickoff Starter</th>
-                <th className="p-4 sm:p-6">Pro Turf Master</th>
-                <th className="p-4 sm:p-6">Elite Arena Complex</th>
-              </tr>
-            </thead>
-            <tbody className="text-xs sm:text-sm divide-y divide-[#1f2d2a]/55">
-              {[
-                { name: 'Turf Branch Locations', star: '1 Branch', pro: 'Up to 3 Branches', elite: 'Unlimited' },
-                { name: 'Slot Schedule Engine', star: 'Manual entries', pro: 'Auto Generator', elite: 'Auto Generator + Rules' },
-                { name: 'Receipt Verification', star: 'Basic (Offline)', pro: 'Secure Online Flow', elite: 'Fraud-Proof Flow' },
-                { name: 'Revenue Analytics', star: 'Basic Metrics', pro: 'Daily Revenue & Peak Hours Charts', elite: 'AI Loyalty Circular Gauge & Velocity Forecasts' },
-                { name: 'Integrated Bank Accounts', star: '1 Account', pro: 'Up to 3 Accounts', elite: 'Unlimited' },
-                { name: 'Player Membership Plans', star: '1 Plan max', pro: 'Up to 3 Plans', elite: 'Up to 10 Plans' },
-                { name: 'Platform Commissions', star: '0% Flat Rate', pro: '0% Flat Rate', elite: '0% Flat Rate' },
-                { name: 'Admin Account Gate', star: 'Standard Approval', pro: 'Standard Approval', elite: 'Instant Priority Approval' }
-              ].map((row, idx) => (
-                <tr key={idx} className="hover:bg-[#111819]/35 text-[#d1d5db]">
-                  <td className="p-3 sm:p-5 font-medium text-white">{row.name}</td>
-                  <td className="p-3 sm:p-5">{row.star}</td>
-                  <td className="p-3 sm:p-5 font-semibold text-[#4ade80]">{row.pro}</td>
-                  <td className="p-3 sm:p-5 font-semibold text-[#4ade80]">{row.elite}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
 
       {/* Frequently Asked Questions */}
       <section id="faq" className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20 border-t border-[#1f2d2a]/30">

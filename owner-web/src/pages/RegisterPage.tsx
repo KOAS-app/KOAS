@@ -7,9 +7,9 @@ export default function RegisterPage() {
   const [searchParams] = useSearchParams();
   const plan = searchParams.get('plan') || 'starter';
   const plansInfo: Record<string, { name: string; price: string }> = {
-    starter: { name: 'Kickoff Starter', price: '1,000 ETB/mo' },
-    pro: { name: 'Pro Turf Master', price: '2,500 ETB/mo' },
-    elite: { name: 'Elite Arena Complex', price: '5,000 ETB/mo' }
+    starter: { name: 'Basic', price: '1,000 ETB/mo' },
+    pro: { name: 'Standard', price: '2,500 ETB/mo' },
+    elite: { name: 'Premium', price: '5,000 ETB/mo' }
   };
   const planDetails = plansInfo[plan.toLowerCase()] || plansInfo.starter;
 
