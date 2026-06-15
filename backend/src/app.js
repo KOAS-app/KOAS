@@ -15,6 +15,7 @@ import bankAccountRoutes from './routes/bankAccount.routes.js';
 import subscriptionPlanRoutes from './routes/subscriptionPlan.routes.js';
 import playerSubscriptionRoutes from './routes/playerSubscription.routes.js';
 import locationRoutes from './routes/location.routes.js';
+import prisma from './prisma.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,6 +79,39 @@ app.use('/api/player-subscriptions', playerSubscriptionRoutes);
 app.use('/api/locations',          locationRoutes);
 
 app.get('/', (_req, res) => res.json({ message: 'KOAS API Running' }));
+
+// ── Public stats endpoint (landing page)
+app.get('/api/stats/public', async (_req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const [activeSubs, todaysBookings, totalSlots] = await Promise.all([
+      prisma.playerSubscription.findMany({
+        where: { status: 'ACTIVE' },
+        select: { playerId: true },
+        distinct: ['playerId'],
+      }),
+      prisma.booking.count({
+        where: { createdAt: { gte: today, lt: tomorrow } },
+      }),
+      prisma.slot.count({
+        where: { startTime: { gte: today, lt: tomorrow } },
+      }),
+    ]);
+
+    res.json({
+      totalActiveUsers: activeSubs.length,
+      todaysBookings,
+      bookingRate: totalSlots > 0 ? Math.round((todaysBookings / totalSlots) * 100) : 0,
+    });
+  } catch (err) {
+    console.error('Public stats error:', err);
+    res.status(500).json({ message: 'Failed to fetch stats.' });
+  }
+});
 
 // ── 404 handler
 app.use((_req, res) => {

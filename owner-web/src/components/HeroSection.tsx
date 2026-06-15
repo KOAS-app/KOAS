@@ -1,8 +1,15 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 
 export default function HeroSection() {
   const { user } = useAuth();
+  const [stats, setStats] = useState({ totalActiveUsers: 0, todaysBookings: 0, bookingRate: 0 });
+
+  useEffect(() => {
+    api.get('/stats/public').then(res => setStats(res.data)).catch(() => {});
+  }, []);
 
   return (
     <section className="relative z-10 py-8 sm:py-12 lg:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
@@ -106,17 +113,17 @@ export default function HeroSection() {
             <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#050a08] via-[#050a08]/70 to-transparent z-15 pointer-events-none" />
           </div>
 
-          {/* Floating Card 1: Total Revenue (Overlapping Top Right) */}
+          {/* Floating Card 1: Total Active Users (Overlapping Top Right) */}
           <div className="absolute -top-4 -right-4 w-64 bg-[#080d0b]/95 border border-[#1f2d2a] backdrop-blur-md rounded-xl p-4 shadow-2xl z-20 transition-all duration-300 hover:-translate-y-1 hover:shadow-[#10b981]/10 hover:border-[#16a34a]/50">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-bold text-[#6b7280] tracking-widest uppercase">Total Revenue</p>
-                <h3 className="text-xl font-extrabold text-white mt-1">125,430 <span className="text-xs font-semibold text-[#9ca3af]">ETB</span></h3>
+                <p className="text-[10px] font-bold text-[#6b7280] tracking-widest uppercase">Total Active Users</p>
+                <h3 className="text-xl font-extrabold text-white mt-1">{stats.totalActiveUsers.toLocaleString()}</h3>
                 <span className="text-[10px] font-semibold text-[#10b981] flex items-center gap-1 mt-1">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="18 15 12 9 6 15" />
                   </svg>
-                  28% this month
+                  Active members
                 </span>
               </div>
 
@@ -137,12 +144,12 @@ export default function HeroSection() {
           <div className="absolute top-[35%] -left-10 w-60 bg-white rounded-xl p-4 shadow-2xl z-30 flex items-center justify-between transition-all duration-300 hover:scale-[1.03] hover:shadow-black/50">
             <div>
               <p className="text-[10px] font-bold text-[#4b5563] tracking-widest uppercase">Today's Bookings</p>
-              <h3 className="text-2xl font-extrabold text-[#030712] mt-0.5">12</h3>
+              <h3 className="text-2xl font-extrabold text-[#030712] mt-0.5">{stats.todaysBookings}</h3>
               <span className="text-[10px] font-semibold text-[#16a34a] flex items-center gap-1 mt-0.5">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="18 15 12 9 6 15" />
                 </svg>
-                3 from yesterday
+                Booked today
               </span>
             </div>
             {/* Calendar Icon Circle wrapper */}
@@ -160,12 +167,12 @@ export default function HeroSection() {
           <div className="absolute bottom-20 -right-6 w-52 bg-[#080d0b]/95 border border-[#1f2d2a] backdrop-blur-md rounded-xl p-4 shadow-2xl z-20 flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-[#10b981]/10 hover:border-[#16a34a]/50">
             <div>
               <p className="text-[10px] font-bold text-[#6b7280] tracking-widest uppercase">Booking Rate</p>
-              <h3 className="text-xl font-extrabold text-white mt-1">87%</h3>
+              <h3 className="text-xl font-extrabold text-white mt-1">{stats.bookingRate}%</h3>
               <span className="text-[10px] font-semibold text-[#10b981] flex items-center gap-1 mt-1">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="18 15 12 9 6 15" />
                 </svg>
-                15% this month
+                Today's fill rate
               </span>
             </div>
 
@@ -173,9 +180,9 @@ export default function HeroSection() {
             <div className="relative w-12 h-12 flex items-center justify-center">
               <svg className="w-full h-full transform -rotate-90">
                 <circle cx="24" cy="24" r="18" stroke="#1f2d2a" strokeWidth="3" fill="transparent" />
-                <circle cx="24" cy="24" r="18" stroke="#10b981" strokeWidth="3" fill="transparent" strokeDasharray="113" strokeDashoffset="15" strokeLinecap="round" />
+                <circle cx="24" cy="24" r="18" stroke="#10b981" strokeWidth="3" fill="transparent" strokeDasharray="113" strokeDashoffset={113 - (113 * stats.bookingRate) / 100} strokeLinecap="round" />
               </svg>
-              <span className="absolute text-[10px] font-extrabold text-white">87%</span>
+              <span className="absolute text-[10px] font-extrabold text-white">{stats.bookingRate}%</span>
             </div>
           </div>
 
