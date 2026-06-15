@@ -9,6 +9,7 @@ import {
   ScrollView,
   Modal,
   Platform,
+  RefreshControl,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
@@ -34,35 +35,40 @@ export default function MyMembershipsScreen() {
   // Subscription States
   const [subscriptions, setSubscriptions] = useState<PlayerSubscription[]>([]);
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedSub, setSelectedSub] = useState<PlayerSubscription | null>(null);
   const [detailSub, setDetailSub] = useState<PlayerSubscription | null>(null);
   const [slotsSub, setSlotsSub] = useState<PlayerSubscription | null>(null);
 
+  const fetchSubscriptions = useCallback(async (isMounted = { current: true }) => {
+    try {
+      const res = await api.get('/player-subscriptions/my');
+      if (isMounted.current) {
+        setSubscriptions(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch subscriptions on memberships focus:', err);
+    } finally {
+      if (isMounted.current) {
+        setLoadingSubscriptions(false);
+        setRefreshing(false);
+      }
+    }
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchSubscriptions({ current: true });
+  }, [fetchSubscriptions]);
+
   // Fetch subscriptions every time screen comes to focus
   useFocusEffect(
     useCallback(() => {
-      let isMounted = true;
-      const fetchSubscriptions = async () => {
-        try {
-          const res = await api.get('/player-subscriptions/my');
-          if (isMounted) {
-            setSubscriptions(res.data);
-          }
-        } catch (err) {
-          console.error('Failed to fetch subscriptions on memberships focus:', err);
-        } finally {
-          if (isMounted) {
-            setLoadingSubscriptions(false);
-          }
-        }
-      };
-
-      fetchSubscriptions();
-
-      return () => {
-        isMounted = false;
-      };
-    }, [])
+      const isMounted = { current: true };
+      setLoadingSubscriptions(true);
+      fetchSubscriptions(isMounted);
+      return () => { isMounted.current = false; };
+    }, [fetchSubscriptions])
   );
 
   const getDaysRemaining = (endDateStr?: string) => {
@@ -120,7 +126,8 @@ export default function MyMembershipsScreen() {
         <Text style={styles.headerSubtitle}>View and manage your digital check-in passes</Text>
       </View>
 
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.secondary} />}>
         {loadingSubscriptions ? (
           <ActivityIndicator size="large" color={colors.secondary} style={{ marginTop: 40 }} />
         ) : subscriptions.length === 0 ? (

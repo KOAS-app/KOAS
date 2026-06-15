@@ -29,6 +29,7 @@ interface Subscription {
   ownerRejectionReason: string | null;
   player: Player;
   subscriptionPlan: SubscriptionPlan;
+  slots: Slot[];
 }
 
 interface Slot {
@@ -285,6 +286,65 @@ export default function VerifyMembershipPage() {
               <div className="mt-5 p-3.5 bg-rose-50 border border-rose-100 text-rose-800 rounded-xl text-xs leading-relaxed">
                 <span className="font-bold block mb-0.5">Rejection Reason:</span>
                 {result.data.ownerRejectionReason}
+              </div>
+            )}
+
+            {/* Plan Details */}
+            <div className="mt-6 border-t border-slate-200 pt-5">
+              <p className="text-[0.625rem] font-black uppercase tracking-[0.15em] text-slate-400 mb-4">PLAN DETAILS</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Play Days</span>
+                  <span className="text-sm font-semibold text-[var(--color-text-base)]">{result.data.subscriptionPlan.openingDay} – {result.data.subscriptionPlan.closingDay}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Play Hours</span>
+                  <span className="text-sm font-semibold text-[var(--color-text-base)]">{result.data.subscriptionPlan.openingTime} – {result.data.subscriptionPlan.closingTime}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Hours per Day</span>
+                  <span className="text-sm font-semibold text-[var(--color-text-base)]">{result.data.subscriptionPlan.hoursPerDay}h</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Days per Week</span>
+                  <span className="text-sm font-semibold text-[var(--color-text-base)]">{result.data.subscriptionPlan.weeklyAllowedDays} day{result.data.subscriptionPlan.weeklyAllowedDays > 1 ? 's' : ''}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Price Paid</span>
+                  <span className="text-sm font-bold text-[var(--color-primary)]">{result.data.pricePaid.toLocaleString()} ETB</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Plan Duration</span>
+                  <span className="text-sm font-semibold text-[var(--color-text-base)]">{result.data.subscriptionPlan.duration} days</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Booked Slots */}
+            {result.data.slots && result.data.slots.length > 0 && (
+              <div className="mt-6 border-t border-slate-200 pt-5">
+                <p className="text-[0.625rem] font-black uppercase tracking-[0.15em] text-slate-400 mb-4">BOOKED SLOTS ({result.data.slots.length})</p>
+                <div className="space-y-2">
+                  {result.data.slots.map((slot, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                      <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+                        <span className="text-[10px] font-bold text-slate-500">{idx + 1}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-[var(--color-text-base)]">{slot.location}</p>
+                        <p className="text-xs text-[var(--color-text-muted)]">
+                          {new Date(slot.startTime).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-xs font-bold text-[var(--color-primary)]">
+                          {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} – {new Date(slot.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
+                        </p>
+                        <p className="text-[10px] text-[var(--color-text-muted)]">{slot.price.toLocaleString()} ETB</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

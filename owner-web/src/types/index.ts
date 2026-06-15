@@ -124,6 +124,7 @@ export interface PlayerSubscription {
   receiptImageUrl?: string;
   playerSubmittedAt?: string;
   selectedSlotIds: string[];
+  slots: Slot[];
   ownerConfirmedAt?: string;
   ownerRejectedAt?: string;
   ownerRejectionReason?: string;

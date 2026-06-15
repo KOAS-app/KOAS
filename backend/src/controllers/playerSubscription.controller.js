@@ -385,7 +385,7 @@ export const verifySubscriptionCode = async (req, res) => {
         },
         subscriptionPlan: {
           include: { stadium: true }
-        }
+        },
       }
     });
 
@@ -403,12 +403,17 @@ export const verifySubscriptionCode = async (req, res) => {
       }
     }
 
+    // Fetch associated slots
+    const slots = await prisma.slot.findMany({
+      where: { id: { in: sub.selectedSlotIds } },
+    });
+
     // Check expiry dynamically
     const processed = await checkAndExpireSubscription(sub);
 
     res.json({
       message: 'Membership verified successfully.',
-      subscription: processed
+      subscription: { ...processed, slots }
     });
   } catch (error) {
     console.error('Verify subscription code error:', error);
